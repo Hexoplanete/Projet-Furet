@@ -1,0 +1,40 @@
+[project]
+name = "Furet"
+version = "0.0.0-dev"
+description = "Fouille Universelle de Recueils pour Entreposage et Traitement"
+readme = "README.md"
+authors = [
+    {name = "Amadou SOW" },
+    {name = "Corentin JEANNE" },
+    {name = "Harold MARTIN" },
+    {name = "Joris FELZINES" },
+    {name = "Juliette PIERRE" },
+    {name = "Justine STEPHAN" },
+    {name = "Marine QUEMENER" },
+    {name = "Thomas LEVRARD" },
+]
+
+# license = { text = "MIT" } # TODO
+
+requires-python = ">=3.12"
+dependencies = [
+    "pyside6>=6.9",
+    "tomlkit>=0.13"
+]
+
+[project.urls]
+homepage = "https://github.com/Hexoplanete/Projet-Furet"
+repository = "https://github.com/Hexoplanete/Projet-Furet"
+# documentation = "https://github.com/Hexoplanete/Projet-Furet/wiki" # TODO 
+
+[project.gui-scripts]
+furet = "furet.__main__:main"
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/furet"]
+

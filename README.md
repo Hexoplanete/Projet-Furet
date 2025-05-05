@@ -4,8 +4,8 @@
 # Installation
 
 ```bash
-python3 -m venv .venv
-source .ven/bin/activate # ou `env\Scripts\activate.bat` sous Windows
+python3 -m venv .venv #  ou `python -m venv .venv` sous Windows
+source .venv/bin/activate # ou `.venv\Scripts\activate.bat` sous Windows
 ```
 
 ```bash

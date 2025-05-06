@@ -1,20 +1,22 @@
-from typing import Any, Callable
+from typing import Any, Callable, Generic, TypeVar
 from PySide6 import QtWidgets, QtCore, Qt
 
 from furet.types.Decree import *
 from furet.ui.widgets.ObjectTableModel import ObjectTableModel
 
+T = TypeVar('T')
 
-class DecreeFilterProxy(QtCore.QSortFilterProxyModel):
+
+class ObjectFilterProxy(Generic[T], QtCore.QSortFilterProxyModel):
 
     def __init__(self, filterer: Callable[[int, QtCore.QModelIndex | QtCore.QPersistentModelIndex], bool], parent=None):
         super().__init__(parent)
         self._filterer = filterer
 
-    def setSourceModel(self, model: ObjectTableModel[Decree]):
+    def setSourceModel(self, model: ObjectTableModel[T]):
         super().setSourceModel(model)
 
-    def sourceModel(self) -> ObjectTableModel[Decree]:
+    def sourceModel(self) -> ObjectTableModel[T]:
         return super().sourceModel()
 
     def filterAcceptsRow(self, source_row, source_parent, /):
@@ -26,7 +28,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         super().__init__()
         self._layout = QtWidgets.QHBoxLayout(self)
 
-        self._proxy = DecreeFilterProxy(filterer=self.filterDecrees)
+        self._proxy = ObjectFilterProxy[Decree](filterer=self.filterDecrees)
         
         self._department = QtWidgets.QComboBox()
         self._department.addItems([
@@ -165,11 +167,11 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def rowCount(self, /, parent = ...):
         return len(self._data)
     
-    def setModel(self, model: ObjectTableModel):
+    def setModel(self, model: ObjectTableModel[Decree]):
         self._model = model
         self._proxy.setSourceModel(model)
 
-    def proxyModel(self) -> DecreeFilterProxy:
+    def proxyModel(self) -> ObjectFilterProxy[Decree]:
         return self._proxy
     
     def onClickResearchButton(self):

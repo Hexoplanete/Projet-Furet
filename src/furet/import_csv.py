@@ -1,8 +1,10 @@
 import csv
+import os
+
 from datetime import datetime
 from datetime import date
 
-path = "./Database/57/"
+path = "./database/57/"
 
 """
 """
@@ -26,6 +28,10 @@ class Arrete:
         return f"Arrêté n°: {self.numArrete}, pages: {self.pages}"
 
 if __name__ == "__main__":
+
+# save Arretes into database
+
+
 
 #lecture d'un fichier 
     with open(path + '57_2025_04_RAA.csv', encoding='utf-8') as file:

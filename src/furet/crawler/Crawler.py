@@ -19,8 +19,9 @@ class Crawler:
                 try:
                     module = __import__(f"{module_name}", fromlist=[class_name])
                     spider_class = getattr(module, class_name)
-                    spider = spider_class(output_dir+f"/{region}/{department}", self.config_file, self.linkFile, last_date)
-                    self.spiders.append(spider)
+                    if department == "AlpesMaritimes":
+                        spider = spider_class(output_dir+f"/{region}/{department}", self.config_file, self.linkFile, last_date) 
+                        self.spiders.append(spider)
                 except (ImportError, AttributeError) as e:
                     print(f"Error loading spider for {department} in {region}: {e}")
 
@@ -47,3 +48,4 @@ if __name__ == "__main__":
     crawler = Crawler(config_file, linkFile)
     crawler.create_spiders("./pdfs")  
     crawler.start_spiders()
+    print("All spiders have finished crawling.")

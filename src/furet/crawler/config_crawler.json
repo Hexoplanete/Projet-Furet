@@ -2,7 +2,7 @@
     "regions": {
         "GrandEst": {
             "departments": {
-                "Moselle": "09/04/2025"
+                "Moselle": "10/04/2025"
             }
         },
         "Occitanie": {
@@ -13,6 +13,11 @@
         "PACA": {
             "departments": {
                 "AlpesMaritimes": "06/05/2025"
+            }
+        },
+        "PaysDeLaLoire": {
+            "departments": {
+                "Sarthe": "07/05/2025"
             }
         }
     }

@@ -7,7 +7,7 @@ from datetime import datetime
 from datetime import date
 
 format = '%d/%m/%Y'
-path = "./database/"
+basePath = "./database/"
 
 """
 """

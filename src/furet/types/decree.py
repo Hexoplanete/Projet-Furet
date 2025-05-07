@@ -34,16 +34,16 @@ class Decree:
 
     # raa: RAA
     department: Department
-    raa_number: str
+    raaNumber: str
     link: str
-    start_page: int
-    end_page: int
+    startPage: int
+    endPage: int
     
     doc_type: DocumentType
     number: str
     title: str
-    publication_date: date
-    signing_date: date
+    publicationDate: date
+    signingDate: date
     
     # Specific for our use
     campaign: Campaign

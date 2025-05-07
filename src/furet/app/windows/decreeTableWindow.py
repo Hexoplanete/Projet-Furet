@@ -22,7 +22,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             TableColumn[Department]("department", lambda: "Département"),
             TableColumn[DecreeTopic]("topic", lambda: "Sujet"),
             TableColumn[str]("title", lambda: "Titre"),
-            TableColumn[date]("publication_date", lambda: "Date de publication"),
+            TableColumn[date]("publicationDate", lambda: "Date de publication"),
             TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
             TableColumn[str]("comment", lambda: "Commentaire"),
         ]

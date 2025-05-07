@@ -1,11 +1,12 @@
 import csv
 import os
 
+import os
+
 from datetime import datetime
 from datetime import date
 
-format = '%d/%m/%Y'
-basePath = "./database/"
+path = "./database/57/"
 
 """
 """
@@ -87,18 +88,7 @@ def loadDB(l):
 
 if __name__ == "__main__":
 
-    # -----------------save Arretes into database-------------------------------------------------------------
-    # example
-    mockA = Arrete("Arrêté préfectoral", "chasse", "57", "2025-DDT-SERAF-UFC n°17", "Titre vreeument long", "07/05/2025", "38-2023-010", "10/05/2025", "http://url/blablabla.com", "14-16", "à traiter", "")
-    #print(mockA)
-    addArreteToFile(mockA)
-
-#---------- load all arretes--------------------------------------------
-    l = []
-    loadDB(l)
-    for e in l:
-        print(e)
-
+# save Arretes into database
 
 
 

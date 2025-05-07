@@ -3,8 +3,9 @@ import json
 import os
 
 class Crawler:
-    def __init__(self, config_file):
+    def __init__(self, config_file, linkFile):
         self.config_file = config_file
+        self.linkFile = linkFile
         self.spiders = []
 
     def create_spiders(self, output_dir):
@@ -18,7 +19,7 @@ class Crawler:
                 try:
                     module = __import__(f"{module_name}", fromlist=[class_name])
                     spider_class = getattr(module, class_name)
-                    spider = spider_class(output_dir+f"/{region}/{department}", self.config_file, last_date)
+                    spider = spider_class(output_dir+f"/{region}/{department}", self.config_file, self.linkFile, last_date)
                     self.spiders.append(spider)
                 except (ImportError, AttributeError) as e:
                     print(f"Error loading spider for {department} in {region}: {e}")
@@ -34,12 +35,15 @@ class Crawler:
             thread.join()
 
 if __name__ == "__main__":
-
     # Use an absolute path to ensure the file is found
     config_file = os.path.join(os.path.dirname(__file__), "config_crawler.json")
     if not os.path.exists(config_file):
         raise FileNotFoundError(f"Config file not found: {config_file}")
+    
+    linkFile = os.path.join(os.path.dirname(__file__), "resultCrawler.json")
+    if not os.path.exists(linkFile):
+        raise FileNotFoundError(f"Link file not found: {linkFile}")
 
-    crawler = Crawler(config_file)
-    crawler.create_spiders("./pdfs")  # Adjust the number of spiders as needed
+    crawler = Crawler(config_file, linkFile)
+    crawler.create_spiders("./pdfs")  
     crawler.start_spiders()

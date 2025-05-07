@@ -1,16 +1,9 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow
+import furet.app
 
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
 
 def main():
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
+    sys.exit(furet.app.main())
 
 if __name__ == '__main__':
     main()

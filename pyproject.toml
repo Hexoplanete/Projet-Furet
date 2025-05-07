@@ -19,7 +19,8 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "pyside6>=6.9",
-    "tomlkit>=0.13"
+    "tomlkit>=0.13",
+    "dateutils",
 ]
 
 [project.urls]

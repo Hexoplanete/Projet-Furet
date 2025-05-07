@@ -3,56 +3,60 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 class AlpesMaritimes(Spider):
-    def __init__(self, output_dir, configFile, linkFile, date):
+    """
+    A spider class for crawling the Alpes-Maritimes department's website for RAA (Recueil des Actes Administratifs) links.
+    Inherits from the Spider class.
+    """
+    def __init__(self, outputDir, configFile, linkFile, date):
         """
         Initialize the AlpesMaritimes spider with specific parameters.
         """
-        super().__init__(output_dir, configFile, linkFile, date)
-        self.base_url = "https://www.alpes-maritimes.gouv.fr/Publications/Recueil-des-actes-administratifs-RAA"
+        super().__init__(outputDir, configFile, linkFile, date)
+        self.baseUrl = "https://www.alpes-maritimes.gouv.fr/Publications/Recueil-des-actes-administratifs-RAA"
         self.region = "PACA"
         self.department = "AlpesMaritimes"
-        self.current_most_recent_RAA = self.most_recent_RAA
+        self.currentMostRecentRAA = self.mostRecentRAA
 
-    def find_pages(self, html):
+    def findPages(self, html):
         """
         Find the number of pages available in the HTML content.
 
         :param html: HTML content of a page.
         :return: Number of pages found.
         """
-        extracted_pages = []
-        extracted_pages_final = []
-        soup = BeautifulSoup(html, 'html.parser')
+        extractedPages = []
+        extractedPagesFinal = []
+        soup = BeautifulSoup(html, 'html.parser') 
         
-        RAA_year = soup.find_all('h2', class_='fr-card__title')
+        RAAYear = soup.find_all('h2', class_='fr-card__title')
 
-        for h2 in RAA_year:
+        for h2 in RAAYear:
             if h2.find('a', href=True)['href'].startswith('/Publications/Recueil-des-actes-administratifs-RAA'):
                 annee = h2.find('a', href=True)['href'].split('/')[-1]
-                if int(annee[-4:]) < self.most_recent_RAA.year:
+                if int(annee[-4:]) < self.mostRecentRAA.year: # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
                     break
 
-                extracted_pages.append(annee + "/Recueils-mensuels")
-                extracted_pages.append(annee + "/Recueils-speciaux")
-                extracted_pages.append(annee + "/Recueils-specifiques")
+                extractedPages.append(annee + "/Recueils-mensuels")
+                extractedPages.append(annee + "/Recueils-speciaux")
+                extractedPages.append(annee + "/Recueils-specifiques")
 
-        for link in extracted_pages:
+        for link in extractedPages:
             i = 0
             while True:
-                url = self.base_url + '/' + link + "/(offset)/" + str(i*10)
+                url = self.baseUrl + '/' + link + "/(offset)/" + str(i*10) # Pagination URL the value of offset is multiplied by 10 to get the next page
                 
-                html = self.fetch_page(url)
+                html = self.fetchPage(url)
                 soup = BeautifulSoup(html, 'html.parser')
                 i += 1
 
                 if not html or not soup.find(class_="fr-card__title"):
                     break
 
-                extracted_pages_final.append(url)
+                extractedPagesFinal.append(url)
 
-        return extracted_pages_final
+        return extractedPagesFinal
 
-    def extract_links(self, html, links):
+    def extractLinks(self, html, links):
         """
         Extract all links from the HTML content.
 
@@ -64,14 +68,14 @@ class AlpesMaritimes(Spider):
 
         for row in rows:
             try:
-                date_str = row["title"].split()[-1]
-                date = datetime.strptime(date_str, "%d/%m/%Y")
+                dateStr = row["title"].split()[-1] # Extract the date from the title attribute
+                date = datetime.strptime(dateStr, "%d/%m/%Y")
 
-                if date > self.most_recent_RAA:
+                if date > self.mostRecentRAA:
                     link = row['href']
-                    links.append({"link": 'https://www.alpes-maritimes.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
-                    if date > self.current_most_recent_RAA:
-                        self.current_most_recent_RAA = date
+                    links.append({"link": 'https://www.alpes-maritimes.gouv.fr' + link, "datePublication": dateStr, "region": self.region, "department": self.department}) # Add the link to the list for the JSON file
+                    if date > self.currentMostRecentRAA:
+                        self.currentMostRecentRAA = date
 
             except (ValueError, IndexError) as e:
                 print(f"Error parsing row: {row}, Error: {e}")
@@ -81,34 +85,27 @@ class AlpesMaritimes(Spider):
 
     def crawl(self):
         try:
-            links_pages = self.find_pages(self.fetch_page(self.base_url)) 
+            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
             links = []
-            for link in links_pages:
-                if int(link.split('/')[-4][-4:]) < self.most_recent_RAA.year: 
+            for link in linksPages:
+                # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
+                if int(link.split('/')[-4][-4:]) < self.mostRecentRAA.year: 
                     break
 
-                print(f"Crawling: {link}")
-                html = self.fetch_page(link)
+                html = self.fetchPage(link)
                 if not html:
                     break
 
-                self.extract_links(html, links)
+                self.extractLinks(html, links)
+            # Update the most recent RAA if a newer one is found
+            if self.currentMostRecentRAA > self.mostRecentRAA: 
+                self.mostRecentRAA = self.currentMostRecentRAA
+                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
 
-            # for link in links:
-            #     self.download_pdf(link)
-
-            if self.current_most_recent_RAA > self.most_recent_RAA:
-                self.most_recent_RAA = self.current_most_recent_RAA
-                self.set_most_recent_RAA_date(self.most_recent_RAA, self.region, self.department)
-
-            self.createJsonResultFile(links)
+            self.addToJsonResultFile(links)
 
         except Exception as e:
             print(f"Error during crawling: {e}")
             return None
         
-        return self.most_recent_RAA
-
-if __name__ == "__main__":
-    spider = AlpesMaritimes("./pdfs/")
-    spider.crawl()
+        return self.mostRecentRAA

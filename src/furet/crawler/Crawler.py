@@ -3,29 +3,73 @@ import json
 import os
 
 class Crawler:
-    def __init__(self, config_file, linkFile):
-        self.config_file = config_file
+    """
+    A class to manage and execute web crawling tasks using dynamically loaded spiders.
+    Attributes:
+        configFile (str): Path to the configuration file containing regions and departments data.
+        linkFile (str): Path to the file containing links to be used by the spiders.
+        spiders (list): A list to store instances of dynamically created spider objects.
+    Methods:
+        __init__(configFile, linkFile):
+            Initializes the Crawler with the given configuration and link files.
+        createSpiders(outputDir):
+            Dynamically loads and creates spider instances based on the configuration file.
+            Spiders are stored in the `spiders` attribute.
+        startSpiders():
+            Starts all created spiders in separate threads and waits for their completion.
+    """
+    def __init__(self, configFile, linkFile):
+        self.configFile = configFile
         self.linkFile = linkFile
         self.spiders = []
 
-    def create_spiders(self, output_dir):
-        with open(self.config_file, 'r') as file:
+    def createSpiders(self, outputDir):
+        """
+        Creates spider instances for each department in the configuration file.
+        This method reads the configuration file to retrieve region and department
+        information. For each department, it dynamically imports the corresponding
+        spider class and creates an instance of it. The created spider instances
+        are stored in the `self.spiders` list.
+        Args:
+            outputDir (str): The base directory where the spider output will be stored.
+        Raises:
+            ImportError: If the module corresponding to a region cannot be imported.
+            AttributeError: If the class corresponding to a department cannot be found
+                            in the imported module.
+        Notes:
+            - The configuration file is expected to be in JSON format and should
+              contain a "regions" key with nested "departments" data.
+            - Module and class names are derived from region and department names
+              by removing spaces to ensure valid identifiers.
+            - Any errors during the dynamic import or class retrieval are caught
+              and logged, but the process continues for other regions and departments.
+        """
+
+        with open(self.configFile, 'r') as file:
             config = json.load(file)
 
-        for region, region_data in config["regions"].items():
-            for department, last_date in region_data["departments"].items():
-                module_name = region.replace(" ", "")  # Remove spaces for valid module names
-                class_name = department.replace(" ", "")  # Remove spaces for valid class names
+        for region, regionData in config["regions"].items():
+            for department, lastDate in regionData["departments"].items():
+                moduleName = region.replace(" ", "")  # Remove spaces for valid module names
+                className = department.replace(" ", "")  # Remove spaces for valid class names
                 try:
-                    module = __import__(f"{module_name}", fromlist=[class_name])
-                    spider_class = getattr(module, class_name)
-                    if department == "AlpesMaritimes":
-                        spider = spider_class(output_dir+f"/{region}/{department}", self.config_file, self.linkFile, last_date) 
-                        self.spiders.append(spider)
+                    module = __import__(f"{moduleName}", fromlist=[className])
+                    spiderClass = getattr(module, className)
+                    spider = spiderClass(outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
+                    self.spiders.append(spider)
                 except (ImportError, AttributeError) as e:
                     print(f"Error loading spider for {department} in {region}: {e}")
 
-    def start_spiders(self):
+    def startSpiders(self):
+        """
+        Starts the crawling process for all spiders in the `self.spiders` list.
+        This method creates a separate thread for each spider's `crawl` method,
+        starts all threads, and waits for their completion by joining them.
+        Note:
+            - Each spider in `self.spiders` is expected to have a `crawl` method.
+            - This method blocks until all threads have finished execution.
+        """
+
         threads = []
         for spider in self.spiders:
             thread = threading.Thread(target=spider.crawl)
@@ -37,15 +81,17 @@ class Crawler:
 
 if __name__ == "__main__":
     # Use an absolute path to ensure the file is found
-    config_file = os.path.join(os.path.dirname(__file__), "config_crawler.json")
-    if not os.path.exists(config_file):
-        raise FileNotFoundError(f"Config file not found: {config_file}")
+    configFile = os.path.join(os.path.dirname(__file__), "configCrawler.json")
+    if not os.path.exists(configFile):
+        raise FileNotFoundError(f"Config file not found: {configFile}")
     
     linkFile = os.path.join(os.path.dirname(__file__), "resultCrawler.json")
     if not os.path.exists(linkFile):
-        raise FileNotFoundError(f"Link file not found: {linkFile}")
+        # create the file if it doesn't exist
+        with open(linkFile, 'w') as f:
+            json.dump({"links": []}, f, indent=4)
 
-    crawler = Crawler(config_file, linkFile)
-    crawler.create_spiders("./pdfs")  
-    crawler.start_spiders()
+    crawler = Crawler(configFile, linkFile)
+    crawler.createSpiders("./pdfs")  
+    crawler.startSpiders()
     print("All spiders have finished crawling.")

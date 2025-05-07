@@ -5,7 +5,7 @@ import os
 import json
 
 class Spider:
-    def __init__(self, output_dir, configFile="./config_crawler.json", date="01/01/2025"):
+    def __init__(self, output_dir, configFile="./config_crawler.json", linkFile="./resultCrawler.json", date="01/01/2025"):
         """
         Initialize the Spider.
 
@@ -25,6 +25,7 @@ class Spider:
         }
         self.most_recent_RAA = datetime.strptime(date, "%d/%m/%Y")
         self.configFile = configFile
+        self.linkFile = linkFile
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -97,6 +98,14 @@ class Spider:
             print(f"Downloaded: {filename}")
         except requests.RequestException as e:
             print(f"Failed to download {url}: {e}")
+
+    def createJsonResultFile(self, linkList):
+        with open(self.linkFile, "r") as f:
+            data = json.load(f)
+            data["links"].extend(linkList)
+        with open(self.linkFile, "w") as f:
+            json.dump(data, f, indent=4) 
+        
 
 
 if __name__ == "__main__":

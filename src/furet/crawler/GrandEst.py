@@ -5,11 +5,11 @@ import os
 import requests
 
 class Moselle(Spider):
-    def __init__(self, output_dir, configFile, date):
+    def __init__(self, output_dir, configFile, linkFile, date):
         """
         Initialize the Moselle spider with specific parameters.
         """
-        super().__init__(output_dir, configFile, date)
+        super().__init__(output_dir, configFile, linkFile, date)
         self.base_url = "https://mc.moselle.gouv.fr/raa.html?adminedit=1?op=raa&do=raa_rec&page="
         self.region = "GrandEst"
         self.department = "Moselle"
@@ -41,7 +41,7 @@ class Moselle(Spider):
 
                 if date > self.most_recent_RAA:
                     link = link_tag['href']
-                    extracted_data.append(link)
+                    extracted_data.append({"link": link, "datePublication": date_str, "region": self.region, "department": self.department})
                     if date > self.current_most_recent_RAA:
                         self.current_most_recent_RAA = date
             except (ValueError, IndexError) as e:
@@ -73,6 +73,7 @@ class Moselle(Spider):
     def crawl(self):
         try:
             i = 1
+            finalLinks = []
             while True:
                 url = self.base_url + str(i)
                 i += 1
@@ -86,11 +87,15 @@ class Moselle(Spider):
                     break
 
                 for link in links:
-                    self.download_pdf(link)
+                    # self.download_pdf(link)
+                    finalLinks.append(link)
+
             
             if self.current_most_recent_RAA > self.most_recent_RAA:
                 self.most_recent_RAA = self.current_most_recent_RAA
                 self.set_most_recent_RAA_date(self.most_recent_RAA, self.region, self.department)
+
+            self.createJsonResultFile(finalLinks)
 
         except Exception as e:
             print(f"Error during crawling: {e}")

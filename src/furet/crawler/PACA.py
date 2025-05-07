@@ -3,11 +3,11 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 class AlpesMaritimes(Spider):
-    def __init__(self, output_dir, configFile, date):
+    def __init__(self, output_dir, configFile, linkFile, date):
         """
         Initialize the AlpesMaritimes spider with specific parameters.
         """
-        super().__init__(output_dir, configFile, date)
+        super().__init__(output_dir, configFile, linkFile, date)
         self.base_url = "https://www.alpes-maritimes.gouv.fr/Publications/Recueil-des-actes-administratifs-RAA"
         self.region = "PACA"
         self.department = "AlpesMaritimes"
@@ -69,7 +69,7 @@ class AlpesMaritimes(Spider):
 
                 if date > self.most_recent_RAA:
                     link = row['href']
-                    links.append('https://www.alpes-maritimes.gouv.fr' + link)
+                    links.append({"link": 'https://www.alpes-maritimes.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
                     if date > self.current_most_recent_RAA:
                         self.current_most_recent_RAA = date
 
@@ -94,12 +94,14 @@ class AlpesMaritimes(Spider):
 
                 self.extract_links(html, links)
 
-            for link in links:
-                self.download_pdf(link)
+            # for link in links:
+            #     self.download_pdf(link)
 
             if self.current_most_recent_RAA > self.most_recent_RAA:
                 self.most_recent_RAA = self.current_most_recent_RAA
                 self.set_most_recent_RAA_date(self.most_recent_RAA, self.region, self.department)
+
+            self.createJsonResultFile(links)
 
         except Exception as e:
             print(f"Error during crawling: {e}")

@@ -3,11 +3,11 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 class HautesPyrenees(Spider):
-    def __init__(self, output_dir, configFile, date):
+    def __init__(self, output_dir, configFile, linkFile, date):
         """
         Initialize the HautesPyrenees spider with specific parameters.
         """
-        super().__init__(output_dir, configFile, date)
+        super().__init__(output_dir, configFile, linkFile, date)
         self.base_url = "https://www.hautes-pyrenees.gouv.fr/Publications/Recueil-d-actes-administratifs"
         self.region = "Occitanie"
         self.department = "HautesPyrenees"
@@ -58,7 +58,7 @@ class HautesPyrenees(Spider):
 
                 if date > self.most_recent_RAA:
                     link = row['href']
-                    links.append('https://www.hautes-pyrenees.gouv.fr' + link)
+                    links.append({"link": 'https://www.hautes-pyrenees.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
                     if date > self.current_most_recent_RAA:
                         self.current_most_recent_RAA = date
 
@@ -84,12 +84,14 @@ class HautesPyrenees(Spider):
 
                 self.extract_links(html, links)
             
-            for link in links:
-                self.download_pdf(link)
+            # for link in links:
+                # self.download_pdf(link)
             
             if self.current_most_recent_RAA > self.most_recent_RAA:
                 self.most_recent_RAA = self.current_most_recent_RAA
                 self.set_most_recent_RAA_date(self.most_recent_RAA, self.region, self.department)
+
+            self.createJsonResultFile(links)
 
         except Exception as e:
             print(f"Error during crawling: {e}")

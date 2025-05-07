@@ -40,3 +40,19 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
         self.beginResetModel()
         self._data.sort(key=lambda d: getattr(d, self._fields[column].name), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
         self.endResetModel()
+
+
+class ObjectFilterProxy(Generic[T], QtCore.QSortFilterProxyModel):
+
+    def __init__(self, filterer: Callable[[int, QtCore.QModelIndex | QtCore.QPersistentModelIndex], bool], parent=None):
+        super().__init__(parent)
+        self._filterer = filterer
+
+    def setSourceModel(self, model: ObjectTableModel[T]):
+        super().setSourceModel(model)
+
+    def sourceModel(self) -> ObjectTableModel[T]:
+        return super().sourceModel()
+
+    def filterAcceptsRow(self, source_row, source_parent, /):
+        return self._filterer(self.sourceModel().itemAt(source_row))

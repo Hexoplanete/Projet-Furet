@@ -2,9 +2,9 @@ import os
 import sys
 from PySide6.QtWidgets import QApplication, QStyleFactory
 
-from .windows.DecreeTableWindow import DecreeTableWindow
+from .windows.decreeTableWindow import DecreeTableWindow
 
-def run_app():
+def main():
     app = QApplication(sys.argv)
     if os.path.isdir("/usr/lib/x86_64-linux-gnu/qt6/plugins/"):
         app.addLibraryPath("/usr/lib/x86_64-linux-gnu/qt6/plugins/")

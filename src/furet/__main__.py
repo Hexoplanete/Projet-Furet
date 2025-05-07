@@ -1,9 +1,9 @@
 import sys
-import furet.ui
+import furet.app
 
 
 def main():
-    sys.exit(furet.ui.run_app())
+    sys.exit(furet.app.main())
 
 if __name__ == '__main__':
     main()

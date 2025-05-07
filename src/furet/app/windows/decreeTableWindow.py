@@ -1,8 +1,8 @@
 from PySide6 import QtWidgets, QtCore
-from furet.types.Decree import *
+from furet.types.decree import *
 
-from furet.ui.widgets.ObjectTableModel import ObjectTableModel, TableColumn
-from furet.ui.widgets.DecreeFilterWidget import DecreeFilterWidget
+from furet.app.widgets.objectTableModel import ObjectTableModel, TableColumn
+from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
 
 
 def getFakeData() -> list[Decree]:

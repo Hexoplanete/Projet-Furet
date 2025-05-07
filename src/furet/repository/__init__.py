@@ -12,6 +12,13 @@ def getDecrees():
     ...
 
 
+def getDepartmentById(id: int) -> Department:
+    # TODO opti
+    for d in getDepartments():
+        if d.id == id: return d
+    return None
+
+
 def getDepartments() -> list[Department]:
     return [
         Department(1, "01", "Ain"),

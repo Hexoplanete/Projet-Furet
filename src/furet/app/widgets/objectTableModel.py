@@ -38,6 +38,7 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
 
     def sort(self, column, /, order = ...):
         self.beginResetModel()
+        print(self._data[0], self._data[0])
         self._data.sort(key=lambda d: getattr(d, self._fields[column].name), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
         self.endResetModel()
 

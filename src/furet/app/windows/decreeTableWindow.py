@@ -1,16 +1,20 @@
 from PySide6 import QtWidgets, QtCore
+from furet import repository
 from furet.types.decree import *
 
 from furet.app.widgets.objectTableModel import ObjectTableModel, TableColumn
 from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
+from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
+from furet.app.windows.parametersWindow import ParametersWindow
+from furet.types.department import Department
 
 
 def getFakeData() -> list[Decree]:
     return [
-        Decree(0,73, None, "Test 1", None, None),
-        Decree(1,73, None, "Test 2", None, None),
-        Decree(2,73, None, "Test 3", None, None),
-        Decree(3,73, None, "Test 5", None, None),
+        Decree(0, repository.getDepartmentById(73), None, "Test 1", None, None),
+        Decree(1, repository.getDepartmentById(74), None, "Test 2", None, None),
+        Decree(2, repository.getDepartmentById(75), None, "Test 3", None, None),
+        Decree(3, repository.getDepartmentById(76), None, "Test 5", None, None),
     ]
 
 
@@ -23,7 +27,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self._content)
 
         columns = [
-            TableColumn[str]("department", lambda: "Département"),
+            TableColumn[Department]("department", lambda: "Département"),
             TableColumn[DecreeTopic]("topic", lambda: "Sujet", lambda v: "" if v is None else v.label),
             TableColumn[str]("title", lambda: "Titre"),
             TableColumn[date]("publication_date", lambda: "Date de publication"),
@@ -51,18 +55,11 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.setSelectionBehavior(QtWidgets.QTableView.SelectionBehavior.SelectRows)
         self._table.horizontalHeader().setSectionResizeMode(len(columns)-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.setSortingEnabled(True)
-    
-    def onSearchDecrees(self):
-        pass
-        # row = ["fuck", "fuck", "fuck", "fuck", "fuck"]
-        # items = [QtGui.QStandardItem(str(name)) for name in row]
-        # self.model.appendRow(items)
 
     def onClickParamButton(self):
-        pass
-        # row = ["shit", "shit", "shit", "shit", "shit"]
-        # items = [QtGui.QStandardItem(str(name)) for name in row]
-        # self.model.appendRow(items)
+        self._paramWindow = ParametersWindow()
+        self._paramWindow.show()
 
     def onDblClickTableRow(self, index: QtCore.QModelIndex):
-        print(self.decrees.itemAt(index.row()).title)
+        self.w = DecreeDetailsWindow()
+        self.w.show()

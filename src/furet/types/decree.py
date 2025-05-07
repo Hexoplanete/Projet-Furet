@@ -1,8 +1,6 @@
-from dataclasses import dataclass
-from typing import Self
 from datetime import date
 
-from furet.types import department
+from . import department
 from furet.types.base import dbclass
 
 @dbclass
@@ -20,7 +18,7 @@ class DecreeState:
 @dbclass
 class Decree:
     id: int
-    department: department
+    department: department.Department
     topic: DecreeTopic
     title: str
     publication_date: date

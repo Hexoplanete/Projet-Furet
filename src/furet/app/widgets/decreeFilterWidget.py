@@ -12,16 +12,18 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._proxy = ObjectFilterProxy[Decree](filterer=self.filterDecrees)
         
         self._department = QtWidgets.QComboBox()
-        self._department.addItem(f"Choisir un département", None)
+        self._department.addItem(f"Choisir un département", 0)
         for d in repository.getDepartments():
-            self._department.addItem(f"{d.number} - {d.label}", d)
+            self._department.addItem(str(d), d.id)
         self._department.setEditable(True)
         self._layout.addWidget(self._department)
 
 
         self._topic = QtWidgets.QComboBox()
+        self._topic.addItem(f"Choisir un topic", 0)
         for t in repository.getTopic():
-            self._topic.addItem(t.label, t)
+            self._topic.addItem(t.label, t.id)
+        self._topic.setEditable(True)
         self._layout.addWidget(self._topic)
 
         self._name = QtWidgets.QLineEdit()
@@ -38,8 +40,8 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._researchButton.clicked.connect(self.onClickResearchButton)
         self._layout.addWidget(self._researchButton)
 
-        self._departementValue = None
-        self._topicValue = None
+        self._departementValue = 0
+        self._topicValue = 0
         self._nameValue = ""
         self._dateValue = None
         self._stateValues = None
@@ -71,11 +73,9 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         return
     
     def filterDecrees(self, decree: Decree):
-        # TODO will be broken later
-        if self._departementValue != None and decree.department != self._departementValue: return False
+        if self._departementValue > 0 and decree.department.id != self._departementValue: return False
+        # if self._topicValue != 0 and decree.topic.id != self._topicValue: return False
 
-        if self._topicValue != None and decree.topic != self._topicValue: return False
-
-        if self._nameValue != "" and decree.title.find(self._nameValue) == -1: return False
+        # if self._nameValue != "" and decree.title.find(self._nameValue) == -1: return False
 
         return True

@@ -8,17 +8,9 @@ from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
 from furet.app.windows.parametersWindow import ParametersWindow
 from furet.types.department import Department
 
-
-def getFakeData() -> list[Decree]:
-    return [
-        Decree(0, repository.getDepartmentById(73), None, "Test 1", None, None),
-        Decree(1, repository.getDepartmentById(74), None, "Test 2", None, None),
-        Decree(2, repository.getDepartmentById(75), None, "Test 3", None, None),
-        Decree(3, repository.getDepartmentById(76), None, "Test 5", None, None),
-    ]
-
-
 class DecreeTableWindow(QtWidgets.QMainWindow):
+
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Fouille Universelle de Recueils pour Entreposage et Traitement")
@@ -28,38 +20,55 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
         columns = [
             TableColumn[Department]("department", lambda: "Département"),
-            TableColumn[DecreeTopic]("topic", lambda: "Sujet", lambda v: "" if v is None else v.label),
+            TableColumn[DecreeTopic]("topic", lambda: "Sujet"),
             TableColumn[str]("title", lambda: "Titre"),
             TableColumn[date]("publication_date", lambda: "Date de publication"),
-            TableColumn[DecreeState]("state", lambda: "État", lambda v: "" if v is None else v.label)
+            TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
+            TableColumn[str]("comment", lambda: "Commentaire"),
         ]
-        self.decrees = ObjectTableModel(getFakeData(), columns)
+        self._decrees = ObjectTableModel(repository.getDecrees(), columns)
 
         self._topBar = QtWidgets.QHBoxLayout()
         self._layout.addLayout(self._topBar)
 
-        filters = DecreeFilterWidget()
-        filters.setModel(self.decrees)
-        self._topBar.addWidget(filters)
+        self._filters = DecreeFilterWidget()
+        self._filters.setModel(self._decrees)
+        self._topBar.addWidget(self._filters)
         
         self._paramButton = QtWidgets.QPushButton('Paramètres')
         self._paramButton.clicked.connect(self.onClickParamButton)
         self._topBar.addWidget(self._paramButton)
         
         self._table = QtWidgets.QTableView()
-        self._table.setModel(filters.proxyModel())
+        self._table.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self._table.setModel(self._filters.proxyModel())
         self._layout.addWidget(self._table, 1)
         self._table.doubleClicked.connect(self.onDblClickTableRow)
 
         self._table.setEditTriggers(QtWidgets.QTableView.EditTrigger.NoEditTriggers)
         self._table.setSelectionBehavior(QtWidgets.QTableView.SelectionBehavior.SelectRows)
+        self._table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self._table.horizontalHeader().setSectionResizeMode(len(columns)-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.setSortingEnabled(True)
 
+        self._paramWindow: ParametersWindow = None
+        self._decreeDetailWindows: dict[int, DecreeDetailsWindow] = {}
+
+    def closeEvent(self, event):
+        QtWidgets.QApplication.quit()
+
     def onClickParamButton(self):
-        self._paramWindow = ParametersWindow()
-        self._paramWindow.show()
+        if self._paramWindow == None or not(self._paramWindow.isVisible()):
+            self._paramWindow = ParametersWindow()
+            self._paramWindow.show()
+        else:
+            self._paramWindow.activateWindow()
 
     def onDblClickTableRow(self, index: QtCore.QModelIndex):
-        self.w = DecreeDetailsWindow()
-        self.w.show()
+        source_index = self._filters.proxyModel().mapToSource(index)
+        decree = self._decrees.itemAt(source_index.row())
+        if id not in self._decreeDetailWindows or not(self._decreeDetailWindows[id].isVisible()):
+            self._decreeDetailWindows[decree.id] = DecreeDetailsWindow(decree)
+            self._decreeDetailWindows[decree.id].show()
+        else:
+            self._decreeDetailWindows[decree.id].activateWindow()

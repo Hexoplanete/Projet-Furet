@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Self
 
 
-def dbclass(cls=None, /, *, id: str = "id", key: str = "id"):
+def dbclass(cls=None, /, *, id: str = "id", sort: str = "id"):
     
     def wrap(cls):
         def eq(self, other: Self):
@@ -10,13 +10,13 @@ def dbclass(cls=None, /, *, id: str = "id", key: str = "id"):
         def ne(self, other: Self):
             return getattr(self, id) != getattr(other, id)
         def lt(self, other: Self):
-            return getattr(self, key) < getattr(other, key)
+            return getattr(self, sort) < getattr(other, sort)
         def le(self, other: Self):
-            return getattr(self, key) <= getattr(other, key)
+            return getattr(self, sort) <= getattr(other, sort)
         def gt(self, other: Self):
-            return getattr(self, key) > getattr(other, key)
+            return getattr(self, sort) > getattr(other, sort)
         def ge(self, other: Self):
-            return getattr(self, key) >= getattr(other, key)
+            return getattr(self, sort) >= getattr(other, sort)
         cls.__eq__ = eq
         cls.__ne__ = ne
         cls.__lt__ = lt

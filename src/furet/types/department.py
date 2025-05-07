@@ -2,7 +2,7 @@
 from furet.types.base import dbclass
 
 
-@dbclass(id="label")
+@dbclass(sort="number")
 class Department:
     id: int
     number: str

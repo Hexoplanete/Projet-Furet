@@ -20,8 +20,8 @@ class DecreeFilterWidget(QtWidgets.QWidget):
 
 
         self._topic = QtWidgets.QComboBox()
-        self._topic.addItem(f"Choisir un topic", 0)
-        for t in repository.getTopic():
+        self._topic.addItem(f"Choisir un sujet", 0)
+        for t in repository.getTopics():
             self._topic.addItem(t.label, t.id)
         self._topic.setEditable(True)
         self._layout.addWidget(self._topic)
@@ -74,8 +74,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     
     def filterDecrees(self, decree: Decree):
         if self._departementValue > 0 and decree.department.id != self._departementValue: return False
-        # if self._topicValue != 0 and decree.topic.id != self._topicValue: return False
-
-        # if self._nameValue != "" and decree.title.find(self._nameValue) == -1: return False
+        if self._topicValue > 0 and decree.topic.id != self._topicValue: return False
+        if self._nameValue != "" and decree.title.lower().find(self._nameValue.lower()) == -1: return False
 
         return True

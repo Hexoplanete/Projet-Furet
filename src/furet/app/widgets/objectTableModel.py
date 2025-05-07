@@ -36,12 +36,10 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
     def itemAt(self, index: int):
         return self._data[index]
 
-    def sort(self, column, /, order = ...):
-        self.beginResetModel()
-        print(self._data[0], self._data[0])
-        self._data.sort(key=lambda d: getattr(d, self._fields[column].name), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
-        self.endResetModel()
-
+    def lessThan(self, indexLeft: QtCore.QModelIndex | QtCore.QPersistentModelIndex, indexRight: QtCore.QModelIndex | QtCore.QPersistentModelIndex, /):
+        fieldLeft = self._fields[indexLeft.column()]
+        fieldRight = self._fields[indexRight.column()]
+        return getattr(self._data[indexLeft.row()], fieldLeft.name) < getattr(self._data[indexRight.row()], fieldRight.name)
 
 class ObjectFilterProxy(Generic[T], QtCore.QSortFilterProxyModel):
 
@@ -57,3 +55,6 @@ class ObjectFilterProxy(Generic[T], QtCore.QSortFilterProxyModel):
 
     def filterAcceptsRow(self, source_row, source_parent, /):
         return self._filterer(self.sourceModel().itemAt(source_row))
+    
+    def lessThan(self, source_left, source_right, /):
+        return self.sourceModel().lessThan(source_left, source_right)

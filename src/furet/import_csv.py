@@ -95,6 +95,11 @@ if __name__ == "__main__":
     #print(mockA)
     addArreteToFile(mockA)
 
+#---------- load all arretes--------------------------------------------
+    l = []
+    loadDB(l)
+    for e in l:
+        print(e)
 
 
 

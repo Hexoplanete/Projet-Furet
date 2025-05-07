@@ -3,45 +3,48 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 class HautesPyrenees(Spider):
-    def __init__(self, output_dir, configFile, linkFile, date):
+    """
+    A spider class for crawling the Hautes-Pyrenees department's website for RAA (Recueil des Actes Administratifs) links.
+    Inherits from the Spider class.
+    """
+    def __init__(self, outputDir, configFile, linkFile, date):
         """
         Initialize the HautesPyrenees spider with specific parameters.
         """
-        super().__init__(output_dir, configFile, linkFile, date)
-        self.base_url = "https://www.hautes-pyrenees.gouv.fr/Publications/Recueil-d-actes-administratifs"
+        super().__init__(outputDir, configFile, linkFile, date)
+        self.baseURL = "https://www.hautes-pyrenees.gouv.fr/Publications/Recueil-d-actes-administratifs"
         self.region = "Occitanie"
         self.department = "HautesPyrenees"
-        self.current_most_recent_RAA = self.most_recent_RAA
+        self.currentMostRecentRAA = self.mostRecentRAA
 
-    def find_pages(self, html):
+    def findPages(self, html):
         """
         Find the number of pages available in the HTML content.
 
         :param html: HTML content of a page.
         :return: Number of pages found.
         """
-        extracted_pages = []
+        extractedPages = []
         i = 0
-        while True:
-            url = self.base_url + "/(offset)/" + str(i*10)
-            print(f"Crawling: {url}")
+        while True:     # Loop through the pages until there are no more pages to fetch
+            url = self.baseURL + "/(offset)/" + str(i*10)  # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
 
-            html = self.fetch_page(url)
+            html = self.fetchPage(url)
             soup = BeautifulSoup(html, 'html.parser')
             i += 1
 
-            if not html or not soup.find(class_="fr-card__link"):
+            if not html or not soup.find(class_="fr-card__link"):   # Check if the page is empty or if there are no more links to extract
                 break
             
-            RAA_year = soup.find_all('a', class_='fr-card__link', href=True)
+            RAA_year = soup.find_all('a', class_='fr-card__link', href=True) # Find all links with the class 'fr-card__link'
 
             for link in RAA_year:
                 if link['href'].startswith('/Publications/Recueil-d-actes-administratifs'):
-                    extracted_pages.append(link['href'].split('/')[-1])
+                    extractedPages.append(link['href'].split('/')[-1])
 
-        return extracted_pages
+        return extractedPages
 
-    def extract_links(self, html, links):
+    def extractLinks(self, html, links):
         """
         Extract all links from the HTML content.
 
@@ -53,14 +56,14 @@ class HautesPyrenees(Spider):
 
         for row in rows:
             try:
-                date_str = row.find('span', class_='fr-link__detail').text.split()[-1]
+                date_str = row.find('span', class_='fr-link__detail').text.split()[-1] # Extract the date from the link text
                 date = datetime.strptime(date_str, "%d/%m/%Y")
 
-                if date > self.most_recent_RAA:
+                if date > self.mostRecentRAA:            # If the date is more recent than the most recent RAA, add it to the list
                     link = row['href']
                     links.append({"link": 'https://www.hautes-pyrenees.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
-                    if date > self.current_most_recent_RAA:
-                        self.current_most_recent_RAA = date
+                    if date > self.currentMostRecentRAA:
+                        self.currentMostRecentRAA = date
 
             except (ValueError, IndexError) as e:
                 print(f"Error parsing row: {row}, Error: {e}")
@@ -69,36 +72,31 @@ class HautesPyrenees(Spider):
         return links
 
     def crawl(self):
+        """
+        Crawl the website to find and download the most recent RAA links.
+        """
         try:
-            links_suffix = self.find_pages(self.fetch_page(self.base_url)) # For each year, there is a page with RAAs
+            links_suffix = self.findPages(self.fetchPage(self.baseURL)) # For each year, there is a page with RAAs
             links = []
             for link in links_suffix:
-                if int(link[-4:]) < self.most_recent_RAA.year: # If the year is older than the most recent RAA, skip it
+                if int(link[-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
                     break
 
-                url = self.base_url + "/" + link
-                print(f"Crawling: {url}")
-                html = self.fetch_page(url)
+                url = self.baseURL + "/" + link # The URL for the specific year
+                html = self.fetchPage(url)
                 if not html:
                     break
 
-                self.extract_links(html, links)
+                self.extractLinks(html, links)
             
-            # for link in links:
-                # self.download_pdf(link)
-            
-            if self.current_most_recent_RAA > self.most_recent_RAA:
-                self.most_recent_RAA = self.current_most_recent_RAA
-                self.set_most_recent_RAA_date(self.most_recent_RAA, self.region, self.department)
+            if self.currentMostRecentRAA > self.mostRecentRAA:
+                self.mostRecentRAA = self.currentMostRecentRAA
+                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
 
-            self.createJsonResultFile(links)
+            self.addToJsonResultFile(links)
 
         except Exception as e:
             print(f"Error during crawling: {e}")
             return None
         
-        return self.most_recent_RAA
-
-if __name__ == "__main__":
-    spider = HautesPyrenees("./pdfs/")
-    spider.crawl()
+        return self.mostRecentRAA

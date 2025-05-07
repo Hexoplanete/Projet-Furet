@@ -5,17 +5,21 @@ import os
 import requests
 
 class Moselle(Spider):
-    def __init__(self, output_dir, configFile, linkFile, date):
+    """
+    A spider class for crawling the Moselle department's website for RAA (Recueil des Actes Administratifs) links.
+    Inherits from the Spider class.
+    """
+    def __init__(self, ouputDir, configFile, linkFile, date):
         """
         Initialize the Moselle spider with specific parameters.
         """
-        super().__init__(output_dir, configFile, linkFile, date)
-        self.base_url = "https://mc.moselle.gouv.fr/raa.html?adminedit=1?op=raa&do=raa_rec&page="
+        super().__init__(ouputDir, configFile, linkFile, date)
+        self.baseURL = "https://mc.moselle.gouv.fr/raa.html?adminedit=1?op=raa&do=raa_rec&page="
         self.region = "GrandEst"
         self.department = "Moselle"
-        self.current_most_recent_RAA = self.most_recent_RAA
+        self.currentMostRecentRAA = self.mostRecentRAA
         
-    def extract_links(self, html):
+    def extractLinks(self, html):
         """
         Extract all links from the HTML content.
 
@@ -23,36 +27,36 @@ class Moselle(Spider):
         :return: List of extracted links.
         """
         soup = BeautifulSoup(html, 'html.parser')
-        extracted_data = []
+        extractedData = []
         rows = soup.find_all('tr', class_=['li1', 'li2'])
 
         for row in rows:
             if not "javascript:void(0);" in str(row):
                 continue
             try:
-                date_str = row.find_all('td')[2].text.strip() if len(row.find_all('td')) >= 4 else None
-                if not date_str:
+                dateStr = row.find_all('td')[2].text.strip() if len(row.find_all('td')) >= 4 else None # Extract the date from the row
+                if not dateStr:
                     continue
-                date = datetime.strptime(date_str, "%d/%m/%Y")
+                date = datetime.strptime(dateStr, "%d/%m/%Y")
 
-                link_tag = row.find_all('a', href=True)[1] if len(row.find_all('td')) >= 2 else None
-                if not link_tag:
+                linkTag = row.find_all('a', href=True)[1] if len(row.find_all('td')) >= 2 else None     # Extract the link from the row
+                if not linkTag:
                     continue
 
-                if date > self.most_recent_RAA:
-                    link = link_tag['href']
-                    extracted_data.append({"link": link, "datePublication": date_str, "region": self.region, "department": self.department})
-                    if date > self.current_most_recent_RAA:
-                        self.current_most_recent_RAA = date
+                if date > self.mostRecentRAA:             # If the date is more recent than the most recent RAA, add it to the list
+                    link = linkTag['href']
+                    extractedData.append({"link": link, "datePublication": dateStr, "region": self.region, "department": self.department})
+                    if date > self.currentMostRecentRAA:
+                        self.currentMostRecentRAA = date
             except (ValueError, IndexError) as e:
                 print(f"Error parsing row: {row}, Error: {e}")
                 continue
 
-        return extracted_data
+        return extractedData
     
-    def download_pdf(self, url):
+    def downloadPDF(self, url):
         """
-        Download a PDF file from the given URL.
+        Download a PDF file from the given URL and put it in the output directory.
 
         :param url: URL of the PDF file.
         """
@@ -60,7 +64,7 @@ class Moselle(Spider):
             response = requests.get(url, stream=True, headers=self.headers)
             response.raise_for_status()
             
-            filename = os.path.join(self.output_dir, url[-10:])
+            filename = os.path.join(self.ouputDir, url[-10:])
             if not filename.endswith('.pdf'):
                 filename += ".pdf"
             with open(filename, 'wb') as file:
@@ -71,38 +75,34 @@ class Moselle(Spider):
             print(f"Failed to download {url}: {e}")
         
     def crawl(self):
+        """
+        Crawl the website to find and download the most recent RAA links.
+        """
         try:
             i = 1
             finalLinks = []
-            while True:
-                url = self.base_url + str(i)
+            while True:           # Loop through the pages until no more links are found
+                url = self.baseURL + str(i)
                 i += 1
-                print(f"Crawling: {url}")
-                html = self.fetch_page(url)
-                if not html or "Il n'y a aucun recueil cr" in html:
+                html = self.fetchPage(url)
+                if not html or "Il n'y a aucun recueil cr" in html: # Check if the page is empty or if there are no more RAA
                     break
 
-                links = self.extract_links(html)
+                links = self.extractLinks(html)
                 if links == []:     # if no more links are found, break the loop because every subsequent RAA will be too old
                     break
 
                 for link in links:
-                    # self.download_pdf(link)
                     finalLinks.append(link)
-
             
-            if self.current_most_recent_RAA > self.most_recent_RAA:
-                self.most_recent_RAA = self.current_most_recent_RAA
-                self.set_most_recent_RAA_date(self.most_recent_RAA, self.region, self.department)
+            if self.currentMostRecentRAA > self.mostRecentRAA:  
+                self.mostRecentRAA = self.currentMostRecentRAA
+                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
 
-            self.createJsonResultFile(finalLinks)
+            self.addToJsonResultFile(finalLinks)
 
         except Exception as e:
             print(f"Error during crawling: {e}")
             return None
         
-        return self.most_recent_RAA 
-
-if __name__ == "__main__":
-    spider = Moselle("./pdfs/")
-    spider.crawl()
+        return self.mostRecentRAA 

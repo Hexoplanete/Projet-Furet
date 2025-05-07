@@ -4,24 +4,28 @@ from datetime import datetime
 import requests
 
 class Sarthe(Spider):
-    def __init__(self, output_dir, configFile, linkFile, date):
+    """
+    A spider class for crawling the Sarthe department's website for RAA (Recueil des Actes Administratifs) links.
+    Inherits from the Spider class.
+    """
+    def __init__(self, outputDir, configFile, linkFile, date):
         """
         Initialize the Moselle spider with specific parameters.
         """
-        super().__init__(output_dir, configFile, linkFile, date)
-        self.base_url = "https://www.sarthe.gouv.fr/Publications/Recueils-des-actes-administratifs"
+        super().__init__(outputDir, configFile, linkFile, date)
+        self.baseUrl = "https://www.sarthe.gouv.fr/Publications/Recueils-des-actes-administratifs"
         self.region = "PaysDeLaLoire"
         self.department = "Sarthe"
-        self.current_most_recent_RAA = self.most_recent_RAA
+        self.currentMostRecentRAA = self.mostRecentRAA
 
-    def post_selected_year(self, year):
+    def postSelectedYear(self, year):
         """
         Select a specific year by simulating a POST request to refresh the page.
 
         :param year: The year to select.
         :return: HTML content of the refreshed page.
         """
-        headers = {
+        headers = {     # Simulate a POST request to select the year, mimicking a browser
             "Content-Length": "72",
             "Cache-Control": "max-age=0",
             "Sec-Ch-Ua": "\"Chromium\";v=\"135\", \"Not-A.Brand\";v=\"8\"",
@@ -43,33 +47,33 @@ class Sarthe(Spider):
         }
         payload = f"Liste-liste-docs=Publications%2FRecueils-des-actes-administratifs%2F{year}"
         
-        response = requests.post(self.base_url, data=payload, headers=headers)
+        response = requests.post(self.baseUrl, data=payload, headers=headers) # Simulate a POST request to select the year
         if response.status_code == 200:
             return response.text
         else:
             print(f"Failed to select year {year}. Status code: {response.status_code}")
             return None
         
-    def find_pages(self, html):
+    def findPages(self, html):
         """
         Find the number of pages available in the HTML content.
 
         :param html: HTML content of a page.
         :return: Number of pages found.
         """
-        extracted_pages = []
+        extractedPages = []
         soup = BeautifulSoup(html, 'html.parser')         
-        RAA_years = soup.find_all('option', value=True, title=True)
-        for year in RAA_years:
-            year_value = year['title']
-            if int(year_value) < self.most_recent_RAA.year: # If the year is older than the most recent RAA, skip it
+        RAAYears = soup.find_all('option', value=True, title=True) # Find all options with a value and title attribute
+        for year in RAAYears:
+            yearValue = year['title']
+            if int(yearValue) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
                 break
-            html_content = self.post_selected_year(year_value)
-            extracted_pages.append(html_content)
+            htmlContent = self.postSelectedYear(yearValue)
+            extractedPages.append(htmlContent)
 
-        return extracted_pages
+        return extractedPages
         
-    def extract_links(self, html, links):
+    def extractLinks(self, html, links):
         """
         Extract all links from the HTML content.
 
@@ -81,14 +85,14 @@ class Sarthe(Spider):
 
         for row in rows:
             try:
-                date_str = row.find('span', class_='fr-link__detail').text.split()[-1]
-                date = datetime.strptime(date_str, "%d/%m/%Y")
+                dateStr = row.find('span', class_='fr-link__detail').text.split()[-1] # Extract the date from the link text
+                date = datetime.strptime(dateStr, "%d/%m/%Y")
 
-                if date > self.most_recent_RAA:
+                if date > self.mostRecentRAA:           # If the date is more recent than the most recent RAA, add it to the list
                     link = row['href']
-                    links.append({"link": 'https://www.sarthe.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
-                    if date > self.current_most_recent_RAA:
-                        self.current_most_recent_RAA = date
+                    links.append({"link": 'https://www.sarthe.gouv.fr' + link, "datePublication": dateStr, "region": self.region, "department": self.department}) # Add the link to the list for JSON output
+                    if date > self.currentMostRecentRAA:
+                        self.currentMostRecentRAA = date
 
             except (ValueError, IndexError) as e:
                 print(f"Error parsing row: {row}, Error: {e}")
@@ -98,36 +102,23 @@ class Sarthe(Spider):
     
         
     def crawl(self):
-        try:
-            html_pages = self.find_pages(self.fetch_page(self.base_url)) # For each year, there is a page with RAAs
+        try:           
+            htmlPages = self.findPages(self.fetchPage(self.baseUrl)) # For each year, there is a page with RAAs
             links = []
-            for html_page in html_pages:
-            #    if int(link[-4:]) < self.most_recent_RAA.year: # If the year is older than the most recent RAA, skip it
-            #       break
-
-                url = self.base_url
-                print(f"Crawling: {url}")
-                #html = self.fetch_page(url)
-                if not html_page:
+            for htmlPage in htmlPages:
+                if not htmlPage:
                     break
 
-                self.extract_links(html_page, links)
+                self.extractLinks(htmlPage, links)
             
-            # for link in links:
-                # self.download_pdf(link)
-            
-            if self.current_most_recent_RAA > self.most_recent_RAA:
-                self.most_recent_RAA = self.current_most_recent_RAA
-                self.set_most_recent_RAA_date(self.most_recent_RAA, self.region, self.department)
+            if self.currentMostRecentRAA > self.mostRecentRAA: # If a more recent RAA is found, update the most recent RAA
+                self.mostRecentRAA = self.currentMostRecentRAA
+                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
 
-            self.createJsonResultFile(links)
+            self.addToJsonResultFile(links) # Add the links to the JSON result file
 
         except Exception as e:
             print(f"Error during crawling: {e}")
             return None
         
-        return self.most_recent_RAA
-
-if __name__ == "__main__":
-    spider = Sarthe("./pdfs/")
-    spider.crawl()
+        return self.mostRecentRAA

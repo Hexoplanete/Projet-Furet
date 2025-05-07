@@ -29,7 +29,7 @@ class Arrete:
         return f"Arrêté n°: {self.numArrete}, pages: {self.pages}"
     
     def toCsvLine(self):
-        return [self.typeDocument, self.campagneAspas, self.departement, self.numArrete,self.titreArrete, self.dateSignatureArrete, self.numRaa, self.datePubliRaa, self.url, self.pages, self.statutTraitement, self.commentaire]
+        return [self.typeDocument, self.campagneAspas, self.departement, self.numArrete,self.titreArrete, self.dateSignatureArrete.strftime("%d/%m/%Y"), self.numRaa, self.datePubliRaa.strftime("%d/%m/%Y"), self.url, self.pages, self.statutTraitement, self.commentaire]
 
 
 def addArreteToFile(arrete):
@@ -51,8 +51,8 @@ def addArreteToFile(arrete):
         # insert the line with the arrete
         writerCsv.writerow(row)  
 
-def loadArreteFromFile(path):
-    arrList = []
+
+def loadArretesFromFile(path, listArretes):
     with open(path, encoding='utf-8') as file:
         reader = csv.reader(file, delimiter=',')
 
@@ -65,12 +65,25 @@ def loadArreteFromFile(path):
                     row[6], row[7], row[8], row[9], row[10], row[11]
                 )
                 
-                arrList.append(aa)
+                listArretes.append(aa)
 
             except Exception as e:
                 print(f"Erreur de parsing, ligne ignorée : {row}")
                 print(f"Erreur : {e}")
-    return arrList
+    return listArretes
+
+
+def loadDB(l):
+    # TODO
+    # Parcourir tous les fichiers csv avec leur date de modif
+    for root, dirs, files in os.walk(basePath):
+        for filename in files:
+            if filename.endswith(".csv"):
+                filepath = os.path.join(root, filename)
+                #mod_time = os.path.getmtime(filepath)  # timestamp de modification
+                loadArretesFromFile(filepath,l)
+
+
 
 if __name__ == "__main__":
 
@@ -80,6 +93,11 @@ if __name__ == "__main__":
     #print(mockA)
     addArreteToFile(mockA)
 
+#---------- load all arretes--------------------------------------------
+    l = []
+    loadDB(l)
+    for e in l:
+        print(e)
 
 
 

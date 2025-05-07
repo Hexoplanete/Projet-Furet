@@ -5,7 +5,7 @@ from datetime import datetime
 from datetime import date
 
 format = '%d/%m/%Y'
-path = "./database/"
+basePath = "./database/"
 
 """
 """
@@ -13,7 +13,7 @@ path = "./database/"
 class Arrete:
     def __init__(self, typeDocument, campagneAspas, departement, numArrete, titreArrete, dateSignatureArrete, numRaa, datePubliRaa, url, pages, statutTraitement, commentaire):
         self.typeDocument = typeDocument
-        self.campagneAspas = campagneAspas
+        self.campagneAspas = campagneAspas #topic
         self.departement = departement
         self.numArrete = numArrete
         self.titreArrete = titreArrete
@@ -36,9 +36,9 @@ def addArreteToFile(arrete):
     #recuperer l'annee et le mois
     annee = arrete.datePubliRaa.year
     mois = arrete.datePubliRaa.month
-    nom = arrete.departement + "_" + str(annee) + "_" + str(mois) + "_RAA.csv"
+    filename = arrete.departement + "_" + str(annee) + "_" + str(mois) + "_RAA.csv"
     
-    full_path = path + arrete.departement + '/' + nom
+    full_path = basePath + arrete.departement + '/' + filename
     headers = ['Type de document', 'Campagne Aspas concernée', 'Département', "Numéro de l'arrêté", "Titre de l'arrêté", "Date de signature de l'arrêté", 'Numéro du RAA', 'Date de publication du RAA', 'URL du RAA', 'Pages concernées ', 'Statut de traitement', 'Commentaire']
     row = arrete.toCsvLine()
     file_exists = os.path.isfile(full_path) #bool
@@ -50,6 +50,27 @@ def addArreteToFile(arrete):
             writerCsv.writerow(headers) 
         # insert the line with the arrete
         writerCsv.writerow(row)  
+
+def loadArreteFromFile(path):
+    arrList = []
+    with open(path, encoding='utf-8') as file:
+        reader = csv.reader(file, delimiter=',')
+
+        # Separate header from the other data of the csv
+        header = next(reader)
+        for row in reader:
+            try: 
+                aa = Arrete(
+                    row[0], row[1], row[2], row[3], row[4], row[5], 
+                    row[6], row[7], row[8], row[9], row[10], row[11]
+                )
+                
+                arrList.append(aa)
+
+            except Exception as e:
+                print(f"Erreur de parsing, ligne ignorée : {row}")
+                print(f"Erreur : {e}")
+    return arrList
 
 if __name__ == "__main__":
 
@@ -64,7 +85,8 @@ if __name__ == "__main__":
 
 
 #lecture d'un fichier 
-    with open(path + '57_2025_04_RAA.csv', encoding='utf-8') as file:
+
+    with open(basePath + '57/57_2025_04_RAA.csv', encoding='utf-8') as file:
 
         reader = csv.reader(file, delimiter=',')
 

@@ -16,7 +16,9 @@
         "PACA": {
             "departments": {
                 "AlpesMaritimes": "07/05/2025",
-                "Var": "07/05/2025"
+                "Var": "07/05/2025",
+                "BouchesDuRhone": "07/05/2025",
+                "AlpesDeHauteProvence": "07/05/2025"
             }
         },
         "AURA": {

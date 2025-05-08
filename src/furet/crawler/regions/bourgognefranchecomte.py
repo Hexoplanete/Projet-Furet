@@ -88,7 +88,7 @@ class SaoneEtLoire(Spider):
             self.addToJsonResultFile(links)
 
         except Exception as e:
-            print(f"Error during crawling: {e}")
+            print(f"Error during crawling in {self.department}: {e}")
             return None
         
         return links

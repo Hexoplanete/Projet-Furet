@@ -118,7 +118,7 @@ class Sarthe(Spider):
             self.addToJsonResultFile(links) # Add the links to the JSON result file
 
         except Exception as e:
-            print(f"Error during crawling: {e}")
+            print(f"Error during crawling in {self.department}: {e}")
             return None
         
         return links

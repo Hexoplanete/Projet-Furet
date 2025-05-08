@@ -33,6 +33,10 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
     def columnCount(self, /, parent=...):
         return len(self._fields)
 
+    def setItemAt(self, index: int, item: T):
+        self._data[index] = item
+        self.dataChanged.emit(self.index(index, 0), self.index(index, self.columnCount()-1))
+
     def itemAt(self, index: int):
         return self._data[index]
 

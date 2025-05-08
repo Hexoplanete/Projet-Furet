@@ -11,10 +11,10 @@ def setup():
 def getDecrees() -> list[Decree]:
     # TODO
     return [
-        Decree(1, getDepartmentById(73), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 1", datetime.datetime.now(), datetime.datetime.now(), getCampaignById(1), getTopicById(1), False, "Will"),
-        Decree(2, getDepartmentById(74), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 2", datetime.datetime.now(), datetime.datetime.now(), getCampaignById(1), getTopicById(1), False, "this"),
-        Decree(3, getDepartmentById(75), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 3", datetime.datetime.now(), datetime.datetime.now(), getCampaignById(1), getTopicById(1), False, "work"),
-        Decree(4, getDepartmentById(76), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 5", datetime.datetime.now(), datetime.datetime.now(), getCampaignById(1), getTopicById(1), False, "?"),
+        Decree(1, getDepartmentById(73), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 1", datetime.datetime.now().date(), datetime.datetime.now().date(), getCampaignById(1), getTopicById(1), False, "Will"),
+        Decree(2, getDepartmentById(74), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 2", datetime.datetime.now().date(), datetime.datetime.now().date(), getCampaignById(1), getTopicById(1), False, "this"),
+        Decree(3, getDepartmentById(75), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 3", datetime.datetime.now().date(), datetime.datetime.now().date(), getCampaignById(1), getTopicById(1), False, "work"),
+        Decree(4, getDepartmentById(76), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 5", datetime.datetime.now().date(), datetime.datetime.now().date(), getCampaignById(1), getTopicById(1), False, "?"),
     ]
 
 def getDecreeById(id: int) -> Decree:
@@ -143,7 +143,7 @@ def getDocumentTypeById(id: int) -> DocumentType:
     return _findByField(getDocumentTypes(), id)
 
 
-def getCampaign() -> list[DecreeTopic]:
+def getCampaigns() -> list[DecreeTopic]:
     # TODO add to db in setup
     return [
         DecreeTopic(1, "Chasse"),
@@ -154,7 +154,7 @@ def getCampaign() -> list[DecreeTopic]:
 
 
 def getCampaignById(id: int) -> DecreeTopic:
-    return _findByField(getCampaign(), id)
+    return _findByField(getCampaigns(), id)
 
 
 def getTopics() -> list[DecreeTopic]:

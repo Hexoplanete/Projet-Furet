@@ -39,7 +39,7 @@ class Decree:
     startPage: int
     endPage: int
     
-    doc_type: DocumentType
+    docType: DocumentType
     number: str
     title: str
     publicationDate: date

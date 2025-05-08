@@ -47,7 +47,7 @@ class Crawler:
 
         for region, regionData in config["regions"].items():
             for department, lastDate in regionData["departments"].items():
-                moduleName = region.replace(" ", "").lower()  # Remove spaces and convert to lowercase for valid module names
+                moduleName = region.replace(" ", "").lower().lower() # Remove spaces and convert to lowercase for valid module names
                 className = department.replace(" ", "")  # Remove spaces for valid class names
                 try:
                     module = __import__(f"furet.crawler.regions.{moduleName}", fromlist=[className])
@@ -97,3 +97,4 @@ class Crawler:
         self.createSpiders()  
         self.startSpiders()
         print("All spiders have finished crawling.")
+

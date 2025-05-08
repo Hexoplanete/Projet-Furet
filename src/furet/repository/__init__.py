@@ -57,12 +57,12 @@ def getDocumentTypeById(id: int) -> DocumentType:
     return _findByField(getDocumentTypes(), id)
 
 
-def getCampaign() -> list[Campaign]:
+def getCampaigns() -> list[Campaign]:
     return campaignList
 
 
 def getCampaignById(id: int) -> Campaign:
-    return _findByField(getCampaign(), id)
+    return _findByField(getCampaigns(), id)
 
 def getCampaignIdByLabel(label: str) -> Campaign:
     return _findByField(getCampaign(), label)

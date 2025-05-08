@@ -1,137 +1,141 @@
 from dateutil.relativedelta import relativedelta
+from datetime import date
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import repository
+from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
 from furet.types.decree import Decree
 
 
-class DecreeDetailsWindow(QtWidgets.QWidget):
+def buildComboBox(options, choice) -> QtWidgets.QComboBox:
+    box = QtWidgets.QComboBox()
+    box.setEditable(True)
+    for o in options:
+        box.addItem(str(o), o)
+    for i, o in enumerate(options):
+        if o.id == choice.id:
+            box.setCurrentIndex(i)
+    return box
+
+
+class DecreeDetailsWindow(QtWidgets.QDialog):
     def __init__(self, decree: Decree):
         super().__init__()
+        self._decree = decree
         self.setWindowTitle(f"Détails de l'arrêté n°{decree.number}")
-        
+
         self._rootLayout = QtWidgets.QVBoxLayout(self)
-        self._decreeForm = QtWidgets.QFormLayout()
-        self._rootLayout.addLayout(self._decreeForm)
-        # self._layout = QtWidgets.QVBoxLayout()
+
+        def addSection(label: str):
+            sep = TextSeparatorWidget(label)
+            sep = self._rootLayout.addWidget(sep)
+            decreeForm = QtWidgets.QFormLayout()
+            self._rootLayout.addLayout(decreeForm)
+            return decreeForm
 
         # Decree
-        decreeTitle = QtWidgets.QLineEdit(decree.title)
-        self._decreeForm.addRow("Titre", decreeTitle)
+        decreeForm = addSection("Arrêté")
 
-        decreeNumber = QtWidgets.QLineEdit(decree.raaNumber)
-        self._decreeForm.addRow("N° de l'arrêté", decreeNumber)
+        self._decreeTitle = QtWidgets.QLineEdit(decree.title)
+        decreeForm.addRow("Titre", self._decreeTitle)
 
-        docType = QtWidgets.QComboBox()
-        docTypes = repository.getDocumentTypes()
-        for t in docTypes: docType.addItem(t.label, t.id)
-        self._decreeForm.addRow("Type de document", docType)
-        for i, t in enumerate(docTypes):
-            if t.id == decree.docType.id:
-                docType.setCurrentIndex(i)
+        self._decreeNumber = QtWidgets.QLineEdit(decree.number)
+        decreeForm.addRow("N° de l'arrêté", self._decreeNumber)
 
+        self._docType = QtWidgets.QComboBox()
+        self._docType = buildComboBox(repository.getDocumentTypes(), decree.docType)
+        decreeForm.addRow("Type de document", self._docType)
+
+        self._publicationDate = QtWidgets.QDateEdit(decree.publicationDate)
+        self._publicationDate.setDisabled(True)
+        decreeForm.addRow("Date de publication", self._publicationDate)
+
+        self._signingDate = QtWidgets.QDateEdit(decree.signingDate)
+        decreeForm.addRow("Date de signature", self._signingDate)
 
         # RAA
-        label = QtWidgets.QLabel(f"<a href=\"{decree.link}\">Cliquez ici</a>")
-        label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
+        decreeForm = addSection("Recueil")
+        self._department = buildComboBox(
+            repository.getDepartments(), decree.department)
+        decreeForm.addRow("Département", self._department)
+
+        label = QtWidgets.QLabel(
+            f"<a href=\"{decree.link}\">{decree.link}</a>")
+        label.setTextInteractionFlags(
+            QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
         label.setOpenExternalLinks(True)
-        self._decreeForm.addRow("Lien vers l'arrêté", label)
+        decreeForm.addRow("Lien", label)
 
-        raaNumber = QtWidgets.QLineEdit(decree.raaNumber)
-        self._decreeForm.addRow("Numéro RAA", raaNumber)
+        self._raaNumber = QtWidgets.QLineEdit(decree.raaNumber)
+        decreeForm.addRow("Numéro RAA", self._raaNumber)
 
-        docType = QtWidgets.QComboBox()
-        docTypes = repository.getDocumentTypes()
-        for t in docTypes: docType.addItem(t.label, t.id)
-        self._decreeForm.addRow("Type de document", docType)
-        for i, t in enumerate(docTypes):
-            if t.id == decree.docType.id:
-                docType.setCurrentIndex(i)
+        pagesRange = QtWidgets.QWidget()
+        pagesLayout = QtWidgets.QHBoxLayout(pagesRange)
+        self._pagesStart = QtWidgets.QLineEdit(str(decree.startPage))
+        self._pagesStart.setValidator(QtGui.QIntValidator())
+        pagesSep = QtWidgets.QLabel("à")
+        self._pagesEnd = QtWidgets.QLineEdit(str(decree.endPage))
+        self._pagesEnd.setValidator(QtGui.QIntValidator())
+        pagesLayout.addWidget(self._pagesStart)
+        pagesLayout.addWidget(pagesSep)
+        pagesLayout.addWidget(self._pagesEnd)
+        decreeForm.addRow("Pages", pagesRange)
+        pagesLayout.setContentsMargins(0, 0, 0, 0)
 
-        self._state = QtWidgets.QComboBox()
-        self._state.addItems(["Non traité", "Traité"])
-        self._decreeForm.addRow("Statut", self._state)
+        # ASPAS specific
+        decreeForm = addSection("Information supplémentaires")
 
-        pubDate = QtWidgets.QLabel(f"{decree.publicationDate}")
-        self._decreeForm.addRow("Date de publication", pubDate)
+        self._campaign = buildComboBox(
+            repository.getCampaigns(), decree.campaign)
+        decreeForm.addRow("Campagne", self._campaign)
 
-        dateLimit = QtWidgets.QLabel(f"{decree.publicationDate + relativedelta(months=2)}")
-        self._decreeForm.addRow("Date limite de recours", dateLimit)
+        self._topic = buildComboBox(repository.getTopics(), decree.topic)
+        decreeForm.addRow("Sujet", self._topic)
 
-        docType = QtWidgets.QLabel(f"{decree.docType}")
-        self._decreeForm.addRow("Type de document", docType)
+        self._treated = QtWidgets.QCheckBox("", tristate=decree.treated)
+        decreeForm.addRow("Traité", self._treated)
 
-        campaignLabel = QtWidgets.QLabel(str(decree.campaign))
-        self._decreeForm.addRow("Campagne ASPAS", campaignLabel)
+        commentSep = QtWidgets.QLabel("Commentaire")
+        self._rootLayout.addWidget(commentSep)
+        self._comment = QtWidgets.QTextEdit(self._decree.comment)
+        self._rootLayout.addWidget(self._comment)
 
-        topicLabel = QtWidgets.QLabel(str(decree.topic.label)) # TODO: changer car liste de labels
-        self._decreeForm.addRow("Sujet", topicLabel)
+        # Buttons
+        self._buttonLayout = QtWidgets.QHBoxLayout()
+        self._returnButton = QtWidgets.QPushButton("Retour")
+        self._returnButton.clicked.connect(self.onClickRetourButton)
+        self._buttonLayout.addWidget(self._returnButton)
+        self._saveAndQuitButton = QtWidgets.QPushButton("Sauvegarder et Quitter")
+        self._saveAndQuitButton.clicked.connect(self.onClickSaveQuitButton)
+        self._buttonLayout.addWidget(self._saveAndQuitButton)
+        self._rootLayout.addLayout(self._buttonLayout)
 
-        signingDate = QtWidgets.QLabel(str(decree.signingDate))
-        self._decreeForm.addRow("Date Signature", signingDate)
+    def saveDecree(self):
+        self._decree = Decree(
+            id=self._decree.id,
+            number=self._decreeNumber.text(),
+            title=self._decreeTitle.text(),
+            docType=self._docType.currentData(),
+            publicationDate=self._publicationDate.date().toPython(),
+            signingDate=self._signingDate.date().toPython(),
+            department=self._department.currentData(),
+            raaNumber=self._raaNumber.text(),
+            link=self._decree.link,
+            startPage=int(self._pagesStart.text()),
+            endPage=int(self._pagesEnd.text()),
+            campaign=self._campaign.currentData(),
+            topic=self._topic.currentData(),
+            treated=self._treated.isChecked(),
+            comment=self._comment.toPlainText(),
+        )
 
-        pageRange = QtWidgets.QLabel(f"p.{decree.startPage}->{decree.endPage}")
-        self._decreeForm.addRow("Pagination de l'arrêté", pageRange)
+    def onClickRetourButton(self):
+        self.reject()
 
-        departementLabel = QtWidgets.QLabel(f"{decree.department.label} ({decree.department.id})")
-        self._decreeForm.addRow("Département", departementLabel)
+    def onClickSaveQuitButton(self):
+        self.saveDecree()
+        self.accept()
 
-        self._comment = QtWidgets.QTextEdit()
-        self._decreeForm.addRow("Commentaire", self._comment)
-
-
-        # # Top Layout
-        # self._topLayer = QtWidgets.QHBoxLayout()
-        # label = QtWidgets.QLabel(f"Lien vers l'arrêté : <a href=\"{decree.link}\">Cliquez ici</a>")
-        # label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
-        # label.setOpenExternalLinks(True)
-        # self._topLayer.addWidget(label)
-        # self._state = QtWidgets.QComboBox()
-        # self._state.addItems(["Statut : Non traité", "Statut : Traité"]) # TODO choix de base
-        # self._topLayer.addWidget(self._state)
-        # self._decreeForm.addLayout(self._topLayer)
-
-        # # Title Layer
-        # label = QtWidgets.QLabel(f"Titre : {decree.title}") # TODO set titre
-        # self._decreeForm.addWidget(label)
-        
-        # # Date Layer
-        # self._dateLayer = QtWidgets.QHBoxLayout()
-        # label = QtWidgets.QLabel(f"Date de publication : {decree.publication_date}") # TODO set date publication
-        # self._dateLayer.addWidget(label)
-        # label = QtWidgets.QLabel(f"Date limite de recours : {decree.publication_date + relativedelta(months=2)}") # TODO set date limite max
-        # self._dateLayer.addWidget(label)
-        # self._decreeForm.addLayout(self._dateLayer)
-        
-
-        # self._infoLayer = QtWidgets.QHBoxLayout()
-        # decreeFrame = QtWidgets.QGroupBox("Arrêté")
-        # # arrete = QtWidgets.QVBoxLayout(decreeFrame)
-        # # widget = QtWidgets.QWidget()
-        # widgetLayout = QtWidgets.QVBoxLayout(decreeFrame)
-        # # widget.setStyleSheet('background-color: LightGray;')
-        # form = QtWidgets.QFormLayout()
-        # label = QtWidgets.QLabel(decree.doc_type)
-        # form.addRow("Type de document", label)
-        # label = QtWidgets.QLabel(decree.campaign)
-        # form.addRow("Campagne ASPAS", label)
-        # label = QtWidgets.QLabel(decree.topic.label)
-        # form.addRow("Sujet", label)
-        # label = QtWidgets.QLabel(decree.signing_date)
-        # form.addRow("Date Signature", label)
-        # label = QtWidgets.QLabel(f"p.{decree.start_page}->{decree.end_page}")
-        # form.addRow("Pagination de l'arrêté", label)
-        # widgetLayout.addLayout(form)
-        # self._infoLayer.addWidget(decreeFrame)
-        # self._decreeForm.addLayout(self._infoLayer)
-        
-        # self._commentLayer = QtWidgets.QVBoxLayout()
-        # self._decreeForm.addLayout(self._commentLayer)
-        
-        # self._buttonsLayer = QtWidgets.QHBoxLayout()
-        # self._decreeForm.addLayout(self._buttonsLayer)
-
-        # self.label = QtWidgets.QLabel("Détails")
-        # self._decreeForm.addWidget(self.label)
-        # self.setLayout(self._decreeForm)
+    def decree(self):
+        return self._decree

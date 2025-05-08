@@ -18,7 +18,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._layout = QtWidgets.QVBoxLayout(self._content)
         self.setCentralWidget(self._content)
 
-        columns = [
+        self._columns = [
             TableColumn[Department]("department", lambda: "Département"),
             TableColumn[DecreeTopic]("topic", lambda: "Sujet"),
             TableColumn[str]("title", lambda: "Titre"),
@@ -26,7 +26,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
             TableColumn[str]("comment", lambda: "Commentaire"),
         ]
-        self._decrees = ObjectTableModel(repository.getDecrees(), columns)
+        self._decrees = ObjectTableModel(repository.getDecrees(), self._columns)
 
         self._topBar = QtWidgets.QHBoxLayout()
         self._layout.addLayout(self._topBar)
@@ -48,7 +48,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.setEditTriggers(QtWidgets.QTableView.EditTrigger.NoEditTriggers)
         self._table.setSelectionBehavior(QtWidgets.QTableView.SelectionBehavior.SelectRows)
         self._table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self._table.horizontalHeader().setSectionResizeMode(len(columns)-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(len(self._columns)-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.setSortingEnabled(True)
 
         self._paramWindow: ParametersWindow = None
@@ -67,8 +67,12 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
     def onDblClickTableRow(self, index: QtCore.QModelIndex):
         source_index = self._filters.proxyModel().mapToSource(index)
         decree = self._decrees.itemAt(source_index.row())
-        if id not in self._decreeDetailWindows or not(self._decreeDetailWindows[id].isVisible()):
+        def onDecreeSaved():
+            self._decrees.setItemAt(source_index.row(), self._decreeDetailWindows[decree.id].decree())
+
+        if decree.id not in self._decreeDetailWindows or not(self._decreeDetailWindows[decree.id].isVisible()):
             self._decreeDetailWindows[decree.id] = DecreeDetailsWindow(decree)
             self._decreeDetailWindows[decree.id].show()
+            self._decreeDetailWindows[decree.id].accepted.connect(onDecreeSaved)
         else:
             self._decreeDetailWindows[decree.id].activateWindow()

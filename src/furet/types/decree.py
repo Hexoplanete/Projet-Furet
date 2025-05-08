@@ -48,6 +48,12 @@ class Decree:
     startPage: int
     endPage: int
     
+    docType: DocumentType
+    number: str
+    title: str
+    publicationDate: date
+    signingDate: date
+    
     # Specific for our use
     campaign: Campaign
     topic: list[DecreeTopic]

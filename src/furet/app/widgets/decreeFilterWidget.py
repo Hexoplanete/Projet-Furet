@@ -12,17 +12,17 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._proxy = ObjectFilterProxy[Decree](filterer=self.filterDecrees)
         
         self._department = QtWidgets.QComboBox()
-        self._department.addItem(f"Choisir un département", 0)
+        self._department.addItem(f"Choisir un département", None)
         for d in repository.getDepartments():
-            self._department.addItem(str(d), d.id)
+            self._department.addItem(str(d), d)
         self._department.setEditable(True)
         self._layout.addWidget(self._department)
 
 
         self._topic = QtWidgets.QComboBox()
-        self._topic.addItem(f"Choisir un sujet", 0)
+        self._topic.addItem(f"Choisir un sujet", None)
         for t in repository.getTopics():
-            self._topic.addItem(t.label, t.id)
+            self._topic.addItem(t.label, t)
         self._topic.setEditable(True)
         self._layout.addWidget(self._topic)
 
@@ -40,8 +40,8 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._researchButton.clicked.connect(self.onClickResearchButton)
         self._layout.addWidget(self._researchButton)
 
-        self._departementValue = 0
-        self._topicValue = 0
+        self._departementValue = None
+        self._topicValue = None
         self._nameValue = ""
         self._dateValue = None
         self._stateValues = None
@@ -73,8 +73,8 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         return
     
     def filterDecrees(self, decree: Decree):
-        if self._departementValue > 0 and decree.department.id != self._departementValue: return False
-        if self._topicValue > 0 and decree.topic.id != self._topicValue: return False
+        if self._departementValue is not None and decree.department.id != self._departementValue.id: return False
+        if self._topicValue is not None and decree.topic.id != self._topicValue.id: return False
         if self._nameValue != "" and decree.title.lower().find(self._nameValue.lower()) == -1: return False
 
         return True

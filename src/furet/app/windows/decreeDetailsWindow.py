@@ -1,21 +1,12 @@
+from typing import Any
 from dateutil.relativedelta import relativedelta
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import repository
+from furet.app.utils import buildComboBox
 from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
 from furet.types.decree import Decree
-
-
-def buildComboBox(options, choice) -> QtWidgets.QComboBox:
-    box = QtWidgets.QComboBox()
-    box.setEditable(True)
-    for o in options:
-        box.addItem(str(o), o)
-    for i, o in enumerate(options):
-        if o.id == choice.id:
-            box.setCurrentIndex(i)
-    return box
 
 
 class DecreeDetailsWindow(QtWidgets.QDialog):
@@ -48,9 +39,6 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._docType = buildComboBox(repository.getDocumentTypes(), decree.docType)
         decreeForm.addRow("Type de document", self._docType)
 
-        self._publicationDate = QtWidgets.QDateEdit(decree.publicationDate)
-        self._publicationDate.setDisabled(True)
-        decreeForm.addRow("Date de publication", self._publicationDate)
 
         self._signingDate = QtWidgets.QDateEdit(decree.signingDate)
         decreeForm.addRow("Date de signature", self._signingDate)
@@ -63,8 +51,13 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         decreeForm = addSection("Recueil")
         self._department = buildComboBox(
             repository.getDepartments(), decree.department)
+        self._department.setDisabled(True)
         decreeForm.addRow("Département", self._department)
 
+        self._publicationDate = QtWidgets.QDateEdit(decree.publicationDate)
+        self._publicationDate.setDisabled(True)
+        decreeForm.addRow("Date de publication", self._publicationDate)
+        
         label = QtWidgets.QLabel(
             f"<a href=\"{decree.link}\">{decree.link}</a>")
         label.setTextInteractionFlags(

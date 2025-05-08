@@ -78,7 +78,6 @@ class SaoneEtLoire(Spider):
         """
         Crawl the website to find and download the most recent RAA links.
         """
-        print(f"Starting crawl for {self.department} in {self.region}...")
         try:
             links = self.findPagesAndLinks(self.fetchPage(self.baseURL))
 

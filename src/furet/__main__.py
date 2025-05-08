@@ -1,14 +1,11 @@
 import sys
 import furet.app
-from furet.crawler.Crawler import Crawler
+from furet.crawler.crawler import Crawler
 
 
 def main():
-    print("Starting Furet...")
-    crawler = Crawler()
-    print("Crawler initialized.")
-    crawler.startCrawler()
-    print("Crawler started.")
+    # crawler = Crawler()
+    # crawler.startCrawler()
     furet.app.main()
 
 if __name__ == '__main__':

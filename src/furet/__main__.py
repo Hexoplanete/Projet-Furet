@@ -1,7 +1,7 @@
-import sys
 import furet.app
 from furet.crawler.crawler import Crawler
 from furet import repository
+import threading
 
 #from datetime import datetime
 

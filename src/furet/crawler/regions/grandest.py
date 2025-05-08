@@ -105,4 +105,4 @@ class Moselle(Spider):
             print(f"Error during crawling: {e}")
             return None
         
-        return self.mostRecentRAA 
+        return finalLinks

@@ -26,7 +26,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._topic.setEditable(True)
         self._layout.addWidget(self._topic)
 
-        self._name = QtWidgets.QLineEdit()
+        self._name = QtWidgets.QLineEdit(placeholderText="Choisir un titre")
         self._layout.addWidget(self._name)
 
         self._date = QtWidgets.QDateEdit()

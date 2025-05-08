@@ -27,7 +27,7 @@ class HautesPyrenees(Spider):
         extractedPages = []
         i = 0
         while True:     # Loop through the pages until there are no more pages to fetch
-            url = self.baseURL + "/(offset)/" + str(i*10)  # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
+            url = self.baseURL + "/(offset)/" + str(i*10)  
 
             html = self.fetchPage(url)
             soup = BeautifulSoup(html, 'html.parser')

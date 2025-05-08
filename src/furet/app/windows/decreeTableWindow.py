@@ -1,6 +1,7 @@
 from PySide6 import QtWidgets, QtCore
 from furet import repository
 from furet.types.decree import *
+from dateutil.relativedelta import relativedelta
 
 from furet.app.widgets.objectTableModel import ObjectTableModel, TableColumn
 from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
@@ -8,8 +9,10 @@ from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
 from furet.app.windows.parametersWindow import ParametersWindow
 from furet.types.department import Department
 
-class DecreeTableWindow(QtWidgets.QMainWindow):
+def format_date(value: date):
+    return value.strftime("%A %d %B %Y")
 
+class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__()
@@ -20,9 +23,11 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
         self._columns = [
             TableColumn[Department]("department", lambda: "Département"),
+            TableColumn[DecreeTopic]("campaign", lambda: "Campagne"),
             TableColumn[DecreeTopic]("topic", lambda: "Sujet"),
             TableColumn[str]("title", lambda: "Titre"),
-            TableColumn[date]("publicationDate", lambda: "Date de publication"),
+            TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: format_date(v)),
+            TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: format_date(v + relativedelta(months=2))),
             TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
             TableColumn[str]("comment", lambda: "Commentaire"),
         ]
@@ -46,6 +51,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.doubleClicked.connect(self.onDblClickTableRow)
 
         self._table.setEditTriggers(QtWidgets.QTableView.EditTrigger.NoEditTriggers)
+        self._table.setSelectionMode(QtWidgets.QTableView.SelectionMode.SingleSelection)
         self._table.setSelectionBehavior(QtWidgets.QTableView.SelectionBehavior.SelectRows)
         self._table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self._table.horizontalHeader().setSectionResizeMode(len(self._columns)-1, QtWidgets.QHeaderView.ResizeMode.Stretch)

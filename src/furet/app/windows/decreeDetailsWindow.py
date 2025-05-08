@@ -1,5 +1,4 @@
 from dateutil.relativedelta import relativedelta
-from datetime import date
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
@@ -28,6 +27,8 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._rootLayout = QtWidgets.QVBoxLayout(self)
 
         def addSection(label: str):
+            if self._rootLayout.count() > 0:
+                self._rootLayout.addSpacing(20)
             sep = TextSeparatorWidget(label)
             sep = self._rootLayout.addWidget(sep)
             decreeForm = QtWidgets.QFormLayout()
@@ -53,6 +54,10 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
 
         self._signingDate = QtWidgets.QDateEdit(decree.signingDate)
         decreeForm.addRow("Date de signature", self._signingDate)
+        
+        self._expireDate = QtWidgets.QDateEdit(decree.publicationDate + relativedelta(months=2))
+        self._expireDate.setDisabled(True)
+        decreeForm.addRow("Date d'expiration", self._expireDate)
 
         # RAA
         decreeForm = addSection("Recueil")

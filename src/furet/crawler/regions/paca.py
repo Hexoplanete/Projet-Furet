@@ -105,7 +105,7 @@ class AlpesMaritimes(Spider):
             self.addToJsonResultFile(links)
 
         except Exception as e:
-            print(f"Error during crawling: {e}")
+            print(f"Error during crawling in {self.department}: {e}")
             return None
         
         return links
@@ -208,7 +208,7 @@ class BouchesDuRhone(Spider):
             self.addToJsonResultFile(links)
 
         except Exception as e:
-            print(f"Error during crawling: {e}")
+            print(f"Error during crawling in {self.department}: {e}")
             return None
         
         return links
@@ -311,7 +311,7 @@ class Var(Spider):
             self.addToJsonResultFile(links)
 
         except Exception as e:
-            print(f"Error during crawling: {e}")
+            print(f"Error during crawling in {self.department}: {e}")
             return None
         
         return links

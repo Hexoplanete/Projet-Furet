@@ -102,7 +102,7 @@ class Moselle(Spider):
             self.addToJsonResultFile(finalLinks)
 
         except Exception as e:
-            print(f"Error during crawling: {e}")
+            print(f"Error during crawling in {self.department}: {e}")
             return None
         
         return finalLinks

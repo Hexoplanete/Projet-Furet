@@ -52,8 +52,7 @@ class Crawler:
                 try:
                     module = __import__(f"furet.crawler.regions.{moduleName}", fromlist=[className])
                     spiderClass = getattr(module, className)
-                    if department != "Var":
-                        spider = spiderClass(self.outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
+                    spider = spiderClass(self.outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
                     self.spiders.append(spider)
                 except (ImportError, AttributeError) as e:
                     print(f"Error loading spider for {department} in {region}: {e}")
@@ -89,6 +88,16 @@ class Crawler:
                 jsonList.extend(list)
 
         return jsonList
+    
+    def readLinkFile(self):
+        """
+        Reads the link file and returns the list of links.
+        """
+        rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+        linkFile = os.path.join(rootDir, "src", "furet", "crawler", "resultCrawler.json")
+        with open(linkFile, 'r') as f:
+            data = json.load(f)
+        return data["links"]
 
     def startCrawler(self):
         """
@@ -102,13 +111,12 @@ class Crawler:
         self.configFile = configFile
         
         linkFile = os.path.join(os.path.dirname(__file__), "resultCrawler.json")
-        if not os.path.exists(linkFile):
-            # create the file if it doesn't exist
-            with open(linkFile, 'w') as f:
-                json.dump({"links": []}, f, indent=4)
+        with open(linkFile, 'w') as f:
+            json.dump({"links": []}, f, indent=4)
         self.linkFile = linkFile
 
         self.createSpiders()  
         self.startSpiders()
+        print(self.readLinkFile())
         print("All spiders have finished crawling.")
 

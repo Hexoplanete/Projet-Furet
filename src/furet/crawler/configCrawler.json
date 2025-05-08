@@ -12,17 +12,13 @@
         },
         "PACA": {
             "departments": {
-                "AlpesMaritimes": "07/05/2025"
+                "AlpesMaritimes": "07/05/2025",
+                "Var": "07/05/2025"
             }
         },
         "PaysDeLaLoire": {
             "departments": {
                 "Sarthe": "07/05/2025"
-            }
-        },
-        "CoteDAzur": {
-            "departments": {
-                "Var": "06/04/2025"
             }
         },
         "BourgogneFrancheComte": {

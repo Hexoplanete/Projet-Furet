@@ -1,4 +1,4 @@
-from spider import Spider
+from furet.crawler.spider import Spider
 from bs4 import BeautifulSoup
 from datetime import datetime
 import requests

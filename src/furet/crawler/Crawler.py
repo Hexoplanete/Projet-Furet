@@ -18,20 +18,17 @@ class Crawler:
         startSpiders():
             Starts all created spiders in separate threads and waits for their completion.
     """
-    def __init__(self, configFile, linkFile):
-        self.configFile = configFile
-        self.linkFile = linkFile
+    def __init__(self):
         self.spiders = []
+        self.outputDir = os.path.join(os.path.dirname(__file__), "PDFs")
 
-    def createSpiders(self, outputDir):
+    def createSpiders(self):
         """
         Creates spider instances for each department in the configuration file.
         This method reads the configuration file to retrieve region and department
         information. For each department, it dynamically imports the corresponding
         spider class and creates an instance of it. The created spider instances
         are stored in the `self.spiders` list.
-        Args:
-            outputDir (str): The base directory where the spider output will be stored.
         Raises:
             ImportError: If the module corresponding to a region cannot be imported.
             AttributeError: If the class corresponding to a department cannot be found
@@ -53,9 +50,9 @@ class Crawler:
                 moduleName = region.replace(" ", "")  # Remove spaces for valid module names
                 className = department.replace(" ", "")  # Remove spaces for valid class names
                 try:
-                    module = __import__(f"{moduleName}", fromlist=[className])
+                    module = __import__(f"furet.crawler.{moduleName}", fromlist=[className])
                     spiderClass = getattr(module, className)
-                    spider = spiderClass(outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
+                    spider = spiderClass(self.outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
                     self.spiders.append(spider)
                 except (ImportError, AttributeError) as e:
                     print(f"Error loading spider for {department} in {region}: {e}")
@@ -79,19 +76,24 @@ class Crawler:
         for thread in threads:
             thread.join()
 
-if __name__ == "__main__":
-    # Use an absolute path to ensure the file is found
-    configFile = os.path.join(os.path.dirname(__file__), "configCrawler.json")
-    if not os.path.exists(configFile):
-        raise FileNotFoundError(f"Config file not found: {configFile}")
-    
-    linkFile = os.path.join(os.path.dirname(__file__), "resultCrawler.json")
-    if not os.path.exists(linkFile):
-        # create the file if it doesn't exist
-        with open(linkFile, 'w') as f:
-            json.dump({"links": []}, f, indent=4)
+    def startCrawler(self):
+        """
+        Starts the crawling process by creating and starting spiders.
+        This method is a wrapper around `createSpiders` and `startSpiders`.
+        """
+        # Use an absolute path to ensure the file is found
+        configFile = os.path.join(os.path.dirname(__file__), "configCrawler.json")
+        if not os.path.exists(configFile):
+            raise FileNotFoundError(f"Config file not found: {configFile}")
+        self.configFile = configFile
+        
+        linkFile = os.path.join(os.path.dirname(__file__), "resultCrawler.json")
+        if not os.path.exists(linkFile):
+            # create the file if it doesn't exist
+            with open(linkFile, 'w') as f:
+                json.dump({"links": []}, f, indent=4)
+        self.linkFile = linkFile
 
-    crawler = Crawler(configFile, linkFile)
-    crawler.createSpiders("./pdfs")  
-    crawler.startSpiders()
-    print("All spiders have finished crawling.")
+        self.createSpiders()  
+        self.startSpiders()
+        print("All spiders have finished crawling.")

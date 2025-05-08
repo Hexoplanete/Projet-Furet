@@ -1,5 +1,6 @@
 from PySide6 import QtWidgets, QtCore
 from furet import repository
+from furet.app.utils import formatDate
 from furet.types.decree import *
 from dateutil.relativedelta import relativedelta
 
@@ -9,8 +10,6 @@ from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
 from furet.app.windows.parametersWindow import ParametersWindow
 from furet.types.department import Department
 
-def format_date(value: date):
-    return value.strftime("%A %d %B %Y")
 
 class DecreeTableWindow(QtWidgets.QMainWindow):
 
@@ -22,12 +21,12 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self._content)
 
         self._columns = [
+            TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: formatDate(v)),
+            TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: formatDate(v + relativedelta(months=2))),
             TableColumn[Department]("department", lambda: "Département"),
             TableColumn[DecreeTopic]("campaign", lambda: "Campagne"),
             TableColumn[DecreeTopic]("topic", lambda: "Sujet"),
             TableColumn[str]("title", lambda: "Titre"),
-            TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: format_date(v)),
-            TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: format_date(v + relativedelta(months=2))),
             TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
             TableColumn[str]("comment", lambda: "Commentaire"),
         ]
@@ -45,7 +44,6 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._topBar.addWidget(self._paramButton)
         
         self._table = QtWidgets.QTableView()
-        self._table.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
         self._table.setModel(self._filters.proxyModel())
         self._layout.addWidget(self._table, 1)
         self._table.doubleClicked.connect(self.onDblClickTableRow)
@@ -56,6 +54,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self._table.horizontalHeader().setSectionResizeMode(len(self._columns)-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.setSortingEnabled(True)
+        self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
 
         self._paramWindow: ParametersWindow = None
         self._decreeDetailWindows: dict[int, DecreeDetailsWindow] = {}

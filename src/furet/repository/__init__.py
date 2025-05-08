@@ -11,10 +11,11 @@ def setup():
 def getDecrees() -> list[Decree]:
     # TODO
     return [
-        Decree(1, getDepartmentById(73), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 1", datetime.datetime.now().date(), datetime.datetime.now().date(), getCampaignById(1), getTopicById(1), False, "Will"),
-        Decree(2, getDepartmentById(74), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 2", datetime.datetime.now().date(), datetime.datetime.now().date(), getCampaignById(1), getTopicById(1), False, "this"),
-        Decree(3, getDepartmentById(75), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 3", datetime.datetime.now().date(), datetime.datetime.now().date(), getCampaignById(1), getTopicById(1), False, "work"),
-        Decree(4, getDepartmentById(76), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 5", datetime.datetime.now().date(), datetime.datetime.now().date(), getCampaignById(1), getTopicById(1), False, "?"),
+        Decree(1, getDepartmentById(73), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 1", date(2024, 1, 12), date(2024, 1, 12), getCampaignById(1), getTopicById(1), False, "Will"),
+        Decree(2, getDepartmentById(74), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 2", date(2024, 1, 13), date(2024, 1, 12), getCampaignById(1), getTopicById(1), False, "this"),
+        Decree(3, getDepartmentById(75), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 3", date(2024, 3, 2), date(2024, 3, 2), getCampaignById(1), getTopicById(1), False, "work"),
+        Decree(4, getDepartmentById(76), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 5", date(2024, 5, 9), date(2024, 5, 9), getCampaignById(1), getTopicById(1), False, "?"),
+        Decree(4, getDepartmentById(76), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 5", date(2023, 5, 9), date(2024, 5, 9), getCampaignById(1), getTopicById(1), False, "?"),
     ]
 
 def getDecreeById(id: int) -> Decree:

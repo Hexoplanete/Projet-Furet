@@ -12,7 +12,7 @@ class HautesPyrenees(Spider):
         Initialize the HautesPyrenees spider with specific parameters.
         """
         super().__init__(outputDir, configFile, linkFile, date)
-        self.baseURL = "https://www.hautes-pyrenees.gouv.fr/Publications/Recueil-d-actes-administratifs"
+        self.baseUrl = "https://www.hautes-pyrenees.gouv.fr/Publications/Recueil-d-actes-administratifs"
         self.region = "Occitanie"
         self.department = "HautesPyrenees"
         self.currentMostRecentRAA = self.mostRecentRAA
@@ -27,7 +27,7 @@ class HautesPyrenees(Spider):
         extractedPages = []
         i = 0
         while True:     # Loop through the pages until there are no more pages to fetch
-            url = self.baseURL + "/(offset)/" + str(i*10)  
+            url = self.baseUrl + "/(offset)/" + str(i*10)  
 
             html = self.fetchPage(url)
             soup = BeautifulSoup(html, 'html.parser')
@@ -76,13 +76,13 @@ class HautesPyrenees(Spider):
         Crawl the website to find and download the most recent RAA links.
         """
         try:
-            links_suffix = self.findPages(self.fetchPage(self.baseURL)) # For each year, there is a page with RAAs
+            links_suffix = self.findPages(self.fetchPage(self.baseUrl)) # For each year, there is a page with RAAs
             links = []
             for link in links_suffix:
                 if int(link[-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
                     break
 
-                url = self.baseURL + "/" + link # The URL for the specific year
+                url = self.baseUrl + "/" + link # The URL for the specific year
                 html = self.fetchPage(url)
                 if not html:
                     break

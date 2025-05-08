@@ -12,7 +12,7 @@ class SaoneEtLoire(Spider):
         Initialize the Moselle spider with specific parameters.
         """
         super().__init__(ouputDir, configFile, linkFile, date)
-        self.baseURL = "https://www.saone-et-loire.gouv.fr/Publications/Recueil-des-actes-administratifs"
+        self.baseUrl = "https://www.saone-et-loire.gouv.fr/Publications/Recueil-des-actes-administratifs"
         self.region = "BourgogneFrancheComte"
         self.department = "SaoneEtLoire"
         self.currentMostRecentRAA = self.mostRecentRAA
@@ -28,7 +28,7 @@ class SaoneEtLoire(Spider):
         i = 0
         while True:
             links = []
-            url = self.baseURL + "/(offset)/" + str(i*10) # Pagination URL the value of offset is multiplied by 10 to get the next page
+            url = self.baseUrl + "/(offset)/" + str(i*10) # Pagination URL the value of offset is multiplied by 10 to get the next page
             
             html = self.fetchPage(url)
             soup = BeautifulSoup(html, 'html.parser')
@@ -79,7 +79,7 @@ class SaoneEtLoire(Spider):
         Crawl the website to find and download the most recent RAA links.
         """
         try:
-            links = self.findPagesAndLinks(self.fetchPage(self.baseURL))
+            links = self.findPagesAndLinks(self.fetchPage(self.baseUrl))
 
             if self.currentMostRecentRAA > self.mostRecentRAA:  
                 self.mostRecentRAA = self.currentMostRecentRAA

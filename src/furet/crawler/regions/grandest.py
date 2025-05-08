@@ -14,7 +14,7 @@ class Moselle(Spider):
         Initialize the Moselle spider with specific parameters.
         """
         super().__init__(ouputDir, configFile, linkFile, date)
-        self.baseURL = "https://mc.moselle.gouv.fr/raa.html?adminedit=1?op=raa&do=raa_rec&page="
+        self.baseUrl = "https://mc.moselle.gouv.fr/raa.html?adminedit=1?op=raa&do=raa_rec&page="
         self.region = "GrandEst"
         self.department = "Moselle"
         self.currentMostRecentRAA = self.mostRecentRAA
@@ -82,7 +82,7 @@ class Moselle(Spider):
             i = 1
             finalLinks = []
             while True:           # Loop through the pages until no more links are found
-                url = self.baseURL + str(i)
+                url = self.baseUrl + str(i)
                 i += 1
                 html = self.fetchPage(url)
                 if not html or "Il n'y a aucun recueil cr" in html: # Check if the page is empty or if there are no more RAA

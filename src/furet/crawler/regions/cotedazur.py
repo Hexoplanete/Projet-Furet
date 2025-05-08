@@ -12,7 +12,7 @@ class Var(Spider):
         Initialize the AlpesMaritimes spider with specific parameters.
         """
         super().__init__(outputDir, configFile, linkFile, date)
-        self.baseUrl = "https://www.var.gouv.fr/Publications/RAA-Recueil-des-actes-administratifs"
+        self.baseUrl = "https://www.var.gouv.fr/Publications/RAA-Recueil-des-actes-administratifs/Recueil-des-actes-administratifs-2011"
         self.region = "CoteDAzur"
         self.department = "Var"
         self.currentMostRecentRAA = self.mostRecentRAA
@@ -31,25 +31,25 @@ class Var(Spider):
         RAAYears = soup.find_all('a', class_='fr-sidemenu__link')
 
         for RAAYear in RAAYears:
-            if RAAYear['href'].startswith('/Publications/Recueil-des-actes-administratifs-RAA'):
+            if RAAYear['href'].startswith('/Publications/RAA-Recueil-des-actes-administratifs'):
                 annee = RAAYear['href'].split('-')[-1]
                 if int(annee[-4:]) < self.mostRecentRAA.year: # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
                     break
-                url = self.baseUrl + '-' + annee
+                url = "https://www.var.gouv.fr" + RAAYear['href'] # Construct the URL for the year
                 html = self.fetchPage(url)
                 soup = BeautifulSoup(html, 'html.parser')
 
                 RAAmonths = soup.find_all('a', class_='fr-sidemenu__link')
                 for RAAmonth in RAAmonths:
-                    if RAAmonth['href'].startswith('/Publications/Recueil-des-actes-administratifs-RAA'):
+                    if RAAmonth['href'].startswith('/Publications/RAA-Recueil-des-actes-administratifs'):
                         month = RAAmonth['href'].split('-')[-2]
                         
-                    extractedPages.append(annee + "/" + month + "-" + annee)
+                    extractedPages.append(url + "/" + month + "-" + annee)
 
         for link in extractedPages:
             i = 0
             while True:
-                url = self.baseUrl + '-' + link + "/(offset)/" + str(i*10) # Pagination URL the value of offset is multiplied by 10 to get the next page
+                url = link + "/(offset)/" + str(i*10) # Pagination URL the value of offset is multiplied by 10 to get the next page
                 
                 html = self.fetchPage(url)
                 soup = BeautifulSoup(html, 'html.parser')
@@ -105,10 +105,24 @@ class Var(Spider):
                 self.mostRecentRAA = self.currentMostRecentRAA
                 self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
 
-            self.addToJsonResultFile(links)
+            # self.addToJsonResultFile(links)
 
         except Exception as e:
             print(f"Error during crawling: {e}")
             return None
         
         return self.mostRecentRAA
+
+import os
+import json
+if __name__ == "__main__":
+    # Example usage of the Var spider class
+    configFile = os.path.join(os.path.dirname(__file__), "configCrawler.json")
+    
+    linkFile = os.path.join(os.path.dirname(__file__), "resultCrawler.json")
+    if not os.path.exists(linkFile):
+        # create the file if it doesn't exist
+        with open(linkFile, 'w') as f:
+            json.dump({"links": []}, f, indent=4)
+    spider = Var("output_directory", "rien", linkFile, "01/01/2026")
+    spider.crawl()

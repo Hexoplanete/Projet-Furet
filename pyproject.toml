@@ -21,6 +21,8 @@ dependencies = [
     "pyside6>=6.9",
     "tomlkit>=0.13",
     "dateutils",
+    "requests",
+    "bs4"
 ]
 
 [project.urls]

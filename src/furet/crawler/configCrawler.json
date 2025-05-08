@@ -19,6 +19,11 @@
             "departments": {
                 "Sarthe": "07/05/2025"
             }
+        },
+        "BourgogneFrancheComte": {
+            "departments": {
+                "SaoneEtLoire": "06/05/2025"
+            }
         }
     }
 }

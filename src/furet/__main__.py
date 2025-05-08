@@ -4,8 +4,8 @@ from furet.crawler.crawler import Crawler
 
 
 def main():
-    # crawler = Crawler()
-    # crawler.startCrawler()
+    crawler = Crawler()
+    crawler.startCrawler()
     furet.app.main()
 
 if __name__ == '__main__':

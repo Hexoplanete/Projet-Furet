@@ -2,7 +2,7 @@ from furet.crawler.spider import Spider
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-class HautesPyrenees(Spider):
+class Allier(Spider):
     """
     A spider class for crawling the Hautes-Pyrenees department's website for RAA (Recueil des Actes Administratifs) links.
     Inherits from the Spider class.
@@ -12,9 +12,9 @@ class HautesPyrenees(Spider):
         Initialize the HautesPyrenees spider with specific parameters.
         """
         super().__init__(outputDir, configFile, linkFile, date)
-        self.baseUrl = "https://www.hautes-pyrenees.gouv.fr/Publications/Recueil-d-actes-administratifs"
-        self.region = "Occitanie"
-        self.department = "HautesPyrenees"
+        self.baseUrl = "https://www.allier.gouv.fr/Publications/Recueil-des-actes-administratifs-arretes"
+        self.region = "AURA"
+        self.department = "Allier"
         self.currentMostRecentRAA = self.mostRecentRAA
 
     def findPages(self, html):
@@ -25,22 +25,17 @@ class HautesPyrenees(Spider):
         :return: Number of pages found.
         """
         extractedPages = []
-        i = 0
-        while True:     # Loop through the pages until there are no more pages to fetch
-            url = self.baseUrl + "/(offset)/" + str(i*10)  
+        soup = BeautifulSoup(html, 'html.parser') 
+        
+        RAAYear = soup.find_all('h2', class_='fr-card__title')
 
-            html = self.fetchPage(url)
-            soup = BeautifulSoup(html, 'html.parser')
-            i += 1
-
-            if not html or not soup.find(class_="fr-card__link"):   # Check if the page is empty or if there are no more links to extract
-                break
-            
-            RAA_year = soup.find_all('a', class_='fr-card__link', href=True) # Find all links with the class 'fr-card__link'
-
-            for link in RAA_year:
-                if link['href'].startswith('/Publications/Recueil-d-actes-administratifs'):
-                    extractedPages.append(link['href'].split('/')[-1])
+        for h2 in RAAYear:
+            a = h2.find('a', href=True)
+            if a['href'].startswith('/Publications/Recueil-des-actes-administratifs-arretes/Recueil-des-actes-administratifs-de-l-annee-'):
+                annee = a.text.split()[-1] # Extract the year from the link text
+                if int(annee) < self.mostRecentRAA.year: # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
+                    break
+                extractedPages.append("https://www.allier.gouv.fr" + a['href']) # Add the link to the list of links to be crawled
 
         return extractedPages
 
@@ -61,7 +56,7 @@ class HautesPyrenees(Spider):
 
                 if date > self.mostRecentRAA:            # If the date is more recent than the most recent RAA, add it to the list
                     link = row['href']
-                    links.append({"link": 'https://www.hautes-pyrenees.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
+                    links.append({"link": 'https://www.allier.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
                     if date > self.currentMostRecentRAA:
                         self.currentMostRecentRAA = date
 
@@ -76,20 +71,18 @@ class HautesPyrenees(Spider):
         Crawl the website to find and download the most recent RAA links.
         """
         try:
-            links_suffix = self.findPages(self.fetchPage(self.baseUrl)) # For each year, there is a page with RAAs
+            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
             links = []
-            for link in links_suffix:
-                if int(link[-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
-                    break
+            for link in linksPages:
 
-                url = self.baseUrl + "/" + link # The URL for the specific year
-                html = self.fetchPage(url)
+                html = self.fetchPage(link)
                 if not html:
                     break
 
                 self.extractLinks(html, links)
-            
-            if self.currentMostRecentRAA > self.mostRecentRAA:
+
+            # Update the most recent RAA if a newer one is found
+            if self.currentMostRecentRAA > self.mostRecentRAA: 
                 self.mostRecentRAA = self.currentMostRecentRAA
                 self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
 

@@ -52,12 +52,16 @@ class Crawler:
                 try:
                     module = __import__(f"furet.crawler.regions.{moduleName}", fromlist=[className])
                     spiderClass = getattr(module, className)
-                    spider = spiderClass(self.outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
-                    if department == "Var":
-                        self.spiders.append(spider)
+                    if department != "Var":
+                        spider = spiderClass(self.outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
+                    self.spiders.append(spider)
                 except (ImportError, AttributeError) as e:
                     print(f"Error loading spider for {department} in {region}: {e}")
 
+    def run_spider(self, spider, results):
+            result = spider.crawl()
+            results.append(result)
+    
     def startSpiders(self):
         """
         Starts the crawling process for all spiders in the `self.spiders` list.
@@ -69,13 +73,22 @@ class Crawler:
         """
 
         threads = []
+        results = []
+        jsonList = []
+
         for spider in self.spiders:
-            thread = threading.Thread(target=spider.crawl)
+            thread = threading.Thread(target=self.run_spider, args=(spider, results))
             threads.append(thread)
             thread.start()
 
         for thread in threads:
             thread.join()
+        
+        for list in results:
+            if list is not None:
+                jsonList.extend(list)
+
+        return jsonList
 
     def startCrawler(self):
         """

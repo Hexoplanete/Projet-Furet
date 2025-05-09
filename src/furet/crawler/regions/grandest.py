@@ -1,8 +1,7 @@
 from furet.crawler.spider import Spider
 from bs4 import BeautifulSoup
 from datetime import datetime
-import os
-import requests
+
 
 class Moselle(Spider):
     """

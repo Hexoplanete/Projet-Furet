@@ -26,6 +26,23 @@ class Spider:
         self.configFile = configFile
         self.linkFile = linkFile
         self.baseUrl = None
+        self.months = {
+            "janvier": 1,
+            "février": 2,
+            "fevrier": 2,
+            "mars": 3,
+            "avril": 4,
+            "mai": 5,
+            "juin": 6,
+            "juillet": 7,
+            "août": 8,
+            "aout": 8,
+            "septembre": 9,
+            "octobre": 10,
+            "novembre": 11,
+            "décembre": 12,
+            "decembre": 12
+        }
     
     def setMostRecentRAADate(self, date, region, department):
         """

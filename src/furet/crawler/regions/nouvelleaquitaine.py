@@ -4,7 +4,7 @@ from datetime import datetime
 
 class Charente(Spider):
     """
-    A spider class for crawling the Ariege department's website for RAA (Recueil des Actes Administratifs) links.
+    A spider class for crawling the Charente department's website for RAA (Recueil des Actes Administratifs) links.
     Inherits from the Spider class.
     """
     def __init__(self, outputDir, configFile, linkFile, date):
@@ -44,7 +44,8 @@ class Charente(Spider):
             div = soup.find('div', class_='fr-text--lead fr-my-3w')
             aList = div.find_all('a', href=True, class_='fr-link')
             for a in aList:
-                extractedPagesFinal.append('https://www.charente.gouv.fr' + a['href'])
+                if self.months.get(a.text.split()[-2].lower()) >= self.mostRecentRAA.month: # Check if the month is less than the most recent RAA month for the optimization. We can stop the loop here earlier.
+                    extractedPagesFinal.append('https://www.charente.gouv.fr' + a['href'])
 
         return extractedPagesFinal
 

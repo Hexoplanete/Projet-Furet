@@ -18,12 +18,13 @@ def buildComboBox(options, choice, none: tuple[str, Any] = None) -> QtWidgets.QC
                 box.setCurrentIndex(i)
     return box
 
-def buildDatePicker(date:date = None) -> QtWidgets.QComboBox:
+
+def buildDatePicker(date: date = None) -> QtWidgets.QDateEdit:
     picker = QtWidgets.QDateEdit(date=date)
     picker.setCalendarPopup(True)
-    picker.setDisplayFormat("dddd d MMMM yy")
+    picker.setDisplayFormat("dd MMMM yy")
     return picker
 
 
 def formatDate(value: date):
-    return value.strftime("%A %d %B %Y")
+    return value.strftime("%d %B %Y")

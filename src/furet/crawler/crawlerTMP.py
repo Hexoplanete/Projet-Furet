@@ -96,9 +96,12 @@ class Crawler:
         """
         rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
         linkFile = os.path.join(rootDir, "src", "furet", "crawler", "resultCrawler.json")
-        with open(linkFile, 'r') as f:
-            data = json.load(f)
-        return data["links"]
+        if os.path.exists(linkFile):
+            with open(linkFile, 'r') as f:
+                data = json.load(f)
+            return data["links"]
+        else:
+            return []
 
     def startCrawler(self):
         """

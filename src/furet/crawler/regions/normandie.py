@@ -56,7 +56,7 @@ class Calvados(Spider):
 
                 if date > self.mostRecentRAA:            # If the date is more recent than the most recent RAA, add it to the list
                     link = row['href']
-                    links.append({"link": 'https://www.allier.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
+                    links.append({"link": 'https://www.calvados.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
                     if date > self.currentMostRecentRAA:
                         self.currentMostRecentRAA = date
 
@@ -65,4 +65,3 @@ class Calvados(Spider):
                 continue
 
         return links
-

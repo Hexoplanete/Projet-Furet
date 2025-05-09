@@ -1,5 +1,5 @@
 import furet.app
-from furet.crawler.crawler import Crawler
+from furet.crawler.crawlerTMP import Crawler
 import threading
 
 
@@ -12,6 +12,11 @@ def main():
     app_thread.start()
 
     crawler_thread.join()
+
+    # traitement = Traitement()
+    # traitement_thread = threading.Thread(target=traitement.startTraitement)
+    # traitement_thread.start()
+
     app_thread.join()
 
 if __name__ == '__main__':

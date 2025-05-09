@@ -3,7 +3,7 @@ import furet.app
 from furet.crawler.crawler import Crawler
 from furet import repository
 
-from datetime import datetime
+#from datetime import datetime
 
 def main():
     repository.setup(repository.allDecreeList)

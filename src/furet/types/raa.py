@@ -8,6 +8,7 @@ class RAA:
     department: Department
     number: str
     link: str
+    # publicationDate ?
 
     def __str__(self):
         return self.number

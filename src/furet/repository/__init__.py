@@ -42,14 +42,10 @@ def updateDecree(id: int, decree: Decree):
     fileContent = []
 
     # 1. get the file name
-        #get the year and month
-    dYear = decree.publicationDate.year
-    dMonth = decree.publicationDate.month
-    filename = str(decree.department) + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
-    full_path = basePath + str(decree.department) + '/' + filename
+    fullPath = getFileName(decree)
     
     #2. read file and it content
-    with open(full_path, encoding='utf-8') as file:
+    with open(fullPath, encoding='utf-8') as file:
         reader = csv.reader(file, delimiter=',')
         # On recupere le header separément du reste des lignes sinon ca pose probleme pour le cast
         header = next(reader)
@@ -61,7 +57,7 @@ def updateDecree(id: int, decree: Decree):
                 fileContent.append(row)
 
     #3. re-write the file content (updated)
-    with open(full_path, 'w', encoding='utf-8', newline='') as file: #w clears all the file content
+    with open(fullPath, 'w', encoding='utf-8', newline='') as file: #w clears all the file content
         writerCsv = csv.writer(file)
         #write the header
         writerCsv.writerow(header)
@@ -272,18 +268,14 @@ def _findByField(collection, value, field: str = "id"):
 
 def addArreteToFile(arrete :Decree):
     #get the year and month
-    dYear = arrete.publicationDate.year
-    dMonth = arrete.publicationDate.month
-    filename = str(arrete.department) + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
-    
-    full_path = basePath + str(arrete.department) + '/' + filename
+    fullPath = getFileName(arrete)
     headers = ['id', 'Département', "Type de document", "Numéro de l'arrêté", "Titre de l'arrêté", 
                "Date de signature de l'arrêté", "Numéro du RAA", "Date de publication du RAA", 'URL du RAA', 
                "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
     row = arrete.toCsvLine()
-    file_exists = os.path.isfile(full_path) #bool
+    file_exists = os.path.isfile(fullPath) #bool
 
-    with open(full_path, 'a', encoding='utf-8', newline='') as file:
+    with open(fullPath, 'a', encoding='utf-8', newline='') as file:
         writerCsv = csv.writer(file)
         # if the file is freshly created, we need to insert the column names at the beginning
         if not file_exists:
@@ -312,3 +304,11 @@ def loadArretesFromFile(path :str, listArretes : list[Decree]) -> list[Decree]:
                 print(f"Erreur de parsing, ligne ignorée : {row}")
                 print(f"Erreur : {e}")
     return listArretes
+
+def getFileName(arrete : Decree) -> str:
+    dYear = arrete.publicationDate.year
+    dMonth = arrete.publicationDate.month
+    filename = str(arrete.department) + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
+    
+    fullPath = basePath + str(arrete.department) + '/' + filename
+    return fullPath

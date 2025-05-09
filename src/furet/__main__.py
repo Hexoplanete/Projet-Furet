@@ -1,5 +1,5 @@
 import furet.app
-from furet.crawler.crawler import Crawler
+from furet.crawler.crawlertmp import Crawler
 import threading
 
 

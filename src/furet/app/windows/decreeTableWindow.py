@@ -72,7 +72,9 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
     def onDblClickTableRow(self, index: QtCore.QModelIndex):
         source_index = self._filters.proxyModel().mapToSource(index)
         decree = self._decrees.itemAt(source_index.row())
+        id = decree.id
         def onDecreeSaved():
+            repository.updateDecree(id, self._decreeDetailWindows[decree.id].decree())
             self._decrees.setItemAt(source_index.row(), self._decreeDetailWindows[decree.id].decree())
 
         if decree.id not in self._decreeDetailWindows or not(self._decreeDetailWindows[decree.id].isVisible()):

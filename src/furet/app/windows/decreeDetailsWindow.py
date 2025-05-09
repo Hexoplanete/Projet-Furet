@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import repository
-from furet.app.utils import buildComboBox
+from furet.app.utils import buildComboBox, buildDatePicker
 from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
 from furet.types.decree import Decree
 
@@ -40,10 +40,10 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         decreeForm.addRow("Type de document", self._docType)
 
 
-        self._signingDate = QtWidgets.QDateEdit(decree.signingDate)
+        self._signingDate = buildDatePicker(decree.signingDate)
         decreeForm.addRow("Date de signature", self._signingDate)
         
-        self._expireDate = QtWidgets.QDateEdit(decree.publicationDate + relativedelta(months=2))
+        self._expireDate = buildDatePicker(decree.publicationDate + relativedelta(months=2))
         self._expireDate.setDisabled(True)
         decreeForm.addRow("Date d'expiration", self._expireDate)
 
@@ -54,7 +54,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._department.setDisabled(True)
         decreeForm.addRow("Département", self._department)
 
-        self._publicationDate = QtWidgets.QDateEdit(decree.publicationDate)
+        self._publicationDate = buildDatePicker(decree.publicationDate)
         self._publicationDate.setDisabled(True)
         decreeForm.addRow("Date de publication", self._publicationDate)
         

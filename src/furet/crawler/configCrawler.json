@@ -2,15 +2,15 @@
     "regions": {
         "GrandEst": {
             "departments": {
-                "Moselle": "10/04/2025",
+                "Moselle": "11/04/2025",
                 "Aube": "07/05/2025"
             }
         },
         "Occitanie": {
             "departments": {
                 "HautesPyrenees": "07/05/2025",
-                "Ariege": "07/04/2025",
-                "Gers": "07/04/2025",
+                "Ariege": "07/05/2025",
+                "Gers": "07/05/2025",
                 "Herault": "06/05/2025"
             }
         },
@@ -19,7 +19,7 @@
                 "AlpesMaritimes": "07/05/2025",
                 "Var": "07/05/2025",
                 "BouchesDuRhone": "07/05/2025",
-                "AlpesDeHauteProvence": "07/05/2025"
+                "AlpesDeHauteProvence": "09/05/2025"
             }
         },
         "AURA": {
@@ -34,7 +34,7 @@
         },
         "PaysDeLaLoire": {
             "departments": {
-                "Sarthe": "07/05/2025"
+                "Sarthe": "09/05/2025"
             }
         },
         "BourgogneFrancheComte": {

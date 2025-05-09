@@ -172,30 +172,6 @@ class Ariege(Spider):
                 continue
 
         return links
-
-    def crawl(self):
-        try:
-            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
-            links = []
-            for link in linksPages:
-               
-                html = self.fetchPage(link)
-                if not html:
-                    break
-
-                self.extractLinks(html, links)
-            # Update the most recent RAA if a newer one is found
-            if self.currentMostRecentRAA > self.mostRecentRAA: 
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling: {e}")
-            return None
-        
-        return links
     
 
 class Gers(Spider):
@@ -208,7 +184,7 @@ class Gers(Spider):
         Initialize the Gers spider with specific parameters.
         """
         super().__init__(outputDir, configFile, linkFile, date)
-        self.baseURL = "https://www.gers.gouv.fr/Publications/Recueil-des-Actes-Administratifs-RAA"
+        self.baseUrl = "https://www.gers.gouv.fr/Publications/Recueil-des-Actes-Administratifs-RAA"
         self.region = "Occitanie"
         self.department = "Gers"
         self.currentMostRecentRAA = self.mostRecentRAA
@@ -223,7 +199,7 @@ class Gers(Spider):
         extractedPages = []
         i = 0
         while True:     # Loop through the pages until there are no more pages to fetch
-            url = self.baseURL + "/(offset)/" + str(i*10)  
+            url = self.baseUrl + "/(offset)/" + str(i*10)  
 
             html = self.fetchPage(url)
             soup = BeautifulSoup(html, 'html.parser')
@@ -272,7 +248,7 @@ class Gers(Spider):
         Crawl the website to find and download the most recent RAA links.
         """
         try:
-            links_suffix = self.findPages(self.fetchPage(self.baseURL)) # For each year, there is a page with RAAs
+            links_suffix = self.findPages(self.fetchPage(self.baseUrl)) # For each year, there is a page with RAAs
             links = []
             for link in links_suffix:
                 if int(link[-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
@@ -305,7 +281,7 @@ class Herault(Spider):
         Initialize the Herault spider with specific parameters.
         """
         super().__init__(outputDir, configFile, linkFile, date)
-        self.baseURL = "https://www.herault.gouv.fr/Publications/Recueils-des-actes-administratifs"
+        self.baseUrl = "https://www.herault.gouv.fr/Publications/Recueils-des-actes-administratifs"
         self.region = "Occitanie"
         self.department = "Herault"
         self.currentMostRecentRAA = self.mostRecentRAA
@@ -320,7 +296,7 @@ class Herault(Spider):
         extractedPages = []
         i = 0
         while True:     # Loop through the pages until there are no more pages to fetch
-            url = self.baseURL + "/(offset)/" + str(i*10)  
+            url = self.baseUrl + "/(offset)/" + str(i*10)  
 
             html = self.fetchPage(url)
             soup = BeautifulSoup(html, 'html.parser')
@@ -369,7 +345,7 @@ class Herault(Spider):
         Crawl the website to find and download the most recent RAA links.
         """
         try:
-            links_suffix = self.findPages(self.fetchPage(self.baseURL)) # For each year, there is a page with RAAs
+            links_suffix = self.findPages(self.fetchPage(self.baseUrl)) # For each year, there is a page with RAAs
             links = []
             for link in links_suffix:
                 if int(link[-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
@@ -463,28 +439,4 @@ class Ariege(Spider):
                 print(f"Error parsing row: {row}, Error: {e}")
                 continue
 
-        return links
-
-    def crawl(self):
-        try:
-            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
-            links = []
-            for link in linksPages:
-               
-                html = self.fetchPage(link)
-                if not html:
-                    break
-
-                self.extractLinks(html, links)
-            # Update the most recent RAA if a newer one is found
-            if self.currentMostRecentRAA > self.mostRecentRAA: 
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling: {e}")
-            return None
-        
         return links

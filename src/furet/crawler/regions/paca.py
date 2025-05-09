@@ -189,30 +189,6 @@ class BouchesDuRhone(Spider):
 
         return links
 
-    def crawl(self):
-        try:
-            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
-            links = []
-            for link in linksPages:
-                html = self.fetchPage(link)
-                if not html:
-                    break
-
-                self.extractLinks(html, links)
-
-            # Update the most recent RAA if a newer one is found
-            if self.currentMostRecentRAA > self.mostRecentRAA: 
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling in {self.department}: {e}")
-            return None
-        
-        return links
-
 class Var(Spider):
     """
     A spider class for crawling the Alpes-Maritimes department's website for RAA (Recueil des Actes Administratifs) links.
@@ -252,7 +228,7 @@ class Var(Spider):
         for link in extractedPages:
             i = 0
             while True:
-                url = "https://www.var.gouv.fr/" + link + "/(offset)/" + str(i*10) # Pagination URL the value of offset is multiplied by 10 to get the next page
+                url = "https://www.var.gouv.fr" + link + "/(offset)/" + str(i*10) # Pagination URL the value of offset is multiplied by 10 to get the next page
                 
                 html = self.fetchPage(url)
                 soup = BeautifulSoup(html, 'html.parser')
@@ -290,30 +266,6 @@ class Var(Spider):
                 print(f"Error parsing row: {row}, Error: {e}")
                 continue
 
-        return links
-
-    def crawl(self):
-        try:
-            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
-            links = []
-            for link in linksPages:
-               
-                html = self.fetchPage(link)
-                if not html:
-                    break
-
-                self.extractLinks(html, links)
-            # Update the most recent RAA if a newer one is found
-            if self.currentMostRecentRAA > self.mostRecentRAA: 
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling in {self.department}: {e}")
-            return None
-        
         return links
 
 class AlpesDeHauteProvence(Spider):
@@ -380,30 +332,3 @@ class AlpesDeHauteProvence(Spider):
 
         return links
 
-    def crawl(self):
-        """
-        Crawl the website to find and download the most recent RAA links.
-        """
-        try:
-            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
-            links = []
-            for link in linksPages:
-
-                html = self.fetchPage(link)
-                if not html:
-                    break
-
-                self.extractLinks(html, links)
-
-            # Update the most recent RAA if a newer one is found
-            if self.currentMostRecentRAA > self.mostRecentRAA: 
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling in {self.department}: {e}")
-            return None
-        
-        return links

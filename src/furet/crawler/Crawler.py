@@ -118,6 +118,6 @@ class Crawler:
 
         self.createSpiders()  
         self.startSpiders()
-        print(self.readLinkFile())
+        # print(self.readLinkFile())
         print("All spiders have finished crawling.")
 

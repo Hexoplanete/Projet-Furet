@@ -6,6 +6,8 @@ from furet.traitement.getPdfText import *
 
 nlp = spacy.load("fr_core_news_sm") # Chargement du modèle de langue français de SpaCy
 
+TITLES = {"m.", "mme.", "dr.", "prof.", "mlle.", "me."}
+
 KEYWORDS = [
     "chasse", "cynégétique", "gibier", "vénerie", "armes", "tir", "loup", "ours",
     "lynx", "chacal", "prédation", "prédateur", "tir de défense", "tir de prélèvement",
@@ -75,7 +77,9 @@ def getKeyWords(input_path):
 
         # On cherche les occurences du mot-clé dans le texte ( - n et i+n servent pour les mots clefs de plusieurs mots)
         for i in range(len(lemmatized_tokens) - n + 1):
-            if (lemmatized_tokens[i:i+n] == kw_lemmatized) or (lemmatized_tokens[i:i+n] == original_kw_split ): # On vérifie si le mot clef lemmatisé (ou non lemmatisé) matche
+            if (lemmatized_tokens[i:i+n] == kw_lemmatized) or (lemmatized_tokens[i:i+n] == original_kw_split):
+                if i > 0 and lemmatized_tokens[i - 1] in TITLES:
+                    continue  # Ignore les match de mot clef dans des noms
                 matches.append(i)
 
         # Compter et (Debug) afficher les occurences

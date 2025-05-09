@@ -40,11 +40,11 @@ def lemmatize_keywords(keywords):
 # input_path_pdf = args.pdf_path
 # debug = args.debug
 
-debug = False
+debug = True
 
 # Algo : Pour chaque mot clef, on va parcourir le texte 1 fois
 
-def getKeyWords(input_path):
+def getKeyWords(input_path, output_path):
 
     text = extract_text(input_path) # On récupère le texte
     doc = nlp(text.lower()) # On met tout en lower case
@@ -89,7 +89,7 @@ def getKeyWords(input_path):
             # (Debug)
             if(debug): 
                 
-                print(f"\n🔹 {original_kw} ({keyword_count[original_kw]} occurrence(s)) :")  # Afficher le mot-clé et le nombre d'occurrences
+                #print(f"\n🔹 {original_kw} ({keyword_count[original_kw]} occurrence(s)) :")  # Afficher le mot-clé et le nombre d'occurrences
                 seen_contexts = set()
                 # Afficher les contextes (sans répétition !!!!!!!!!!)
                 for match in matches:
@@ -117,7 +117,7 @@ def getKeyWords(input_path):
                 annotated_text = " ".join(final_annotated)
 
                 # On crée un fichier Markdown pour debug avec le texte annoté
-                name_fic_annoted = f"output/{os.path.basename(input_path)}_annoted.md"
+                name_fic_annoted = f"{output_path}_annoted.md"
                 with open(name_fic_annoted , "w", encoding="utf-8") as f:
                     f.write(annotated_text)
 

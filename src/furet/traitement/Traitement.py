@@ -133,8 +133,8 @@ class Traitement:
         os.makedirs(directory_apres_mot_clef, exist_ok=True)
         
         for el in liste_output_path_arretes:
-            dic_key_words = getKeyWords(el)
             path_apres_mot_clef = os.path.join(directory_apres_mot_clef, f"{os.path.basename(el).replace('.pdf','')}.txt")
+            dic_key_words = getKeyWords(el,path_apres_mot_clef.replace(".txt",""))
             self.save_keyWords_inFic(
             path_apres_mot_clef,
             dic_key_words

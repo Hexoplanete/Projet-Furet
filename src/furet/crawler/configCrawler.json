@@ -35,6 +35,11 @@
             "departments": {
                 "SaoneEtLoire": "08/05/2025"
             }
+        },
+        "HautsDeFrance": {
+            "departments": {
+                "Nord": "07/05/2025"
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ authors = [
 
 # license = { text = "MIT" } # TODO
 
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
     "pyside6>=6.9",
     "tomlkit>=0.13",

@@ -29,7 +29,7 @@
         },
         "NouvelleAquitaine": {
             "departments": {
-                "Charente": "07/05/2025"
+                "Charente": "09/05/2025"
             }
         },
         "PaysDeLaLoire": {
@@ -46,6 +46,16 @@
             "departments": {
                 "Nord": "07/05/2025",
                 "PasDeCalais": "07/05/2025"
+            }
+        },
+        "Normandie": {
+            "departments": {
+                "Calvados": "07/05/2025"
+            }
+        },
+        "Bretagne": {
+            "departments": {
+                "CotesDArmor": "07/05/2025"
             }
         }
     }

@@ -186,17 +186,17 @@ def getDocumentTypeById(id: int) -> DocumentType:
     return _findByField(getDocumentTypes(), id)
 
 
-def getCampaign() -> list[DecreeTopic]:
+def getCampaign() -> list[Campaign]:
     # TODO add to db in setup
     return [
-        DecreeTopic(1, "Chasse"),
-        DecreeTopic(2, "Espèces protégées - grands prédateurs"),
-        DecreeTopic(3, "Blaireau"),
-        DecreeTopic(4, "ESOD"),
+        Campaign(1, "Chasse"),
+        Campaign(2, "Espèces protégées - grands prédateurs"),
+        Campaign(3, "Blaireau"),
+        Campaign(4, "ESOD"),
     ]
 
 
-def getCampaignById(id: int) -> DecreeTopic:
+def getCampaignById(id: int) -> Campaign:
     return _findByField(getCampaign(), id)
 
 

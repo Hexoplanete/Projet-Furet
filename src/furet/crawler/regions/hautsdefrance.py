@@ -103,6 +103,9 @@ class PasDeCalais(Spider):
 
             for link in RAA_year:
                 if link['href'].startswith('/Publications/Recueil-des-actes-administratifs'):
+                    annee = link['href'].split('/')[-1]
+                    if int(annee[:4]) < self.mostRecentRAA.year:
+                        break
                     extractedPages.append("https://www.pas-de-calais.gouv.fr" + link['href'])
 
         return extractedPages

@@ -2,7 +2,8 @@
     "regions": {
         "GrandEst": {
             "departments": {
-                "Moselle": "10/04/2025"
+                "Moselle": "10/04/2025",
+                "Aube": "07/05/2025"
             }
         },
         "Occitanie": {

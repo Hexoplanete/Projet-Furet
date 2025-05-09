@@ -53,30 +53,11 @@ class Moselle(Spider):
                 continue
 
         return extractedData
-    
-    def downloadPDF(self, url):
-        """
-        Download a PDF file from the given URL and put it in the output directory.
-
-        :param url: URL of the PDF file.
-        """
-        try:
-            response = requests.get(url, stream=True, headers=self.headers)
-            response.raise_for_status()
-            
-            filename = os.path.join(self.ouputDir, url[-10:])
-            if not filename.endswith('.pdf'):
-                filename += ".pdf"
-            with open(filename, 'wb') as file:
-                for chunk in response.iter_content(chunk_size=1024):
-                    file.write(chunk)
-            print(f"Downloaded: {filename}")
-        except requests.RequestException as e:
-            print(f"Failed to download {url}: {e}")
         
     def crawl(self):
         """
         Crawl the website to find and download the most recent RAA links.
+        Moselle's website has a specific pagination structure, so we need to handle that.
         """
         try:
             i = 1

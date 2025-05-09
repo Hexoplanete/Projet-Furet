@@ -40,7 +40,9 @@ class HautesPyrenees(Spider):
 
             for link in RAA_year:
                 if link['href'].startswith('/Publications/Recueil-d-actes-administratifs'):
-                    extractedPages.append(link['href'].split('/')[-1])
+                    if int(link["href"][-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
+                        break
+                    extractedPages.append("https://www.hautes-pyrenees.gouv.fr" + link['href'])
 
         return extractedPages
 
@@ -71,35 +73,6 @@ class HautesPyrenees(Spider):
 
         return links
 
-    def crawl(self):
-        """
-        Crawl the website to find and download the most recent RAA links.
-        """
-        try:
-            links_suffix = self.findPages(self.fetchPage(self.baseUrl)) # For each year, there is a page with RAAs
-            links = []
-            for link in links_suffix:
-                if int(link[-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
-                    break
-
-                url = self.baseUrl + "/" + link # The URL for the specific year
-                html = self.fetchPage(url)
-                if not html:
-                    break
-
-                self.extractLinks(html, links)
-            
-            if self.currentMostRecentRAA > self.mostRecentRAA:
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling in {self.department}: {e}")
-            return None
-        
-        return links
 
 class Ariege(Spider):
     """
@@ -212,6 +185,8 @@ class Gers(Spider):
 
             for link in RAA_year:
                 if link['href'].startswith('/Publications/Recueil-des-Actes-Administratifs-RAA'):
+                    if int(link["href"][-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
+                        break
                     extractedPages.append("https://www.gers.gouv.fr" + link['href'])
 
         return extractedPages
@@ -243,33 +218,6 @@ class Gers(Spider):
 
         return links
 
-    def crawl(self):
-        """
-        Crawl the website to find and download the most recent RAA links.
-        """
-        try:
-            links_suffix = self.findPages(self.fetchPage(self.baseUrl)) # For each year, there is a page with RAAs
-            links = []
-            for link in links_suffix:
-                if int(link[-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
-                    break
-
-                html = self.fetchPage(link) # The URL for the specific year
-                if not html:
-                    break
-
-                self.extractLinks(html, links)
-            
-            if self.currentMostRecentRAA > self.mostRecentRAA:
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling in {self.department}: {e}")
-            return None        
-        return links
     
 class Herault(Spider):
     """
@@ -309,6 +257,8 @@ class Herault(Spider):
 
             for link in RAA_year:
                 if link['href'].startswith('/Publications/Recueils-des-actes-administratifs'):
+                    if int(link['href'][-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
+                        break
                     extractedPages.append("https://www.herault.gouv.fr" + link['href'])
 
         return extractedPages
@@ -340,34 +290,6 @@ class Herault(Spider):
 
         return links
 
-    def crawl(self):
-        """
-        Crawl the website to find and download the most recent RAA links.
-        """
-        try:
-            links_suffix = self.findPages(self.fetchPage(self.baseUrl)) # For each year, there is a page with RAAs
-            links = []
-            for link in links_suffix:
-                if int(link[-4:]) < self.mostRecentRAA.year: # If the year is older than the most recent RAA, skip it
-                    break
-
-                html = self.fetchPage(link) # The URL for the specific year
-                if not html:
-                    break
-
-                self.extractLinks(html, links)
-            
-            if self.currentMostRecentRAA > self.mostRecentRAA:
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling: {e}")
-            return None
-        
-        return links
     
 class Ariege(Spider):
     """

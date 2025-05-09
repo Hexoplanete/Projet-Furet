@@ -77,6 +77,7 @@ class SaoneEtLoire(Spider):
     def crawl(self):
         """
         Crawl the website to find and download the most recent RAA links.
+        SaoneEtLoire department's specific implementation is necessary to handle pagination and link extraction.
         """
         try:
             links = self.findPagesAndLinks(self.fetchPage(self.baseUrl))

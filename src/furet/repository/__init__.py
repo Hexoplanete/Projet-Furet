@@ -18,7 +18,7 @@ def setup(allDecreesList):
                 filepath = os.path.join(root, filename)
                 #mod_time = os.path.getmtime(filepath)  # timestamp de modification
                 loadArretesFromFile(filepath,allDecreesList)
-    print(len(allDecreesList))
+    #print(len(allDecreesList))
     ...
 
 
@@ -36,6 +36,36 @@ def getDecrees() -> list[Decree]:
 
 def getDecreeById(id: int) -> Decree:
     return _findByField(getDecrees(), id)
+
+def updateDecree(id: int, decree: Decree):
+    #update decree data in csv file
+    fileContent = []
+
+    # 1. get the file name
+        #get the year and month
+    dYear = decree.publicationDate.year
+    dMonth = decree.publicationDate.month
+    filename = str(decree.department) + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
+    full_path = basePath + str(decree.department) + '/' + filename
+    
+    #2. read file and it content
+    with open(full_path, encoding='utf-8') as file:
+        reader = csv.reader(file, delimiter=',')
+        # On recupere le header separément du reste des lignes sinon ca pose probleme pour le cast
+        header = next(reader)
+
+        for row in reader:
+            if int(row[0]) == id:
+                fileContent.append(decree.toCsvLine())
+            else:
+                fileContent.append(row)
+
+    #3. re-write the file content (updated)
+    with open(full_path, 'w', encoding='utf-8', newline='') as file: #w clears all the file content
+        writerCsv = csv.writer(file)
+        #write the header
+        writerCsv.writerow(header)
+        writerCsv.writerows(fileContent)
 
 
 def getDepartments() -> list[Department]:
@@ -244,9 +274,9 @@ def addArreteToFile(arrete :Decree):
     #get the year and month
     dYear = arrete.publicationDate.year
     dMonth = arrete.publicationDate.month
-    filename = arrete.department + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
+    filename = str(arrete.department) + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
     
-    full_path = basePath + arrete.department + '/' + filename
+    full_path = basePath + str(arrete.department) + '/' + filename
     headers = ['id', 'Département', "Type de document", "Numéro de l'arrêté", "Titre de l'arrêté", 
                "Date de signature de l'arrêté", "Numéro du RAA", "Date de publication du RAA", 'URL du RAA', 
                "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
@@ -273,7 +303,7 @@ def loadArretesFromFile(path :str, listArretes : list[Decree]) -> list[Decree]:
                     id = int(row[0]), department = row[1], docType = row[2], number = row[3], title = row[4], 
                     signingDate = datetime.strptime(row[5], format).date(), raaNumber = row[6], 
                     publicationDate = datetime.strptime(row[7], format).date(), link = row[8], startPage = row[9], 
-                    endPage = row[10], campaign = row[11], topic = row[12], treated = row[13], comment = row[14]
+                    endPage = row[10], campaign = row[11], topic = row[12], treated = bool(row[13]), comment = row[14]
                 )
                 
                 listArretes.append(aa)

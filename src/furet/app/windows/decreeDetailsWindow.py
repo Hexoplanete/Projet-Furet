@@ -28,7 +28,7 @@ class DecreeDetailsWindow(QtWidgets.QWidget):
         for t in docTypes: docType.addItem(t.label, t.id)
         self._decreeForm.addRow("Type de document", docType)
         for i, t in enumerate(docTypes):
-            if t.id == decree.doc_type.id:
+            if t.id == decree.docType.id:
                 docType.setCurrentIndex(i)
 
 

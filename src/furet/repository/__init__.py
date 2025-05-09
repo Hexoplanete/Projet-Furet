@@ -1,14 +1,30 @@
 import datetime
 from furet.types.department import *
 from furet.types.decree import *
+import os
+import csv
+from datetime import datetime
 
 
-def setup():
-    # TODO
+basePath = "./database/"
+format = '%d/%m/%Y'
+allDecreeList = []
+
+def setup(allDecreesList):
+    # get all csvfiles from os
+    for root, dirs, files in os.walk(basePath):
+        for filename in files:
+            if filename.endswith(".csv"):
+                filepath = os.path.join(root, filename)
+                #mod_time = os.path.getmtime(filepath)  # timestamp de modification
+                loadArretesFromFile(filepath,allDecreesList)
+    print(len(allDecreesList))
     ...
 
 
 def getDecrees() -> list[Decree]:
+    return allDecreeList
+    """
     # TODO
     return [
         Decree(1, getDepartmentById(73), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 1", datetime.datetime.now(), datetime.datetime.now(), getCampaignById(1), getTopicById(1), False, "Will"),
@@ -16,6 +32,7 @@ def getDecrees() -> list[Decree]:
         Decree(3, getDepartmentById(75), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 3", datetime.datetime.now(), datetime.datetime.now(), getCampaignById(1), getTopicById(1), False, "work"),
         Decree(4, getDepartmentById(76), "XXXX", "https://example.com", 1, 2, getDocumentTypeById(1), "XXXX-XX-XX", "Test 5", datetime.datetime.now(), datetime.datetime.now(), getCampaignById(1), getTopicById(1), False, "?"),
     ]
+    """
 
 def getDecreeById(id: int) -> Decree:
     return _findByField(getDecrees(), id)
@@ -43,8 +60,8 @@ def getDepartments() -> list[Department]:
         Department(17, "17", "Charente-Maritime"),
         Department(18, "18", "Cher"),
         Department(19, "19", "Corrèze"),
-        Department(20, "2A", "Corse-du-Sud"),
-        Department(200, "2B", "Haute-Corse"),
+        Department(200, "2A", "Corse-du-Sud"),
+        Department(201, "2B", "Haute-Corse"),
         Department(21, "21", "Côte-d'Or"),
         Department(22, "22", "Côtes-d'Armor"),
         Department(23, "23", "Creuse"),
@@ -221,3 +238,47 @@ def _findByField(collection, value, field: str = "id"):
         if getattr(d, field) == value:
             return d
     return None
+
+
+def addArreteToFile(arrete :Decree):
+    #get the year and month
+    dYear = arrete.publicationDate.year
+    dMonth = arrete.publicationDate.month
+    filename = arrete.department + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
+    
+    full_path = basePath + arrete.department + '/' + filename
+    headers = ['id', 'Département', "Type de document", "Numéro de l'arrêté", "Titre de l'arrêté", 
+               "Date de signature de l'arrêté", "Numéro du RAA", "Date de publication du RAA", 'URL du RAA', 
+               "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
+    row = arrete.toCsvLine()
+    file_exists = os.path.isfile(full_path) #bool
+
+    with open(full_path, 'a', encoding='utf-8', newline='') as file:
+        writerCsv = csv.writer(file)
+        # if the file is freshly created, we need to insert the column names at the beginning
+        if not file_exists:
+            writerCsv.writerow(headers) 
+        # insert the line with the arrete
+        writerCsv.writerow(row)  
+
+def loadArretesFromFile(path :str, listArretes : list[Decree]) -> list[Decree]:
+    with open(path, encoding='utf-8') as file:
+        reader = csv.reader(file, delimiter=',')
+
+        # Separate header from the other data of the csv
+        header = next(reader)
+        for row in reader:
+            try: 
+                aa = Decree(
+                    id = int(row[0]), department = row[1], docType = row[2], number = row[3], title = row[4], 
+                    signingDate = datetime.strptime(row[5], format).date(), raaNumber = row[6], 
+                    publicationDate = datetime.strptime(row[7], format).date(), link = row[8], startPage = row[9], 
+                    endPage = row[10], campaign = row[11], topic = row[12], treated = row[13], comment = row[14]
+                )
+                
+                listArretes.append(aa)
+
+            except Exception as e:
+                print(f"Erreur de parsing, ligne ignorée : {row}")
+                print(f"Erreur : {e}")
+    return listArretes

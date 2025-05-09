@@ -32,21 +32,30 @@ class Campaign:
 class Decree:
     id: int
 
-    # raa: RAA
     department: Department
+
+    #arrete
+    docType: DocumentType
+    number: str
+    title: str
+    signingDate: date 
+
+    # raa: RAA
     raaNumber: str
+    publicationDate: date
     link: str
     startPage: int
     endPage: int
-    
-    doc_type: DocumentType
-    number: str
-    title: str
-    publicationDate: date
-    signingDate: date
     
     # Specific for our use
     campaign: Campaign
     topic: DecreeTopic
     treated: bool
     comment: str = ""
+
+    def toCsvLine(self):
+        return [
+            self.id, self.department, self.docType, self.number, self.title, self.signingDate.strftime("%d/%m/%Y"), 
+            self.raaNumber, self.publicationDate.strftime("%d/%m/%Y"), self.link, self.startPage, self.endPage, 
+            self.campaign, self.topic, self.treated, self.comment
+            ]

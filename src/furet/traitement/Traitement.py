@@ -30,8 +30,7 @@ class Traitement:
             "Cache-Control": "max-age=0"
         }
 
-        self.path_traitement = 
-
+        self.path_traitement = os.path.join(os.getcwd(), "src", "furet", "traitement")
     
     def downloadPDF(self, url, output_path):
         """
@@ -53,7 +52,7 @@ class Traitement:
         except requests.RequestException as e:
             print(f"Failed to download {url}: {e}")
    
-    def save_keyWords_inFic(output_path, data):
+    def save_keyWords_inFic(self, output_path, data):
         with open(output_path, "w") as fichier:
             for key, value in data.items():
                 fichier.write(f"{key}: {value}\n")
@@ -97,8 +96,10 @@ class Traitement:
         """ input_path est le chemin vers le RAA """
 
         ## On réduit la qualité du PDF pour enlever l'erreur "BOMB DOS ATTACK SIZE LIMIT"
-
-        path_apres_magick = f"output/apres_magick/{os.path.basename(input_path)}"
+        
+        directory_apres_magick = os.path.join(self.path_traitement, "output", "apres_magick")
+        os.makedirs(directory_apres_magick, exist_ok=True)
+        path_apres_magick = os.path.join(directory_apres_magick, os.path.basename(input_path))
 
         commande = [
         "magick",
@@ -115,28 +116,39 @@ class Traitement:
 
         print("--------------------------------")
 
-        print("Début execution ocr")
-        main_ocr(path_apres_magick)
-        print("Fin execution ocr")
+        directory_apres_ocr = os.path.join(self.path_traitement, "output", "apres_ocr")
+        print(directory_apres_ocr)
+        os.makedirs(directory_apres_ocr, exist_ok=True)
+        path_apres_ocr = os.path.join(directory_apres_ocr, os.path.basename(input_path))
 
-        path_apres_ocr = f"output/apres_ocr/{os.path.basename(input_path)}"
+        print("Début execution ocr")
+        main_ocr(path_apres_magick,path_apres_ocr)
+        print("Fin execution ocr")
+        
         print("--------------------------------")
 
         print("Début execution separation")
         basename_RAA = os.path.basename(input_path).replace(".pdf","")
-        os.makedirs(f"output/apres_separation/{basename_RAA}", exist_ok=True)
-        liste_output_path_arretes = main_separation(path_apres_ocr)    
+
+        directory_apres_separation = os.path.join(self.path_traitement, "output", "apres_separation", basename_RAA)
+        os.makedirs(directory_apres_separation, exist_ok=True)
+        path_apres_separation = os.path.join(directory_apres_separation, os.path.basename(input_path))
+
+        liste_output_path_arretes = main_separation(path_apres_ocr, directory_apres_separation)    
         print("Fin execution separation")
 
         # TO DO Extraction Caractéristique
 
         print("Début execution Assignation Keywords")
+
+        directory_apres_mot_clef = os.path.join(self.path_traitement, "output", "apres_mot_cle", basename_RAA)
+        os.makedirs(directory_apres_mot_clef, exist_ok=True)
         
-        os.makedirs(f"output/apres_mot_cle/{basename_RAA}", exist_ok=True)
         for el in liste_output_path_arretes:
             dic_key_words = getKeyWords(el)
+            path_apres_mot_clef = os.path.join(directory_apres_mot_clef, f"{os.path.basename(el).replace('.pdf','')}.txt")
             self.save_keyWords_inFic(
-            f"output/apres_mot_cle/{basename_RAA}/{os.path.basename(el).replace('.pdf','')}.txt",
+            path_apres_mot_clef,
             dic_key_words
             )
             

@@ -5,14 +5,13 @@ import os
 import sys
 
 
-def main_separation(input_path):
+def main_separation(input_path, output_dir):
         now = datetime.now()
         current_time = now.strftime("%H-%M-%S")
 
         liste_output_path = [] # Liste qui contiendra les différents chemins vers les pdf des arrêtés
 
         basename = os.path.basename(input_path).replace(".pdf","")
-        output_dir = f"output/apres_separation/{basename}"
 
         doc = fitz.open(input_path)
 

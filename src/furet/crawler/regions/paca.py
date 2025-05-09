@@ -83,33 +83,6 @@ class AlpesMaritimes(Spider):
 
         return links
 
-    def crawl(self):
-        try:
-            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
-            links = []
-            for link in linksPages:
-                # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
-                if int(link.split('/')[-4][-4:]) < self.mostRecentRAA.year: 
-                    break
-
-                html = self.fetchPage(link)
-                if not html:
-                    break
-
-                self.extractLinks(html, links)
-            # Update the most recent RAA if a newer one is found
-            if self.currentMostRecentRAA > self.mostRecentRAA: 
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling in {self.department}: {e}")
-            return None
-        
-        return links
-
 class BouchesDuRhone(Spider):
     """
     A spider class for crawling the Alpes-Maritimes department's website for RAA (Recueil des Actes Administratifs) links.

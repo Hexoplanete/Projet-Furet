@@ -15,7 +15,6 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Fouille Universelle de Recueils pour Entreposage et Traitement")
         self._content = QtWidgets.QWidget()
         self._layout = QtWidgets.QVBoxLayout(self._content)
         self.setCentralWidget(self._content)

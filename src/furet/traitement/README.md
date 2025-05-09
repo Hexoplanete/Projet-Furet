@@ -1,6 +1,6 @@
 # Framework Traitement
 
-### Départements pour lesquels ça marche
+### Départements pour lesquels ça a été testé et ça marche
 
 - SAONE ET LOIRE
 - HAUTES_PYRENEES
@@ -11,26 +11,19 @@
 
 input : PDF correspondant à un RAA 
 
-- Réduit qualité PDF
-- OCR sur le pdf d'entrée pour générer un nouveau pdf "OCR isé", c'est à dire sous forme de texte
-- Séparation des arrêtés d'un recueil : Génère 1 pdf par arrêté du RAA
+- Réduit qualité PDF avec magick (ouput/apres_magick/) -> Génère un nouveau pdf
+- OCR sur le pdf d'entrée pour générer un nouveau pdf "OCR isé", c'est à dire sous forme de texte (ouput/apres_ocr/) -> Génère un nouveau pdf ocrisé
+- Séparation des arrêtés d'un recueil : (ouput/apres_separation/{Nom_RAA}/) -> Génère 1 pdf par arrêté du RAA 
+- Assignation des mots clefs à un arrêté (ouput/apres_mot_cle/{Nom_RAA}/) -> Génère des .txt contenant les mots clefs qui ont matchés
 
 ### Requirements
 
 
 ### Utilisation
 
-python3 .\main.py <Chemin_vers_pdf>
+Voir README de PROJET-FURET ou lancer launchPythonEnvWithInstall
 
-### TESTS : 
+### A corriger 
 
-Fonctionnent : 
-
-python3 .\main.py ..\input\SAONE_ET_LOIRE\46_pages.pdf
-python3 .\main.py ..\input\SAONE_ET_LOIRE\recueil-71-2025-105.pdf
-python3 .\main.py ..\input\SAONE_ET_LOIRE\recueil-71-2025-108.pdf
-
-python3 .\main.py ./input/HAUTES_PYRENEES.pdf
-python3 .\main.py ./input/SARTHE.pdf
-python3 .\main.py ./input/VAR.pdf
+#### Assignation mot_cle
 

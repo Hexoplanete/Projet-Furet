@@ -1,21 +1,11 @@
-# from ocr import *
-# from separation_avec_sommaire import *
-# from getKeyWords import *
-
 from furet.traitement.ocr import *
 from furet.traitement.separation_avec_sommaire  import *
 from furet.traitement.getKeyWords import *
 
-
-#import argparse
 import subprocess
 import os
 import json
 import requests
-
-# parser = argparse.ArgumentParser(description="Generate searchable PDFs from PDF(s).")
-# parser.add_argument("input_path", type=str, help="Path to a PDF file or a folder of PDFs.")
-# args = parser.parse_args()
 
 class Traitement:
 
@@ -63,7 +53,7 @@ class Traitement:
         """
         rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
         linkFile = os.path.join(rootDir, "src", "furet", "crawler", "resultCrawler.json")
-        print(linkFile)
+        #print(linkFile)
         if os.path.exists(linkFile):
             with open(linkFile, 'r') as f:
                 data = json.load(f)
@@ -73,15 +63,13 @@ class Traitement:
     
     def startTraitement(self):
 
-        print("aaaaaaaaaaaaaaaaa")
-
         liste_dict_RAA = self.readLinkFile()
 
-        print(liste_dict_RAA)
+        #print(liste_dict_RAA)
         
         for el in liste_dict_RAA:
             
-            print(el)
+            #print(el)
             raa_url = el["link"]
             raa_datePublication = el["datePublication"]
             raa_region = el["region"]
@@ -153,5 +141,3 @@ class Traitement:
             )
             
         print("Fin execution Assignation Keywords")
-    
-#traitement_RAA(args.input_path)

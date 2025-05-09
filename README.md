@@ -12,3 +12,9 @@ source .venv/bin/activate # ou `.venv\Scripts\activate.bat` sous Windows
 pip install uv
 uv sync
 ```
+
+# Requirements Traitement
+
+pip install ocrmypdf PyMuPDF spacy
+
+python -m spacy download fr_core_news_sm

@@ -1,6 +1,7 @@
 import furet.app
 from furet.crawler.crawler import Crawler
 import threading
+from furet.traitement.Traitement import *
 
 
 def main():
@@ -13,9 +14,9 @@ def main():
 
     crawler_thread.join()
 
-    # traitement = Traitement()
-    # traitement_thread = threading.Thread(target=traitement.startTraitement)
-    # traitement_thread.start()
+    traitement = Traitement()
+    traitement_thread = threading.Thread(target=traitement.startTraitement)
+    traitement_thread.start()
 
     app_thread.join()
 

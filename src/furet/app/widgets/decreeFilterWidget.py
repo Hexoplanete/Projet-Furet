@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from furet.app.utils import buildComboBox, buildDatePicker, formatDate
 from furet.types.decree import *
 from furet.app.widgets.objectTableModel import ObjectFilterProxy, ObjectTableModel
-from furet import repository
+from furet import repository, settings
 
 class DecreeFilterWidget(QtWidgets.QWidget):
     def __init__(self):
@@ -72,7 +72,10 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._state.addItem("Choisir un status", None)
         self._state.addItem("Traité", True)
         self._state.addItem("Non traité", False)
-        self._state.setCurrentIndex(2)
+        self._state.setCurrentIndex(2 if settings.value("app.filters.treatedOnly") else 0)
+        self._dateAfterToggle.setChecked(settings.value("app.filters.notExpired"))
+        self._dateBeforeToggle.setChecked(settings.value("app.filters.notExpired"))
+        self.syncDateFilterLabel()
         self._layout.addWidget(self._state)
 
 

@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from furet.app.widgets.objectTableModel import ObjectTableModel, TableColumn
 from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
 from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
-from furet.app.windows.parametersWindow import ParametersWindow
+from furet.app.windows.settingsWindow import SettingsWindow
 from furet.types.department import Department
 
 
@@ -55,7 +55,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.setSortingEnabled(True)
         self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
 
-        self._paramWindow: ParametersWindow = None
+        self._paramWindow: SettingsWindow = None
         self._decreeDetailWindows: dict[int, DecreeDetailsWindow] = {}
 
     def closeEvent(self, event):
@@ -63,7 +63,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def onClickParamButton(self):
         if self._paramWindow == None or not(self._paramWindow.isVisible()):
-            self._paramWindow = ParametersWindow()
+            self._paramWindow = SettingsWindow()
             self._paramWindow.show()
         else:
             self._paramWindow.activateWindow()

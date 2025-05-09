@@ -91,7 +91,8 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._topic = buildComboBox(repository.getTopics(), decree.topic)
         decreeForm.addRow("Sujet", self._topic)
 
-        self._treated = QtWidgets.QCheckBox("", tristate=decree.treated)
+        self._treated = QtWidgets.QCheckBox("", )
+        self._treated.setChecked(decree.treated)
         decreeForm.addRow("Traité", self._treated)
 
         commentSep = QtWidgets.QLabel("Commentaire")

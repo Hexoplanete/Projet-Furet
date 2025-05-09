@@ -27,5 +27,8 @@ Voir README de PROJET-FURET ou lancer launchPythonEnvWithInstall
 
 #### Assignation mots clef
 
+Destruction peut matcher avec des trucs de batiment par exemple
+
+
 
 

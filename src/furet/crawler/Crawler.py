@@ -53,11 +53,14 @@ class Crawler:
                     module = __import__(f"furet.crawler.regions.{moduleName}", fromlist=[className])
                     spiderClass = getattr(module, className)
                     spider = spiderClass(self.outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
-                    if department == "Herault":
-                        self.spiders.append(spider)
+                    self.spiders.append(spider)
                 except (ImportError, AttributeError) as e:
                     print(f"Error loading spider for {department} in {region}: {e}")
 
+    def run_spider(self, spider, results):
+            result = spider.crawl()
+            results.append(result)
+    
     def startSpiders(self):
         """
         Starts the crawling process for all spiders in the `self.spiders` list.
@@ -69,13 +72,32 @@ class Crawler:
         """
 
         threads = []
+        results = []
+        jsonList = []
+
         for spider in self.spiders:
-            thread = threading.Thread(target=spider.crawl)
+            thread = threading.Thread(target=self.run_spider, args=(spider, results))
             threads.append(thread)
             thread.start()
 
         for thread in threads:
             thread.join()
+        
+        for list in results:
+            if list is not None:
+                jsonList.extend(list)
+
+        return jsonList
+    
+    def readLinkFile(self):
+        """
+        Reads the link file and returns the list of links.
+        """
+        rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+        linkFile = os.path.join(rootDir, "src", "furet", "crawler", "resultCrawler.json")
+        with open(linkFile, 'r') as f:
+            data = json.load(f)
+        return data["links"]
 
     def startCrawler(self):
         """
@@ -89,13 +111,12 @@ class Crawler:
         self.configFile = configFile
         
         linkFile = os.path.join(os.path.dirname(__file__), "resultCrawler.json")
-        if not os.path.exists(linkFile):
-            # create the file if it doesn't exist
-            with open(linkFile, 'w') as f:
-                json.dump({"links": []}, f, indent=4)
+        with open(linkFile, 'w') as f:
+            json.dump({"links": []}, f, indent=4)
         self.linkFile = linkFile
 
         self.createSpiders()  
         self.startSpiders()
+        print(self.readLinkFile())
         print("All spiders have finished crawling.")
 

@@ -1,6 +1,6 @@
 from PySide6 import QtWidgets, QtCore
 
-from furet.app.utils import buildComboBox
+from furet.app.utils import buildComboBox, buildDatePicker
 from furet.types.decree import *
 from furet.app.widgets.objectTableModel import ObjectFilterProxy, ObjectTableModel
 from furet import repository
@@ -22,7 +22,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._name = QtWidgets.QLineEdit(placeholderText="Choisir un titre")
         self._layout.addWidget(self._name)
 
-        self._date = QtWidgets.QDateEdit() # TODO custom date picker widget
+        self._date = buildDatePicker()
         self._layout.addWidget(self._date)
 
         self._state = QtWidgets.QComboBox()

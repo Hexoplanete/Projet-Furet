@@ -21,6 +21,9 @@ def getDecrees() -> list[Decree]:
 def getDecreeById(id: int) -> Decree:
     return _findByField(getDecrees(), id)
 
+def updateDecree(id: int, decree: Decree):
+    pass
+
 
 def getDepartments() -> list[Department]:
     # TODO add to db in setup

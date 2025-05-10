@@ -2,20 +2,19 @@
     "regions": {
         "GrandEst": {
             "departments": {
-                "Aube": "07/05/2025"
+                "Aube": "09/05/2025"
             }
         },
         "Occitanie": {
             "departments": {
                 "HautesPyrenees": "07/05/2025",
                 "Ariege": "09/05/2025",
-                "Gers": "07/05/2025",
-                "Herault": "09/05/2025"
+                "Gers": "07/05/2025"
             }
         },
         "PACA": {
             "departments": {
-                "AlpesMaritimes": "07/05/2025",
+                "AlpesMaritimes": "09/05/2025",
                 "Var": "09/05/2025",
                 "BouchesDuRhone": "09/05/2025",
                 "AlpesDeHauteProvence": "09/05/2025"
@@ -28,7 +27,7 @@
         },
         "NouvelleAquitaine": {
             "departments": {
-                "Charente": "09/05/2025"
+                "Charente": "05/05/2025"
             }
         },
         "PaysDeLaLoire": {
@@ -38,13 +37,14 @@
         },
         "BourgogneFrancheComte": {
             "departments": {
-                "SaoneEtLoire": "08/05/2025"
+                "SaoneEtLoire": "08/05/2025",
+                "Doubs": "09/05/2025"
             }
         },
         "HautsDeFrance": {
             "departments": {
                 "Nord": "07/05/2025",
-                "PasDeCalais": "07/05/2025"
+                "PasDeCalais": "09/05/2025"
             }
         },
         "Normandie": {
@@ -54,7 +54,15 @@
         },
         "Bretagne": {
             "departments": {
-                "CotesDArmor": "07/05/2025"
+                "CotesDArmor": "07/05/2025",
+                "Morbihan": "09/05/2025"
+            }
+        },
+        "CentreValDeLoire": {
+            "departments": {
+                "Loiret": "09/05/2025",
+                "Indre": "09/05/2025",
+                "Cher": "09/05/2025"
             }
         }
     }

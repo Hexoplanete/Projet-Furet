@@ -45,7 +45,8 @@
         "HautsDeFrance": {
             "departments": {
                 "Nord": "07/05/2025",
-                "PasDeCalais": "09/05/2025"
+                "PasDeCalais": "09/05/2025",
+                "Somme": "09/05/2025"
             }
         },
         "Normandie": {

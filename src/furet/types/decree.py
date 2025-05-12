@@ -5,6 +5,7 @@ from typing import Dict
 from furet.types.base import dbclass
 from furet.types.department import Department
 from furet.types.raa import RAA
+from furet.repository import *
 
 @dbclass
 class DocumentType:
@@ -40,26 +41,27 @@ class Decree:
     link: str
     startPage: int
     endPage: int
+    publicationDate : date
 
     # Decree Obligatoire
     treated: bool
 
     # RAA facultatif
-    raaNumber: str
+    raaNumber: str = "0"
 
     # Decree
-    comment: str = ""
-    doc_type: Optional[DocumentType] = None
-    number: Optional[str] = None
+    comment: str = "0"
+    docType: Optional[DocumentType] = None
+    number: Optional[str] = "0"
     title: Optional[str] = None
     signingDate: Optional[date] = None
 
     campaign: Optional[Campaign] = None
-    topic: Optional[dict[str, int]] = None
+    topic: list[DecreeTopic] = None
 
     def toCsvLine(self):
         return [
             self.id, self.department.id, self.docType.id, self.number, self.title, self.signingDate.strftime("%d/%m/%Y"), 
             self.raaNumber, self.publicationDate.strftime("%d/%m/%Y"), self.link, self.startPage, self.endPage, 
-            self.campaign.id, "-".join(map(lambda t: str(t.id),self.topic)), int(self.treated), self.comment
+            self.campaign.id, "-".join(map(lambda t: str(t.id), self.topic)), int(self.treated), self.comment
         ]

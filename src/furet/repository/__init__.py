@@ -68,7 +68,7 @@ def getCampaignById(id: int) -> Campaign:
     return _findByField(getCampaigns(), id)
 
 def getCampaignIdByLabel(label: str) -> Campaign:
-    return _findByField(getCampaign(), label)
+    return _findByField(getCampaigns(), label)
 
 def getTopics() -> list[DecreeTopic]:
     return topicList
@@ -92,6 +92,9 @@ def addArreteToFile(arrete :Decree):
                "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
     row = arrete.toCsvLine()
     file_exists = os.path.isfile(fullPath) #bool
+
+    directory = os.path.dirname(fullPath)
+    os.makedirs(directory, exist_ok=True)
 
     with open(fullPath, 'a', encoding='utf-8', newline='') as file:
         writerCsv = csv.writer(file)
@@ -264,7 +267,7 @@ def updateIdFile(attr : str) -> int:
 def getFileName(arrete : Decree) -> str:
     dYear = arrete.publicationDate.year
     dMonth = arrete.publicationDate.month
-    filename = arrete.department.number + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
+    filename = str(arrete.department.number) + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
     
-    fullPath = basePath + "prefectures/" + arrete.department.number + '/' + filename
+    fullPath = basePath + "prefectures/" + str(arrete.department.number) + '/' + filename
     return fullPath

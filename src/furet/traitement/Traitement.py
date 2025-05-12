@@ -6,7 +6,7 @@ from furet.types.raa import RAA
 from furet.types.decree import *
 from furet.repository import * 
 
-# from furet.database.config import * # Contient les derniers IDs attribués
+from database.config import * # Contient les derniers IDs attribués
 
 import subprocess
 import os
@@ -70,6 +70,8 @@ class Traitement:
     
     def startTraitement(self):
 
+        print("TEST !!!!")
+
         liste_dict_RAA = self.readLinkFile()
 
         for el in liste_dict_RAA:
@@ -83,7 +85,7 @@ class Traitement:
 
             departement = Department(
                     id=departement_id,
-                    number=int(departements_label_to_code[raa_departement_label]),
+                    number=str(departements_label_to_code[raa_departement_label]),
                     label=raa_departement_label
             )
 
@@ -91,7 +93,7 @@ class Traitement:
                 department=departement,
                 publicationDate = raa_datePublication,
                 link=raa_url,
-                number=0, # On ne connaît pas le number à ce moment là (c'est dans extract caractéristiques)
+                number="0", # On ne connaît pas le number à ce moment là (c'est dans extract caractéristiques)
             )
 
             rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
@@ -160,9 +162,17 @@ class Traitement:
             path_apres_mot_clef = os.path.join(directory_apres_mot_clef, f"{os.path.basename(path_arrete).replace('.pdf','')}.txt")
             dic_key_words = getKeyWords(path_arrete, path_apres_mot_clef.replace(".txt","")) 
 
-            object_decree.topic = dic_key_words
+            dic = self.getDictLabelToId()
+            
+            liste_decree_topic = []
 
-            # addArreteToFile(object_decree) # Enregistre les informations de l'arreté sous format CSV
+            for label, id in dic_key_words.items():
+                topic = DecreeTopic(id=dic[label], label=label)
+                liste_decree_topic.append(topic)
+
+            object_decree.topic = liste_decree_topic
+
+            addArreteToFile(object_decree) # Enregistre les informations de l'arreté sous format CSV
 
             # self.save_keyWords_inFic(
             #     path_apres_mot_clef,
@@ -170,6 +180,10 @@ class Traitement:
             # )
 
             print(object_decree.topic)
-
             
         print("Fin execution Assignation Keywords")
+
+    def getDictLabelToId(self):
+            liste_decree_topics = getTopics()
+            print(liste_decree_topics)
+            return {topic.label: topic.id for topic in liste_decree_topics}

@@ -1,6 +1,7 @@
 from furet.types.decree import *
-# from furet.database.config import *
-# from furet.repositoryimport * 
+from database.config import *
+from furet.repository import * 
+from datetime import date
 
 import fitz 
 import re
@@ -52,15 +53,26 @@ def main_separation(input_path, output_dir, raa):
                 arrete_id = 1 # Supprimer après merge
                 #arrete_id = updateIdFile("decree")
                 
+                documentype = DocumentType(
+                        id=0,
+                        label="0"
+                )
+
+                campaign = Campaign(id=0, label="allo")
+
                 decree = Decree(
                         id=arrete_id,
                         department=raa.department,
-                        raaNumber="",                   # On ne connaît pas raaNumber à ce moment là (c'est dans extract caractéristiques)
+                        raaNumber=raa.number,                   # On ne connaît pas raaNumber à ce moment là (c'est dans extract caractéristiques)
                         link=raa.link,
                         startPage=start, 
                         endPage=end,
                         treated=False,
-                        comment=""
+                        comment="0",
+                        publicationDate=raa.publicationDate,
+                        docType = documentype,
+                        signingDate = date(2025, 5, 12),
+                        campaign = campaign
                 )
 
                 current = []

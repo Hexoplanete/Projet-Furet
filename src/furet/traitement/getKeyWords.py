@@ -40,7 +40,7 @@ def lemmatize_keywords(keywords):
 # input_path_pdf = args.pdf_path
 # debug = args.debug
 
-debug = True
+debug = False
 
 # Algo : Pour chaque mot clef, on va parcourir le texte 1 fois
 

@@ -2,7 +2,13 @@ from datetime import date
 from typing import Any
 from PySide6 import QtWidgets
 
-def buildComboBox(options, choice, none: tuple[str, Any] = None) -> QtWidgets.QComboBox:
+from furet.app.widgets.checkableComboBox import CheckableComboBox
+
+from typing import TypeVar
+
+T = TypeVar('T')
+
+def buildComboBox(options: list[T], choice: T, none: tuple[str, Any] = None) -> QtWidgets.QComboBox:
     box = QtWidgets.QComboBox()
     box.setEditable(True)
     if none is not None:
@@ -16,6 +22,20 @@ def buildComboBox(options, choice, none: tuple[str, Any] = None) -> QtWidgets.QC
         for i, o in enumerate(options):
             if o.id == choice.id:
                 box.setCurrentIndex(i)
+    return box
+
+def buildMultiComboBox(options: list[T], choices: list[T], none: str = None) -> CheckableComboBox:
+    box = CheckableComboBox()
+    if none is not None:
+        box.setPlaceholderText(none)
+    for o in options:
+        box.addItem(str(o), o)
+    
+    for i, o in enumerate(options):
+        for j, c in enumerate(choices):
+            if o.id == c.id:
+                print("added", i)
+                box.setSelectedIndex(i, True)
     return box
 
 

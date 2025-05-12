@@ -56,7 +56,7 @@ class Decree:
     
     # Specific for our use
     campaign: Campaign
-    topic: list[DecreeTopic]
+    topic: list[DecreeTopic] # TODO rename to topics
     treated: bool
     comment: str = ""
 

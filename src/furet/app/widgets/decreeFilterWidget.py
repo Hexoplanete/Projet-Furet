@@ -2,7 +2,7 @@ from PySide6 import QtWidgets, QtCore
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from furet.app.utils import buildComboBox, buildDatePicker, formatDate
+from furet.app.utils import buildComboBox, buildDatePicker, buildMultiComboBox, formatDate
 from furet.types.decree import *
 from furet.app.widgets.objectTableModel import ObjectFilterProxy, ObjectTableModel
 from furet import repository, settings
@@ -23,7 +23,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._campaign = buildComboBox(repository.getCampaigns(), None, ("Choisir une campagne", None))
         self._layout.addWidget(self._campaign)
 
-        self._topic = buildComboBox(repository.getTopics(), None, ("Choisir un sujet", None))
+        self._topic = buildMultiComboBox(repository.getTopics(), [], "Choisir un sujet")
         self._layout.addWidget(self._topic)
 
         self._name = QtWidgets.QLineEdit(placeholderText="Choisir un titre")
@@ -109,11 +109,13 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     
     def filterDecrees(self, decree: Decree):
         if self._departementValue is not None and decree.department.id != self._departementValue.id: return False
-        if self._topicValue is not None and decree.topic.id != self._topicValue.id: return False
         if self._stateValues is not None and decree.treated != self._stateValues: return False
         if self._nameValue != "" and decree.title.lower().find(self._nameValue.lower()) == -1: return False
         if self._dateAfterValue is not None and decree.publicationDate < self._dateAfterValue: return False
         if self._dateBeforeValue is not None and decree.publicationDate > self._dateBeforeValue: return False
+        if len(self._topicValue) > 0:
+            for id in self._topicValue:
+                if id not in decree.topic: return False
     
         return True
 

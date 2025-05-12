@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import repository
-from furet.app.utils import buildComboBox, buildDatePicker
+from furet.app.utils import buildComboBox, buildDatePicker, buildMultiComboBox
 from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
 from furet.types.decree import Decree
 
@@ -88,7 +88,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
             repository.getCampaigns(), decree.campaign)
         decreeForm.addRow("Campagne", self._campaign)
 
-        self._topic = buildComboBox(repository.getTopics(), decree.topic)
+        self._topic = buildMultiComboBox(repository.getTopics(), decree.topic)
         decreeForm.addRow("Sujet", self._topic)
 
         self._treated = QtWidgets.QCheckBox("", )

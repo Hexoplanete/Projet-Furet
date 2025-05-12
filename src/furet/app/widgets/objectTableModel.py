@@ -21,6 +21,9 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
         if orientation == QtCore.Qt.Orientation.Horizontal and role == QtCore.Qt.ItemDataRole.DisplayRole:
             field = self._fields[section]
             return field.name if field.formatHeader is None else self._fields[section].formatHeader()
+        
+        if orientation == QtCore.Qt.Orientation.Vertical and role == QtCore.Qt.ItemDataRole.DisplayRole:
+            return self.rowCount() - section
 
     def data(self, index, /, role=...):
         if role == QtCore.Qt.ItemDataRole.DisplayRole:

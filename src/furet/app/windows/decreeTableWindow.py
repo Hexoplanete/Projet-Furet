@@ -52,7 +52,9 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.setSelectionMode(QtWidgets.QTableView.SelectionMode.SingleSelection)
         self._table.setSelectionBehavior(QtWidgets.QTableView.SelectionBehavior.SelectRows)
         self._table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self._table.horizontalHeader().setSectionResizeMode(len(self._columns)-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.setSortingEnabled(True)
         self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
 
@@ -83,3 +85,9 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             self._decreeDetailWindows[decree.id].accepted.connect(onDecreeSaved)
         else:
             self._decreeDetailWindows[decree.id].activateWindow()
+
+    # def resizeEvent(self, event):
+    #     newSize = event.size()
+    #     tableWidth = self._table.viewport().width()
+    #     print(f"Fenêtre redimensionnée : {newSize.width()} x {new_size.height()}")
+    #     super().resizeEvent(event)  # Important pour ne pas bloquer le comportement par défaut

@@ -34,7 +34,6 @@ def buildMultiComboBox(options: list[T], choices: list[T], none: str = None) -> 
     for i, o in enumerate(options):
         for j, c in enumerate(choices):
             if o.id == c.id:
-                print("added", i)
                 box.setSelectedIndex(i, True)
     return box
 

@@ -8,7 +8,6 @@ from .windows.decreeTableWindow import DecreeTableWindow
 def setup():
     settings.setDefaultValue("app.filters.treatedOnly", True)
     settings.setDefaultValue("app.filters.notExpired", True)
-    print(settings.value("app.filters.treatedOnly"))
 
 def main():
     app = QApplication(sys.argv)

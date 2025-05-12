@@ -74,6 +74,3 @@ class Charente(Spider):
             return None
 
         return links
-
-
-    

@@ -53,8 +53,8 @@ class Crawler:
                 try:
                     module = __import__(f"furet.crawler.regions.{moduleName}", fromlist=[className])
                     spiderClass = getattr(module, className)
-                    # if department != "Charente":
-                    if department == "Nord":
+                    listPoc = ["AlpesDeHauteProvence", "Calvados", "BouchesDuRhone", "SaoneEtLoire", "Allier", "Sarthe"]
+                    if department in listPoc:
                         spider = spiderClass(self.outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
                         self.spiders.append(spider)
                 except (ImportError, AttributeError) as e:

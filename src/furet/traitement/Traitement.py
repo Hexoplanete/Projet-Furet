@@ -4,7 +4,7 @@ from furet.traitement.getKeyWords import *
 from furet.traitement.correspondance_nom_num_depart import *
 from furet.types.raa import RAA
 from furet.types.decree import *
-# from furet.repositoryimport * 
+# from furet.repository import * 
 
 # from furet.database.config import * # Contient les derniers IDs attribués
 
@@ -160,6 +160,8 @@ class Traitement:
             dic_key_words = getKeyWords(output_path_arrete, path_apres_mot_clef.replace(".txt","")) 
 
             object_decree.topic = dic_key_words
+
+            # addArreteToFile(object_decree) # Enregistre les informations de l'arreté sous format CSV
 
             # self.save_keyWords_inFic(
             #     path_apres_mot_clef,

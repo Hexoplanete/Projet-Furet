@@ -28,8 +28,8 @@ def setup():
             if filename.endswith(".csv"):
                 filepath = os.path.join(root, filename)
                 #mod_time = os.path.getmtime(filepath)  # timestamp de modification
-                loadArretesFromFile(filepath,allDecreesList)
-    #print(len(allDecreesList))
+                loadArretesFromFile(filepath,allDecreeList)
+    #print(len(allDecreeList))
 
 def getDecrees() -> list[Decree]:
     return allDecreeList

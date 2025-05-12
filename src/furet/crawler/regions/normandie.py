@@ -2,7 +2,7 @@ from furet.crawler.spider import Spider
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-class Allier(Spider):
+class Calvados(Spider):
     """
     A spider class for crawling the Hautes-Pyrenees department's website for RAA (Recueil des Actes Administratifs) links.
     Inherits from the Spider class.
@@ -12,9 +12,9 @@ class Allier(Spider):
         Initialize the HautesPyrenees spider with specific parameters.
         """
         super().__init__(outputDir, configFile, linkFile, date)
-        self.baseUrl = "https://www.allier.gouv.fr/Publications/Recueil-des-actes-administratifs-arretes"
-        self.region = "AURA"
-        self.department = "Allier"
+        self.baseUrl = "https://www.calvados.gouv.fr/Publications/Recueil-des-actes-administratifs/Recueil-des-actes-administratifs-departemental"
+        self.region = "Normandie"
+        self.department = "Calvados"
         self.currentMostRecentRAA = self.mostRecentRAA
 
     def findPages(self, html):
@@ -31,11 +31,11 @@ class Allier(Spider):
 
         for h2 in RAAYear:
             a = h2.find('a', href=True)
-            if a['href'].startswith('/Publications/Recueil-des-actes-administratifs-arretes/Recueil-des-actes-administratifs-de-l-annee-'):
+            if a['href'].startswith('/Publications/Recueil-des-actes-administratifs/Recueil-des-actes-administratifs-departemental/2'):
                 annee = a.text.split()[-1] # Extract the year from the link text
                 if int(annee) < self.mostRecentRAA.year: # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
                     break
-                extractedPages.append("https://www.allier.gouv.fr" + a['href']) # Add the link to the list of links to be crawled
+                extractedPages.append("https://www.calvados.gouv.fr" + a['href']) # Add the link to the list of links to be crawled
 
         return extractedPages
 
@@ -56,7 +56,7 @@ class Allier(Spider):
 
                 if date > self.mostRecentRAA:            # If the date is more recent than the most recent RAA, add it to the list
                     link = row['href']
-                    links.append({"link": 'https://www.allier.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
+                    links.append({"link": 'https://www.calvados.gouv.fr' + link, "datePublication": date_str, "region": self.region, "department": self.department})
                     if date > self.currentMostRecentRAA:
                         self.currentMostRecentRAA = date
 
@@ -65,4 +65,3 @@ class Allier(Spider):
                 continue
 
         return links
-

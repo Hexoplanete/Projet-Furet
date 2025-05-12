@@ -1,25 +1,23 @@
-import furet.app
-from furet.crawler.crawler import Crawler
-import threading
-from furet.traitement.Traitement import *
+from PySide6.QtWidgets import QApplication
+from . import settings, app
+from furet import repository, crawler
 
+#from datetime import datetime
 
 def main():
-    crawler = Crawler()
-    crawler_thread = threading.Thread(target=crawler.startCrawler)
-    app_thread = threading.Thread(target=furet.app.main)
+    QApplication.setApplicationName("Fouille Universelle de Recueils pour Entreposage et Traitement")
+    QApplication.setOrganizationDomain("github.com/Hexoplanete/Projet-Furet/")
+    QApplication.setOrganizationName("Hexoplanète")
 
-    crawler_thread.start()
-    app_thread.start()
-
-    crawler_thread.join()
-
-    traitement = Traitement()
-    traitement_thread = threading.Thread(target=traitement.startTraitement)
-    traitement_thread.start()
-
-    app_thread.join()
+    settings.setup()
+    app.setup()
+    # crawler.init()
+    repository.setup()  
+    # traitement = Traitement()
+    # traitement_thread = threading.Thread(target=traitement.startTraitement)
+    # traitement_thread.start()
+    app.main()
 
 if __name__ == '__main__':
-    print("Running as main module.")
     main()
+    

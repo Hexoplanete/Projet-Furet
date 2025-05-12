@@ -2,6 +2,8 @@ import requests
 from datetime import datetime
 import os
 import json
+from time import sleep
+from random import uniform
 
 class Spider:
     """
@@ -23,6 +25,24 @@ class Spider:
         self.mostRecentRAA = datetime.strptime(date, "%d/%m/%Y")
         self.configFile = configFile
         self.linkFile = linkFile
+        self.baseUrl = None
+        self.months = {
+            "janvier": 1,
+            "février": 2,
+            "fevrier": 2,
+            "mars": 3,
+            "avril": 4,
+            "mai": 5,
+            "juin": 6,
+            "juillet": 7,
+            "août": 8,
+            "aout": 8,
+            "septembre": 9,
+            "octobre": 10,
+            "novembre": 11,
+            "décembre": 12,
+            "decembre": 12
+        }
     
     def setMostRecentRAADate(self, date, region, department):
         """
@@ -49,6 +69,7 @@ class Spider:
         :return: HTML content of the page.
         """
         try:
+            sleep(uniform(1, 3))  # Sleep for a random duration between 0.5 and 1.5 seconds to avoid overwhelming the server
             response = requests.get(url, headers=self.headers)
             response.raise_for_status()
             return response.text
@@ -85,4 +106,32 @@ class Spider:
             data["links"].extend(linkList)
         with open(self.linkFile, "w") as f:
             json.dump(data, f, indent=4) 
+
+    def crawl(self):
+        """
+        Crawl the website to find and download the most recent RAA links.
+        """
+        try:
+            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
+            links = []
+            for link in linksPages:
+
+                html = self.fetchPage(link)
+                if not html:
+                    break
+
+                self.extractLinks(html, links)
+
+            # Update the most recent RAA if a newer one is found
+            if self.currentMostRecentRAA > self.mostRecentRAA: 
+                self.mostRecentRAA = self.currentMostRecentRAA
+                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
+
+            self.addToJsonResultFile(links)
+
+        except Exception as e:
+            print(f"Error during crawling in {self.department}: {e}")
+            return None
+        
+        return links
         

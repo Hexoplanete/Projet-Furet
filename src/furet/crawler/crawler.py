@@ -1,6 +1,7 @@
 import threading
 import json
 import os
+import time
 
 class Crawler:
     """
@@ -52,14 +53,27 @@ class Crawler:
                 try:
                     module = __import__(f"furet.crawler.regions.{moduleName}", fromlist=[className])
                     spiderClass = getattr(module, className)
+<<<<<<< HEAD
                     if department == "Aube":
+=======
+                    listPoc = ["AlpesDeHauteProvence", "Calvados", "BouchesDuRhone", "SaoneEtLoire", "Allier", "Sarthe"]
+                    if department in listPoc:
+>>>>>>> main
                         spider = spiderClass(self.outputDir+f"/{region}/{department}", self.configFile, self.linkFile, lastDate) 
                         self.spiders.append(spider)
                 except (ImportError, AttributeError) as e:
                     print(f"Error loading spider for {department} in {region}: {e}")
 
     def run_spider(self, spider, results):
+<<<<<<< HEAD
             result = spider.crawl()
+=======
+            start_time = time.time()
+            print(f"Starting spider for {spider.department} in {spider.region}...")
+            result = spider.crawl()
+            end_time = time.time()
+            print(f"Spider for {spider.department} in {spider.region} finished in {end_time - start_time:.2f} seconds.")
+>>>>>>> main
             results.append(result)
     
     def startSpiders(self):

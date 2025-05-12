@@ -1,32 +1,36 @@
 from PySide6 import QtWidgets, QtCore
 from furet import repository
+from furet.app.utils import formatDate
 from furet.types.decree import *
+from dateutil.relativedelta import relativedelta
 
 from furet.app.widgets.objectTableModel import ObjectTableModel, TableColumn
 from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
 from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
-from furet.app.windows.parametersWindow import ParametersWindow
+from furet.app.windows.settingsWindow import SettingsWindow
 from furet.types.department import Department
+
 
 class DecreeTableWindow(QtWidgets.QMainWindow):
 
-
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Fouille Universelle de Recueils pour Entreposage et Traitement")
         self._content = QtWidgets.QWidget()
         self._layout = QtWidgets.QVBoxLayout(self._content)
         self.setCentralWidget(self._content)
 
-        columns = [
+        # TODO set max col lenght
+        self._columns = [
+            TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: formatDate(v)),
+            TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: formatDate(v + relativedelta(months=2))),
             TableColumn[Department]("department", lambda: "Département"),
-            TableColumn[DecreeTopic]("topic", lambda: "Sujet"),
+            TableColumn[Campaign]("campaign", lambda: "Campagne"),
+            TableColumn[list[DecreeTopic]]("topic", lambda: "Sujet", lambda v: ", ".join(map(str, v))),
             TableColumn[str]("title", lambda: "Titre"),
-            TableColumn[date]("publicationDate", lambda: "Date de publication"),
             TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
             TableColumn[str]("comment", lambda: "Commentaire"),
         ]
-        self._decrees = ObjectTableModel(repository.getDecrees(), columns)
+        self._decrees = ObjectTableModel(repository.getDecrees(), self._columns)
 
         self._topBar = QtWidgets.QHBoxLayout()
         self._layout.addLayout(self._topBar)
@@ -40,18 +44,21 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._topBar.addWidget(self._paramButton)
         
         self._table = QtWidgets.QTableView()
-        self._table.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
         self._table.setModel(self._filters.proxyModel())
         self._layout.addWidget(self._table, 1)
         self._table.doubleClicked.connect(self.onDblClickTableRow)
 
         self._table.setEditTriggers(QtWidgets.QTableView.EditTrigger.NoEditTriggers)
+        self._table.setSelectionMode(QtWidgets.QTableView.SelectionMode.SingleSelection)
         self._table.setSelectionBehavior(QtWidgets.QTableView.SelectionBehavior.SelectRows)
         self._table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self._table.horizontalHeader().setSectionResizeMode(len(columns)-1, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.setSortingEnabled(True)
+        self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
 
-        self._paramWindow: ParametersWindow = None
+        self._paramWindow: SettingsWindow = None
         self._decreeDetailWindows: dict[int, DecreeDetailsWindow] = {}
 
     def closeEvent(self, event):
@@ -59,7 +66,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def onClickParamButton(self):
         if self._paramWindow == None or not(self._paramWindow.isVisible()):
-            self._paramWindow = ParametersWindow()
+            self._paramWindow = SettingsWindow()
             self._paramWindow.show()
         else:
             self._paramWindow.activateWindow()
@@ -67,8 +74,20 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
     def onDblClickTableRow(self, index: QtCore.QModelIndex):
         source_index = self._filters.proxyModel().mapToSource(index)
         decree = self._decrees.itemAt(source_index.row())
-        if id not in self._decreeDetailWindows or not(self._decreeDetailWindows[id].isVisible()):
+        id = decree.id
+        def onDecreeSaved():
+            repository.updateDecree(id, self._decreeDetailWindows[decree.id].decree())
+            self._decrees.setItemAt(source_index.row(), self._decreeDetailWindows[decree.id].decree())
+
+        if decree.id not in self._decreeDetailWindows or not(self._decreeDetailWindows[decree.id].isVisible()):
             self._decreeDetailWindows[decree.id] = DecreeDetailsWindow(decree)
             self._decreeDetailWindows[decree.id].show()
+            self._decreeDetailWindows[decree.id].accepted.connect(onDecreeSaved)
         else:
             self._decreeDetailWindows[decree.id].activateWindow()
+
+    # def resizeEvent(self, event):
+    #     newSize = event.size()
+    #     tableWidth = self._table.viewport().width()
+    #     print(f"Fenêtre redimensionnée : {newSize.width()} x {new_size.height()}")
+    #     super().resizeEvent(event)  # Important pour ne pas bloquer le comportement par défaut

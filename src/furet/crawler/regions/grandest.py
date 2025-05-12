@@ -1,8 +1,7 @@
 from furet.crawler.spider import Spider
 from bs4 import BeautifulSoup
 from datetime import datetime
-import os
-import requests
+
 
 class Moselle(Spider):
     """
@@ -53,30 +52,11 @@ class Moselle(Spider):
                 continue
 
         return extractedData
-    
-    def downloadPDF(self, url):
-        """
-        Download a PDF file from the given URL and put it in the output directory.
-
-        :param url: URL of the PDF file.
-        """
-        try:
-            response = requests.get(url, stream=True, headers=self.headers)
-            response.raise_for_status()
-            
-            filename = os.path.join(self.ouputDir, url[-10:])
-            if not filename.endswith('.pdf'):
-                filename += ".pdf"
-            with open(filename, 'wb') as file:
-                for chunk in response.iter_content(chunk_size=1024):
-                    file.write(chunk)
-            print(f"Downloaded: {filename}")
-        except requests.RequestException as e:
-            print(f"Failed to download {url}: {e}")
         
     def crawl(self):
         """
         Crawl the website to find and download the most recent RAA links.
+        Moselle's website has a specific pagination structure, so we need to handle that.
         """
         try:
             i = 1
@@ -189,27 +169,5 @@ class Aube(Spider):
 
         return links
 
-    def crawl(self):
-        try:
-            linksPages = self.findPages(self.fetchPage(self.baseUrl)) 
-            links = []
-            for link in linksPages:
-               
-                html = self.fetchPage(link)
-                if not html:
-                    break
 
-                self.extractLinks(html, links)
-            # Update the most recent RAA if a newer one is found
-            if self.currentMostRecentRAA > self.mostRecentRAA: 
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling: {e}")
-            return None
-        
-        return links
     

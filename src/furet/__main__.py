@@ -1,33 +1,15 @@
 import furet.app
-from furet.crawler.crawler import Crawler
-from furet import repository
-import threading
-import time
+from furet import repository, crawler
 
 #from datetime import datetime
 
 def main():
-    repository.setup()
-    # crawler = Crawler()
-    # crawler.startCrawler()
-    furet.app.main()
-    start_time = time.time()
-    crawler = Crawler()
-    crawler_thread = threading.Thread(target=crawler.startCrawler)
-    app_thread = threading.Thread(target=furet.app.main)
-
-    crawler_thread.start()
-    app_thread.start()
-
-    crawler_thread.join()
-    end_time = time.time()
-    print(f"Total execution time: {end_time - start_time:.2f} seconds")
-
+    crawler.init()
+    repository.setup()  
     # traitement = Traitement()
     # traitement_thread = threading.Thread(target=traitement.startTraitement)
     # traitement_thread.start()
-
-    app_thread.join()
+    furet.app.main()
 
 if __name__ == '__main__':
     main()

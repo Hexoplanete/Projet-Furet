@@ -227,7 +227,7 @@ def loadDocTypesFromFile(path :str, listDocTypes : list[DocumentType]) -> list[D
 def addCampaign(label: str):
     fullPath = basePath + 'config/campaign.csv'
     try: 
-        nId = updateIdFile('lastCampaignId')
+        nId = updateIdFile('campaign')
 
         with open(fullPath, 'a', encoding='utf-8', newline='') as file:
             writerCsv = csv.writer(file)
@@ -238,8 +238,8 @@ def addCampaign(label: str):
         print(f"Erreur : {e}")
 
 def addTopic(label: str):
-    fullPath = basePath + 'config/decreeTopic.csv'
-    nId = updateIdFile('lastTopicId')
+    fullPath = basePath + 'config/decreeTopics.csv'
+    nId = updateIdFile('topic')
 
     try: 
         with open(fullPath, 'a', encoding='utf-8', newline='') as file:
@@ -258,7 +258,7 @@ def updateIdFile(attr : str) -> int:
     #2. read file and its content
     with open(fullPath, encoding='utf-8') as file:
         reader = csv.reader(file, delimiter=',')
-
+        header = next(reader)
         for row in reader:
             if row[0] == attr:
                 nextId = int(row[1]) + 1
@@ -269,6 +269,7 @@ def updateIdFile(attr : str) -> int:
     #3. re-write the file content (updated)
     with open(fullPath, 'w', encoding='utf-8', newline='') as file: #w clears all the file content
         writerCsv = csv.writer(file)
+        writerCsv.writerow(header)
         writerCsv.writerows(fileContent)
     
     return nextId

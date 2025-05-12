@@ -16,3 +16,6 @@ class FilePickerWidget(QtWidgets.QWidget):
         filePath = dialog.getOpenFileName(None, "Choisir un fichier à importer", QtCore.QDir.homePath())[0]
         if filePath:
             self._fileEditText.setText(filePath)
+    
+    def getPath(self) -> str:
+        return self._fileEditText.text()

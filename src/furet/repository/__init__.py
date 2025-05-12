@@ -1,6 +1,6 @@
 import datetime
 from furet.types.department import *
-from furet.types.decree import *
+from furet.types.decree import Decree, DecreeTopic, Campaign, DocumentType
 import os
 import csv
 from datetime import datetime
@@ -21,15 +21,18 @@ def setup():
     loadDepartmentsFromFile(basePath + '/config/departments.csv', departmentList)
     loadTopicsFromFile(basePath + '/config/decreeTopics.csv', topicList)
     loadDocTypesFromFile(basePath + '/config/documentType.csv', docTypeList)
-    #print(campaignList)
+    # print(campaignList)
     # get all csvfiles from os
+    # print(len(allDecreeList))
+
+def readAllArretesFromFiles():
+   #Separate function from setup because setup must be called before processing (information required for processing is retrieved during setup) and processing adds new decrees!
     for root, dirs, files in os.walk(basePath + '/prefectures/'):
         for filename in files:
             if filename.endswith(".csv"):
                 filepath = os.path.join(root, filename)
                 #mod_time = os.path.getmtime(filepath)  # timestamp de modification
                 loadArretesFromFile(filepath,allDecreeList)
-    #print(len(allDecreeList))
 
 def getDecrees() -> list[Decree]:
     return allDecreeList

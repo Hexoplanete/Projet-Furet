@@ -166,6 +166,7 @@ class Traitement:
             
             liste_decree_topic = []
 
+            print(dic)
             for label, id in dic_key_words.items():
                 topic = DecreeTopic(id=dic[label], label=label)
                 liste_decree_topic.append(topic)
@@ -185,5 +186,4 @@ class Traitement:
 
     def getDictLabelToId(self):
             liste_decree_topics = getTopics()
-            print(liste_decree_topics)
             return {topic.label: topic.id for topic in liste_decree_topics}

@@ -15,13 +15,14 @@ def main():
     settings.setup()
     app.setup()
     crawler.init()
+    repository.setup()  
     
     traitement = Traitement()
     traitement_thread = threading.Thread(target=traitement.startTraitement)
     traitement_thread.start()
     traitement_thread.join()
 
-    repository.setup()  
+    repository.readAllArretesFromFiles()
     
     app.main()
 

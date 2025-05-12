@@ -38,6 +38,9 @@ def getDecrees() -> list[Decree]:
 def getDecreeById(id: int) -> Decree:
     return _findByField(getDecrees(), id)
 
+def updateDecree(id: int, decree: Decree):
+    pass
+
 
 
 
@@ -57,12 +60,12 @@ def getDocumentTypeById(id: int) -> DocumentType:
     return _findByField(getDocumentTypes(), id)
 
 
-def getCampaign() -> list[Campaign]:
+def getCampaigns() -> list[Campaign]:
     return campaignList
 
 
 def getCampaignById(id: int) -> Campaign:
-    return _findByField(getCampaign(), id)
+    return _findByField(getCampaigns(), id)
 
 def getCampaignIdByLabel(label: str) -> Campaign:
     return _findByField(getCampaign(), label)
@@ -104,7 +107,6 @@ def updateDecree(id: int, decree: Decree):
 
     # 1. get the file name
     fullPath = getFileName(decree)
-    
     #2. read file and it content
     with open(fullPath, encoding='utf-8') as file:
         reader = csv.reader(file, delimiter=',')
@@ -137,7 +139,7 @@ def loadArretesFromFile(path :str, listArretes : list[Decree]) -> list[Decree]:
                     number = row[3], title = row[4], signingDate = datetime.strptime(row[5], format).date(), raaNumber = row[6], 
                     publicationDate = datetime.strptime(row[7], format).date(), link = row[8], startPage = int(row[9]), 
                     endPage = int(row[10]), campaign = getCampaignById(int(row[11])), 
-                    topic = map(getTopicById, map(int, row[12].split("-"))), 
+                    topic = list(map(getTopicById, map(int, row[12].split("-")))), 
                     treated = bool(int(row[13])), comment = row[14]
                 )
                 listArretes.append(aa)
@@ -262,7 +264,7 @@ def updateIdFile(attr : str) -> int:
 def getFileName(arrete : Decree) -> str:
     dYear = arrete.publicationDate.year
     dMonth = arrete.publicationDate.month
-    filename = str(arrete.department) + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
+    filename = arrete.department.number + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
     
-    fullPath = basePath + str(arrete.department) + '/' + filename
+    fullPath = basePath + "prefectures/" + arrete.department.number + '/' + filename
     return fullPath

@@ -48,9 +48,15 @@ class Decree:
     startPage: int
     endPage: int
     
+    docType: DocumentType
+    number: str
+    title: str
+    publicationDate: date
+    signingDate: date
+    
     # Specific for our use
     campaign: Campaign
-    topic: list[DecreeTopic]
+    topic: list[DecreeTopic] # TODO rename to topics
     treated: bool
     comment: str = ""
 
@@ -58,5 +64,5 @@ class Decree:
         return [
             self.id, self.department.id, self.docType.id, self.number, self.title, self.signingDate.strftime("%d/%m/%Y"), 
             self.raaNumber, self.publicationDate.strftime("%d/%m/%Y"), self.link, self.startPage, self.endPage, 
-            self.campaign.id, "-".join(map(str,self.topic.id)), self.treated, self.comment
-            ]
+            self.campaign.id, "-".join(map(lambda t: str(t.id),self.topic)), int(self.treated), self.comment
+        ]

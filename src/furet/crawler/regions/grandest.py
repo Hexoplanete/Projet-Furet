@@ -1,8 +1,7 @@
 from furet.crawler.spider import Spider
 from bs4 import BeautifulSoup
 from datetime import datetime
-import os
-import requests
+
 
 class Moselle(Spider):
     """
@@ -14,7 +13,7 @@ class Moselle(Spider):
         Initialize the Moselle spider with specific parameters.
         """
         super().__init__(ouputDir, configFile, linkFile, date)
-        self.baseURL = "https://mc.moselle.gouv.fr/raa.html?adminedit=1?op=raa&do=raa_rec&page="
+        self.baseUrl = "https://mc.moselle.gouv.fr/raa.html?adminedit=1?op=raa&do=raa_rec&page="
         self.region = "GrandEst"
         self.department = "Moselle"
         self.currentMostRecentRAA = self.mostRecentRAA
@@ -53,36 +52,17 @@ class Moselle(Spider):
                 continue
 
         return extractedData
-    
-    def downloadPDF(self, url):
-        """
-        Download a PDF file from the given URL and put it in the output directory.
-
-        :param url: URL of the PDF file.
-        """
-        try:
-            response = requests.get(url, stream=True, headers=self.headers)
-            response.raise_for_status()
-            
-            filename = os.path.join(self.ouputDir, url[-10:])
-            if not filename.endswith('.pdf'):
-                filename += ".pdf"
-            with open(filename, 'wb') as file:
-                for chunk in response.iter_content(chunk_size=1024):
-                    file.write(chunk)
-            print(f"Downloaded: {filename}")
-        except requests.RequestException as e:
-            print(f"Failed to download {url}: {e}")
         
     def crawl(self):
         """
         Crawl the website to find and download the most recent RAA links.
+        Moselle's website has a specific pagination structure, so we need to handle that.
         """
         try:
             i = 1
             finalLinks = []
             while True:           # Loop through the pages until no more links are found
-                url = self.baseURL + str(i)
+                url = self.baseUrl + str(i)
                 i += 1
                 html = self.fetchPage(url)
                 if not html or "Il n'y a aucun recueil cr" in html: # Check if the page is empty or if there are no more RAA
@@ -102,7 +82,92 @@ class Moselle(Spider):
             self.addToJsonResultFile(finalLinks)
 
         except Exception as e:
-            print(f"Error during crawling: {e}")
+            print(f"Error during crawling in {self.department}: {e}")
             return None
         
-        return self.mostRecentRAA 
+        return finalLinks
+    
+
+class Aube(Spider):
+    """
+    A spider class for crawling the Ariege department's website for RAA (Recueil des Actes Administratifs) links.
+    Inherits from the Spider class.
+    """
+    def __init__(self, outputDir, configFile, linkFile, date):
+        """
+        Initialize the Ariege spider with specific parameters.
+        """
+        super().__init__(outputDir, configFile, linkFile, date)
+        self.baseUrl = "https://www.aube.gouv.fr/Publications/RAA-Recueil-des-Actes-Administratifs"
+        self.region = "GrandEst"
+        self.department = "Aube"
+        self.currentMostRecentRAA = self.mostRecentRAA
+
+    def findPages(self, html):
+        """
+        Find the number of pages available in the HTML content.
+
+        :param html: HTML content of a page.
+        :return: Number of pages found.
+        """
+        extractedPages = []
+        extractedPagesFinal = []
+        soup = BeautifulSoup(html, 'html.parser') 
+        
+        div = soup.find('div', class_='fr-text--lead fr-my-3w')
+        aList = div.find_all('a', href=True, class_='fr-link')
+
+        for a in aList:
+            if a['href'].startswith('/Publications/RAA-Recueil-des-Actes-Administratifs/RAA'):
+                annee = a.text.split()[-1] # Extract the year from the link
+                if int(annee) < self.mostRecentRAA.year: # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
+                    continue
+                extractedPages.append('https://www.aube.gouv.fr' + a['href']) 
+
+        for link in extractedPages:
+            i = 0
+            while True:
+                url = link + "/(offset)/" + str(i*10) # Pagination URL the value of offset is multiplied by 10 to get the next page
+                
+                html = self.fetchPage(url)
+                soup = BeautifulSoup(html, 'html.parser')
+                i += 1
+
+                if not html or not soup.find(class_="fr-card__link menu-item-link"):
+                    break
+
+                extractedPagesFinal.append(url)
+
+        return extractedPagesFinal
+
+    def extractLinks(self, html, links):
+        """
+        Extract all links from the HTML content.
+
+        :param html: HTML content of a page.
+        :return: List of extracted links.
+        """
+        soup = BeautifulSoup(html, 'html.parser')
+        rows = soup.find_all('a', href=True, class_='fr-card__link menu-item-link')
+
+        for row in rows:
+            try:
+                if not row['href'].startswith('/contenu/telechargement'):
+                    continue
+                dateStr = row["title"].split()[-1] # Extract the date from the title attribute
+                date = datetime.strptime(dateStr, "%d/%m/%Y")
+
+                if date > self.mostRecentRAA:
+                    link = row['href']
+                    links.append({"link": 'https://www.aube.gouv.fr' + link, "datePublication": dateStr, "region": self.region, "department": self.department}) # Add the link to the list for the JSON file
+                    if date > self.currentMostRecentRAA:
+                        self.currentMostRecentRAA = date
+
+            except (ValueError, IndexError) as e:
+                print(f"Error parsing row: {row}, Error: {e}")
+                continue
+
+        return links
+
+
+    

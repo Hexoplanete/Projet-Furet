@@ -22,23 +22,22 @@ input : PDF correspondant à un RAA
 | Info / RAA       | Endroit où on récupère                                              |                       
 |------------------|---------------------------------------------------------------------|
 | raaNumber        | Extraction Caractéristiques (code juliette à intégrer)              |                                                                 
-| region           | Crawler                                                             |
-| departement      | Crawler                                                             |
-| date publication | Crawler                                                             |
-| link             | Crawler                                                             |
+| departement      | Crawler                                                             | OK
+| date publication | Crawler                                                             | OK
+| link             | Crawler                                                             | OK
 
 
 | Info / Arrêté    | Endroit où on récupère                                              |                  
 |------------------|---------------------------------------------------------------------|
 | doc_type         | ?                                                                   |
-| arreteNumber     | Extraction Caractéristiques (code juliette à intégrer)              |
-| title            | Extraction Caractéristiques (code juliette à intégrer)              |
-| signingDate      | On récupère pas au final                                            |
-| campaign         | Dans getKeyWords() car campagne dépend du keyword qui matche        |
-| topic            | ?                                                                   |
-| startPage        | Separation RAA                                                      |
-| endPage          | Separation RAA                                                      |
-                                                                                         |
+| arreteNumber     | Extraction Caractéristiques (code juliette à intégrer)              | TO DO
+| title            | Extraction Caractéristiques (code juliette à intégrer)              | TO DO
+| signingDate      | On récupère pas au final                                            | 
+| topic            | Dans getKeyWords() car le topic c'est des keywords                  |
+| startPage        | Separation RAA                                                      | OK 
+| endPage          | Separation RAA                                                      | OK
+| campaign         | Dans getKeyWords() car campagne dépend du keyword qui matche        | TO DO now
+                                                                                         
 
 ### Requirements
 

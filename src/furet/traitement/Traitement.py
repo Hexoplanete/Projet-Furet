@@ -1,6 +1,12 @@
 from furet.traitement.ocr import *
 from furet.traitement.separation_avec_sommaire  import *
 from furet.traitement.getKeyWords import *
+from furet.traitement.correspondance_nom_num_depart import *
+from furet.types.raa import RAA
+from furet.types.decree import *
+# from furet.repositoryimport * 
+
+# from furet.database.config import * # Contient les derniers IDs attribués
 
 import subprocess
 import os
@@ -65,26 +71,38 @@ class Traitement:
 
         liste_dict_RAA = self.readLinkFile()
 
-        #print(liste_dict_RAA)
-        
         for el in liste_dict_RAA:
-            
-            #print(el)
+
             raa_url = el["link"]
-            raa_datePublication = el["datePublication"]
-            raa_region = el["region"]
-            raa_departement = el["department"]
+            raa_datePublication = datetime.strptime(el["datePublication"], "%d/%m/%Y")
+            raa_departement_label = el["department"]
+
+            departement_id = 1 # Supprimer après merge
+            #departement_id = updateIdFile("department")
+
+            departement = Department(
+                    id=departement_id,
+                    number=int(departements_label_to_code(raa_departement_label)),
+                    label=raa_departement_label
+            )
+
+            raa = RAA(
+                department=departement,
+                publicationDate = raa_datePublication,
+                link=raa_url,
+                number=0, # On ne connaît pas le number à ce moment là (c'est dans extract caractéristiques)
+            )
 
             rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
             raa_save_path = os.path.join(rootDir, "src", "furet", "traitement", "input_RAA",f"{os.path.basename(raa_url)}")
             self.downloadPDF(raa_url, raa_save_path)
-            self.traitement_RAA(raa_save_path)
+            self.traitement_RAA(raa_save_path, raa)
 
-    def traitement_RAA(self, input_path):
+    def traitement_RAA(self, input_path, raa):
         """ input_path est le chemin vers le RAA """
 
         ## On réduit la qualité du PDF pour enlever l'erreur "BOMB DOS ATTACK SIZE LIMIT"
-        
+
         directory_apres_magick = os.path.join(self.path_traitement, "output", "apres_magick")
         os.makedirs(directory_apres_magick, exist_ok=True)
         path_apres_magick = os.path.join(directory_apres_magick, os.path.basename(input_path))
@@ -122,7 +140,8 @@ class Traitement:
         os.makedirs(directory_apres_separation, exist_ok=True)
         path_apres_separation = os.path.join(directory_apres_separation, os.path.basename(input_path))
 
-        liste_output_path_arretes = main_separation(path_apres_ocr, directory_apres_separation)    
+        liste_chemin_objetDecree = main_separation(path_apres_ocr, directory_apres_separation, raa)    
+
         print("Fin execution separation")
 
         # TO DO Extraction Caractéristique
@@ -132,12 +151,19 @@ class Traitement:
         directory_apres_mot_clef = os.path.join(self.path_traitement, "output", "apres_mot_cle", basename_RAA)
         os.makedirs(directory_apres_mot_clef, exist_ok=True)
         
-        for el in liste_output_path_arretes:
+        for el in liste_chemin_objetDecree:
+
+            object_decree = el[0]
+            output_path_arrete = el[1]
+
             path_apres_mot_clef = os.path.join(directory_apres_mot_clef, f"{os.path.basename(el).replace('.pdf','')}.txt")
-            dic_key_words = getKeyWords(el,path_apres_mot_clef.replace(".txt",""))
-            self.save_keyWords_inFic(
-            path_apres_mot_clef,
-            dic_key_words
-            )
+            dic_key_words = getKeyWords(output_path_arrete, path_apres_mot_clef.replace(".txt","")) 
+
+            object_decree.topic = dic_key_words
+
+            # self.save_keyWords_inFic(
+            #     path_apres_mot_clef,
+            #     dic_key_words
+            # )
             
         print("Fin execution Assignation Keywords")

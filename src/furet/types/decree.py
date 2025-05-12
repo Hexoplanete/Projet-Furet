@@ -1,4 +1,6 @@
 from datetime import date
+from typing import Optional
+from typing import Dict
 
 from furet.types.base import dbclass
 from furet.types.department import Department
@@ -12,13 +14,13 @@ class DocumentType:
     def __str__(self):
         return self.label
 
-@dbclass
-class DecreeTopic:
-    id: int
-    label: str
+# @dbclass
+# class DecreeTopic:
+#     id: int
+#     label: str
 
-    def __str__(self):
-        return self.label
+#     def __str__(self):
+#         return self.label
 
 @dbclass
 class Campaign:
@@ -34,19 +36,18 @@ class Decree:
 
     # raa: RAA
     department: Department
-    raaNumber: str
+    raaNumber: Optional[str] = None
     link: str
     startPage: int
     endPage: int
-    
-    doc_type: DocumentType
-    number: str
-    title: str
-    publicationDate: date
-    signingDate: date
-    
+
+    doc_type: Optional[DocumentType] = None
+    number: Optional[str] = None
+    title: Optional[str] = None
+    signingDate: Optional[date] = None
+
     # Specific for our use
-    campaign: Campaign
-    topic: DecreeTopic
+    campaign: Optional[Campaign] = None
+    topic: Optional[dict[str, int]] = None
     treated: bool
     comment: str = ""

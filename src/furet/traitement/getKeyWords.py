@@ -4,7 +4,7 @@ import os
 
 from furet.traitement.getPdfText import *
 
-nlp = spacy.load("fr_core_news_sm") # Chargement du modèle de langue français de SpaCy
+nlp = spacy.load("fr_core_news_sm") # Loading french language of SpaCy's model
 
 TITLES = {"m.", "mme.", "dr.", "prof.", "mlle.", "me."}
 
@@ -17,7 +17,7 @@ KEYWORDS = [
     "putois", "corbeau freux", "corneille noire", "pie bavarde", "geai", "étourneau"
 ]
 
-# Permet de lemmatiser les mots clefs
+# Allows the lemmatize of keywords
 def lemmatize_keywords(keywords):
     lemmatized = {}
     for kw in keywords:
@@ -26,13 +26,13 @@ def lemmatize_keywords(keywords):
         lemmatized[lemmatized_kw] = kw 
     return lemmatized
 
-# # Arguments de ligne de commande
+# # Command line arguments
 # parser = argparse.ArgumentParser()
 # parser.add_argument("pdf_path", help="Chemin vers le fichier PDF à traiter")
 # parser.add_argument(
 #     "--debug", 
 #     help="Si debug est alors on affiche le contexte (lemmatisé) des mots clefs trouvés, le nombre d'occurences, etc.", 
-#     action="store_true"  # Cela fait de debug un booléen (True si argument est présent)
+#     action="store_true"  # This makes debug a boolean (True if argument is present)
 # )
 
 # args = parser.parse_args()
@@ -42,56 +42,57 @@ def lemmatize_keywords(keywords):
 
 debug = False
 
-# Algo : Pour chaque mot clef, on va parcourir le texte 1 fois
+# Algo: For each keyword, we scan the text once
 
 def getKeyWords(input_path, output_path):
 
-    text = extract_text(input_path) # On récupère le texte
-    doc = nlp(text.lower()) # On met tout en lower case
+    text = extract_text(input_path) # We retrieve the text
+    doc = nlp(text.lower()) # We put everything in lower case
 
-    # Lemmatisation du texte et des mots clefs
+    # Lemmatization of text and keywords
     lemmatized_tokens = [token.lemma_ for token in doc if not token.is_punct and not token.is_space]
     lemmatized_kw = lemmatize_keywords(KEYWORDS)
 
-    # (Debug) Utile pour l'affichage des contextes 
+    # (Debug) Useful for displaying contexts
     window_size = 3
 
-    # Dictionnaire pour stocker le nombre d'occurrences de chaque mot clef
+    # Dictionary to store the number of occurrences of each keyword
     keyword_count = {}
 
-    # (Debug) Pour annoter le texte
+    # (Debug) To annotate the text
+
     token_annotations = [""] * len(lemmatized_tokens)
 
-    # Recherche des occurrences dans le texte pour chaque mot-clé
+    # Search for occurrences in the text for each keyword
     for kw_lemmatized in lemmatized_kw:
 
         original_kw = lemmatized_kw[kw_lemmatized]
 
-        # Si on a un mot de plusieurs mots, on le divise
+        # If we have a word of several words, we divide it
         kw_lemmatized = kw_lemmatized.split()
         n = len(kw_lemmatized)
 
         original_kw_split = original_kw.split() 
 
-        matches = []  # (Debug) Stocke les positions des occurrences =  Utile pour l'affichage des contextes
+        matches = []  # (Debug) Stores the positions of occurrences = Useful for displaying contexts
 
-        # On cherche les occurences du mot-clé dans le texte ( - n et i+n servent pour les mots clefs de plusieurs mots)
+        # We look for occurrences of the keyword in the text (-n and i+n are used for keywords with several words)
         for i in range(len(lemmatized_tokens) - n + 1):
             if (lemmatized_tokens[i:i+n] == kw_lemmatized) or (lemmatized_tokens[i:i+n] == original_kw_split):
                 if i > 0 and lemmatized_tokens[i - 1] in TITLES:
-                    continue  # Ignore les match de mot clef dans des noms
+                    continue  # Ignore keyword matches in names
                 matches.append(i)
 
-        # Compter et (Debug) afficher les occurences
+        # Count and (Debug) show occurrences
         if matches:
-            keyword_count[original_kw] = len(matches)  # Nombre d'occurrences
+            keyword_count[original_kw] = len(matches)  # Number of occurrences
 
             # (Debug)
             if(debug): 
                 
-                #print(f"\n🔹 {original_kw} ({keyword_count[original_kw]} occurrence(s)) :")  # Afficher le mot-clé et le nombre d'occurrences
+                #print(f"\n🔹 {original_kw} ({keyword_count[original_kw]} occurrence(s)) :")  # Show keyword and number of occurrences
                 seen_contexts = set()
-                # Afficher les contextes (sans répétition !!!!!!!!!!)
+                # Show contexts (without repetition!!!!!!!!!!)
                 for match in matches:
                     start = max(0, match - window_size)
                     end = min(len(lemmatized_tokens), match + n + window_size)
@@ -100,7 +101,7 @@ def getKeyWords(input_path, output_path):
                         seen_contexts.add(context)
                         print(f"Contexte : ... {context} ...")
                 
-                # On annote le texte
+                # We annotate the text
                 for match in matches:
                     for j in range(n):
                         pos = match + j
@@ -116,7 +117,7 @@ def getKeyWords(input_path, output_path):
 
                 annotated_text = " ".join(final_annotated)
 
-                # On crée un fichier Markdown pour debug avec le texte annoté
+                # We create a Markdown file for debugging with the annotated text
                 name_fic_annoted = f"{output_path}_annoted.md"
                 with open(name_fic_annoted , "w", encoding="utf-8") as f:
                     f.write(annotated_text)

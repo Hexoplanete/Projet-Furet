@@ -80,7 +80,7 @@ class Traitement:
             raa_datePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
             raa_departement_label = el["department"]
 
-            departement_id = 1 # Supprimer après merge
+            departement_id = 1 # Delete after merge
             #departement_id = updateIdFile("department")
 
             departement = Department(
@@ -104,7 +104,7 @@ class Traitement:
     def traitement_RAA(self, input_path, raa):
         """ input_path est le chemin vers le RAA """
 
-        ## On réduit la qualité du PDF pour enlever l'erreur "BOMB DOS ATTACK SIZE LIMIT"
+        ## We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
 
         directory_apres_magick = os.path.join(self.path_traitement, "output", "apres_magick")
         os.makedirs(directory_apres_magick, exist_ok=True)

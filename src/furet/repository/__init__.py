@@ -142,7 +142,6 @@ def loadArretesFromFile(path :str, listArretes : list[Decree]) -> list[Decree]:
                     topic = list(map(getTopicById, map(int, row[12].split("-")))), 
                     treated = bool(int(row[13])), comment = row[14]
                 )
-                print(aa.comment)
                 listArretes.append(aa)
 
             except Exception as e:

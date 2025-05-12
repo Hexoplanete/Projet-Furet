@@ -11,7 +11,7 @@ def main():
 
     settings.setup()
     app.setup()
-    crawler.init()
+    # crawler.init()
     repository.setup()  
     # traitement = Traitement()
     # traitement_thread = threading.Thread(target=traitement.startTraitement)

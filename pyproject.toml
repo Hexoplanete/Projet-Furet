@@ -22,7 +22,10 @@ dependencies = [
     "tomlkit>=0.13",
     "dateutils",
     "requests",
-    "bs4"
+    "bs4",
+    "ocrmypdf",
+    "PyMuPDF",
+    "spacy"
 ]
 
 [project.urls]

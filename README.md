@@ -15,6 +15,6 @@ uv sync
 
 # Requirements Traitement
 
-pip install ocrmypdf PyMuPDF spacy
+pip install ocrmypdf PyMuPDF spacy 
 
 python -m spacy download fr_core_news_sm

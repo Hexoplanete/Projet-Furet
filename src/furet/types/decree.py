@@ -14,13 +14,13 @@ class DocumentType:
     def __str__(self):
         return self.label
 
-# @dbclass
-# class DecreeTopic:
-#     id: int
-#     label: str
+@dbclass
+class DecreeTopic:
+    id: int
+    label: str
 
-#     def __str__(self):
-#         return self.label
+    def __str__(self):
+        return self.label
 
 @dbclass
 class Campaign:
@@ -34,20 +34,24 @@ class Campaign:
 class Decree:
     id: int
 
-    # raa: RAA
+    # raa: RAA Obligatoire
     department: Department
-    raaNumber: Optional[str] = None
     link: str
     startPage: int
     endPage: int
 
+    # Decree Obligatoire
+    treated: bool
+
+    # RAA facultatif
+    raaNumber: str
+
+    # Decree
+    comment: str = ""
     doc_type: Optional[DocumentType] = None
     number: Optional[str] = None
     title: Optional[str] = None
     signingDate: Optional[date] = None
 
-    # Specific for our use
     campaign: Optional[Campaign] = None
     topic: Optional[dict[str, int]] = None
-    treated: bool
-    comment: str = ""

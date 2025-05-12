@@ -37,6 +37,8 @@ def main_separation(input_path, output_dir, raa):
         pages = re.findall(r'Page\s+(\d+)', full_text, flags=re.IGNORECASE)
         page_start_numbers = [int(p) for p in pages] 
 
+        liste_chemin_objetDecree = []
+
         for i in range(len(page_start_numbers)):
                 start = page_start_numbers[i]
 
@@ -61,8 +63,8 @@ def main_separation(input_path, output_dir, raa):
                         comment=""
                 )
 
-                liste_chemin_objetDecree = []
-                liste_chemin_objetDecree[0] = decree
+                current = []
+                current.append(decree)
 
                 # On ne connaît pas doc_type, number, title, signingDate, topic  à ce moment là (c'est dans extract caractéristiques) ni campaign (getKeyWords)
                 # On ne connaît pas number à ce moment là (c'est dans extract caractéristiques)
@@ -77,8 +79,10 @@ def main_separation(input_path, output_dir, raa):
 
                 output_path = os.path.join(output_dir, f"Arrete_{i+1}.pdf")
 
-                liste_chemin_objetDecree[1] = output_path
+                current.append(output_path)
                 #liste_output_path.append(output_path)
+
+                liste_chemin_objetDecree.append(current)
 
                 sub_doc.save(output_path)
                 sub_doc.close()      

@@ -4,7 +4,7 @@ from furet.traitement.getKeyWords import *
 from furet.traitement.correspondance_nom_num_depart import *
 from furet.types.raa import RAA
 from furet.types.decree import *
-# from furet.repository import * 
+from furet.repository import * 
 
 # from furet.database.config import * # Contient les derniers IDs attribués
 
@@ -12,6 +12,7 @@ import subprocess
 import os
 import json
 import requests
+import datetime
 
 class Traitement:
 
@@ -74,7 +75,7 @@ class Traitement:
         for el in liste_dict_RAA:
 
             raa_url = el["link"]
-            raa_datePublication = datetime.strptime(el["datePublication"], "%d/%m/%Y")
+            raa_datePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
             raa_departement_label = el["department"]
 
             departement_id = 1 # Supprimer après merge
@@ -82,7 +83,7 @@ class Traitement:
 
             departement = Department(
                     id=departement_id,
-                    number=int(departements_label_to_code(raa_departement_label)),
+                    number=int(departements_label_to_code[raa_departement_label]),
                     label=raa_departement_label
             )
 
@@ -151,13 +152,13 @@ class Traitement:
         directory_apres_mot_clef = os.path.join(self.path_traitement, "output", "apres_mot_cle", basename_RAA)
         os.makedirs(directory_apres_mot_clef, exist_ok=True)
         
-        for el in liste_chemin_objetDecree:
+        for i in range (len(liste_chemin_objetDecree)):
 
-            object_decree = el[0]
-            output_path_arrete = el[1]
+            object_decree = liste_chemin_objetDecree[i][0]
+            path_arrete = liste_chemin_objetDecree[i][1]
 
-            path_apres_mot_clef = os.path.join(directory_apres_mot_clef, f"{os.path.basename(el).replace('.pdf','')}.txt")
-            dic_key_words = getKeyWords(output_path_arrete, path_apres_mot_clef.replace(".txt","")) 
+            path_apres_mot_clef = os.path.join(directory_apres_mot_clef, f"{os.path.basename(path_arrete).replace('.pdf','')}.txt")
+            dic_key_words = getKeyWords(path_arrete, path_apres_mot_clef.replace(".txt","")) 
 
             object_decree.topic = dic_key_words
 
@@ -167,5 +168,8 @@ class Traitement:
             #     path_apres_mot_clef,
             #     dic_key_words
             # )
+
+            print(object_decree.topic)
+
             
         print("Fin execution Assignation Keywords")

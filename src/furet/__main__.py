@@ -6,7 +6,7 @@ from furet import repository
 #from datetime import datetime
 
 def main():
-    repository.setup(repository.allDecreeList)
+    repository.setup(repository.allDecreeList, repository.campaignList, repository.topicList, repository.departmentList, repository.docTypeList)
     # crawler = Crawler()
     # crawler.startCrawler()
     furet.app.main()

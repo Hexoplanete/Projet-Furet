@@ -46,7 +46,7 @@ class DecreeDetailsWindow(QtWidgets.QWidget):
         for t in docTypes: docType.addItem(t.label, t.id)
         self._decreeForm.addRow("Type de document", docType)
         for i, t in enumerate(docTypes):
-            if t.id == decree.doc_type.id:
+            if t.id == decree.docType.id:
                 docType.setCurrentIndex(i)
 
         self._state = QtWidgets.QComboBox()
@@ -59,13 +59,13 @@ class DecreeDetailsWindow(QtWidgets.QWidget):
         dateLimit = QtWidgets.QLabel(f"{decree.publicationDate + relativedelta(months=2)}")
         self._decreeForm.addRow("Date limite de recours", dateLimit)
 
-        docType = QtWidgets.QLabel(f"{decree.doc_type}")
+        docType = QtWidgets.QLabel(f"{decree.docType}")
         self._decreeForm.addRow("Type de document", docType)
 
         campaignLabel = QtWidgets.QLabel(str(decree.campaign))
         self._decreeForm.addRow("Campagne ASPAS", campaignLabel)
 
-        topicLabel = QtWidgets.QLabel(str(decree.topic.label))
+        topicLabel = QtWidgets.QLabel(str(decree.topic.label)) # TODO: changer car liste de labels
         self._decreeForm.addRow("Sujet", topicLabel)
 
         signingDate = QtWidgets.QLabel(str(decree.signingDate))

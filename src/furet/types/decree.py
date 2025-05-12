@@ -16,6 +16,7 @@ class DocumentType:
 class DecreeTopic:
     id: int
     label: str
+    #nb Occurences de chaque topic dans un arrêté :int ?
 
     def __str__(self):
         return self.label
@@ -49,13 +50,13 @@ class Decree:
     
     # Specific for our use
     campaign: Campaign
-    topic: DecreeTopic
+    topic: list[DecreeTopic]
     treated: bool
     comment: str = ""
 
     def toCsvLine(self):
         return [
-            self.id, self.department, self.docType, self.number, self.title, self.signingDate.strftime("%d/%m/%Y"), 
+            self.id, self.department.id, self.docType.id, self.number, self.title, self.signingDate.strftime("%d/%m/%Y"), 
             self.raaNumber, self.publicationDate.strftime("%d/%m/%Y"), self.link, self.startPage, self.endPage, 
-            self.campaign, self.topic, self.treated, self.comment
+            self.campaign.id, "-".join(map(str,self.topic.id)), self.treated, self.comment
             ]

@@ -6,12 +6,10 @@ from furet import repository
 #from datetime import datetime
 
 def main():
-    repository.setup(repository.allDecreeList, repository.campaignList, repository.topicList, repository.departmentList, repository.docTypeList)
+    repository.setup()
     # crawler = Crawler()
     # crawler.startCrawler()
-    repository.addCampaign('vviii')
-    repository.addTopic('fuuuuret')
-    #furet.app.main()
+    furet.app.main()
 
 if __name__ == '__main__':
     main()

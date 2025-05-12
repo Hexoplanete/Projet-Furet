@@ -15,7 +15,7 @@ campaignList = []
 topicList = []
 departmentList = []
 docTypeList = []
-def setup(allDecreesList, campaignList, topicList, departmentList, docTypeList):
+def setup():
     #load config data
     loadCampaignsFromFile(basePath + '/config/campaign.csv', campaignList)
     loadDepartmentsFromFile(basePath + '/config/departments.csv', departmentList)

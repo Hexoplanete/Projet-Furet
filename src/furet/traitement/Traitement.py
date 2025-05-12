@@ -80,12 +80,11 @@ class Traitement:
             raa_datePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
             raa_departement_label = el["department"]
 
-            departement_id = 1 # Delete after merge
-            #departement_id = updateIdFile("department")
+            departementNumber = str(departements_label_to_code[raa_departement_label])
 
             departement = Department(
-                    id=departement_id,
-                    number=str(departements_label_to_code[raa_departement_label]),
+                    id=departementNumber,
+                    number=departementNumber,
                     label=raa_departement_label
             )
 
@@ -166,7 +165,6 @@ class Traitement:
             
             liste_decree_topic = []
 
-            print(dic)
             for label, id in dic_key_words.items():
                 topic = DecreeTopic(id=dic[label], label=label)
                 liste_decree_topic.append(topic)
@@ -179,8 +177,6 @@ class Traitement:
             #     path_apres_mot_clef,
             #     dic_key_words
             # )
-
-            print(object_decree.topic)
             
         print("Fin execution Assignation Keywords")
 

@@ -10,6 +10,7 @@ from furet.types.decree import Decree
 
 
 class DecreeDetailsWindow(QtWidgets.QDialog):
+    
     def __init__(self, decree: Decree):
         super().__init__()
         self._decree = decree

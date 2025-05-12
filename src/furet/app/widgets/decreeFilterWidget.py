@@ -11,6 +11,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self._layout = QtWidgets.QHBoxLayout(self)
+        self._layout.setContentsMargins(0,0,0,0)
 
         self._proxy = ObjectFilterProxy[Decree](filterer=self.filterDecrees)
         

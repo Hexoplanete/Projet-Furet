@@ -12,7 +12,7 @@ def main():
             app.setStyle("Breeze")
         elif "kvantum" in QStyleFactory.keys():
             app.setStyle("kvantum")
-    app.setStyle("Windows")
+    # app.setStyle("Windows")
     window = DecreeTableWindow()
     window.showMaximized()
     return app.exec()

@@ -5,7 +5,6 @@ import csv
 from datetime import datetime
 from furet import repository, settings
 
-basePath = "./database/"
 format = '%d/%m/%Y'
 allDecreeList = []
 campaignList = []
@@ -170,6 +169,7 @@ def loadDocTypesFromFile(path: str, listDocTypes: list[DocumentType]) -> list[Do
 
 
 def addCampaign(label: str):
+    basePath = settings.value(ROOT_KEY)
     fullPath = basePath + 'config/campaign.csv'
     try:
         nId = updateIdFile('campaign')
@@ -184,6 +184,7 @@ def addCampaign(label: str):
 
 
 def addTopic(label: str):
+    basePath = settings.value(ROOT_KEY)
     fullPath = basePath + 'config/decreeTopics.csv'
     nId = updateIdFile('topic')
 
@@ -199,6 +200,7 @@ def addTopic(label: str):
 
 def updateIdFile(attr: str) -> int:
     # update decree data in csv file
+    basePath = settings.value(ROOT_KEY)
     fullPath = basePath + 'config/lastId.csv'
     fileContent = []
 
@@ -228,5 +230,6 @@ def getFileName(arrete: Decree) -> str:
     filename = arrete.department.number + "_" + \
         str(dYear) + "_" + str(dMonth) + "_RAA.csv"
 
+    basePath = settings.value(ROOT_KEY)
     fullPath = basePath + "prefectures/" + arrete.department.number + '/' + filename
     return fullPath

@@ -12,9 +12,9 @@ def main_separation(input_path, output_dir, raa):
         now = datetime.now()
         current_time = now.strftime("%H-%M-%S")
 
-        # liste_output_path = []     # Liste qui contiendra les différents chemins vers les pdf des arrêté    
-        # liste_objects_decree = []  # Liste qui contiendra les différents objets decrees
-        liste_decrees = []           # Liste qui contiendra des listes [chemin, objet_decree]
+        # liste_output_path = []     # List which will contain the different paths to the pdf of the decrees   
+        # liste_objects_decree = []  # List that will contain the different decree objects
+        liste_decrees = []           # List that will contain lists [chemin, objet_decree]
 
         basename = os.path.basename(input_path).replace(".pdf","")
 
@@ -29,11 +29,11 @@ def main_separation(input_path, output_dir, raa):
         print(nb_pages)
         print("-----------")
 
-        # Remplacement artificiel des "s" et "S" par 5 car mauvaise reconnaissance de l'OCR !!!!!!
+        # Artificial replacement of "s" and "S" by 5 due to poor OCR recognition!!!!!!
         full_text = full_text.replace("s","5")
         full_text = full_text.replace("S","5")
 
-        # Extrait
+        # Extract
         pages = re.findall(r'Page\s+(\d+)', full_text, flags=re.IGNORECASE)
         page_start_numbers = [int(p) for p in pages] 
 
@@ -42,20 +42,20 @@ def main_separation(input_path, output_dir, raa):
         for i in range(len(page_start_numbers)):
                 start = page_start_numbers[i]
 
-                if(i == len(page_start_numbers) - 1): # Si on traite le dernier arrêté c'est différent car pas de i+1 !
+                if(i == len(page_start_numbers) - 1): # If we process the last decree, it's different because there is no i+1!
                         end = nb_pages
                 else:
-                        end = page_start_numbers[i+1] - 1 # -2 car page_start_numbers[i+1] est le début du contenu du prochain, -1 est sa page de garde, -2 est la fin du courant
+                        end = page_start_numbers[i+1] - 1 # -2 because page_start_numbers[i+1] is the start of the next content, -1 is its cover page, -2 is the end of the current
 
-                # Création de l'objet arrêté
+                # Creation of the Decree object
 
-                arrete_id = 1 # Supprimer après merge
+                arrete_id = 1 # Deleted after merge
                 #arrete_id = updateIdFile("decree")
                 
                 decree = Decree(
                         id=arrete_id,
                         department=raa.department,
-                        raaNumber="",                   # On ne connaît pas raaNumber à ce moment là (c'est dans extract caractéristiques)
+                        raaNumber="",                   # We don't know raaNumber at this time (it's in extract characteristics)
                         link=raa.link,
                         startPage=start, 
                         endPage=end,
@@ -66,12 +66,12 @@ def main_separation(input_path, output_dir, raa):
                 current = []
                 current.append(decree)
 
-                # On ne connaît pas doc_type, number, title, signingDate, topic  à ce moment là (c'est dans extract caractéristiques) ni campaign (getKeyWords)
-                # On ne connaît pas number à ce moment là (c'est dans extract caractéristiques)
-                # On ne connaît pas title à ce moment là (c'est dans extract caractéristiques)
-                # On ne connaît pas signingDate à ce moment là (c'est dans extract caractéristiques)
-                # On ne connaît pas campaign à ce moment là (c'est dans getKeyWords)
-                # On ne connaît pas topic  à ce moment là (c'est dans extract caractéristiques)
+                # We don't know doc_type, number, title, signingDate, topic at this time (it's in extract characteristics) nor campaign (getKeyWords)
+                # We don't know number at this time (it's in extract characteristics)
+                # We don't know title at this time (it's in extract characteristics)
+                # We don't know signingDate at this time (it's in extract characteristics)
+                # We don't know campaign at this time (it's in getKeyWords)
+                # We don't know topic at this time (it's in extract characteristics)
 
                 sub_doc = fitz.open()
 

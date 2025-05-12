@@ -78,7 +78,7 @@ class Traitement:
             raa_datePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
             raa_departement_label = el["department"]
 
-            departement_id = 1 # Supprimer après merge
+            departement_id = 1 # Delete after merge
             #departement_id = updateIdFile("department")
 
             departement = Department(
@@ -91,7 +91,7 @@ class Traitement:
                 department=departement,
                 publicationDate = raa_datePublication,
                 link=raa_url,
-                number=0, # On ne connaît pas le number à ce moment là (c'est dans extract caractéristiques)
+                number=0, # We do not know the number at this time (it is in the extract characteristics)
             )
 
             rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
@@ -102,7 +102,7 @@ class Traitement:
     def traitement_RAA(self, input_path, raa):
         """ input_path est le chemin vers le RAA """
 
-        ## On réduit la qualité du PDF pour enlever l'erreur "BOMB DOS ATTACK SIZE LIMIT"
+        ## We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
 
         directory_apres_magick = os.path.join(self.path_traitement, "output", "apres_magick")
         os.makedirs(directory_apres_magick, exist_ok=True)
@@ -162,7 +162,7 @@ class Traitement:
 
             object_decree.topic = dic_key_words
 
-            # addArreteToFile(object_decree) # Enregistre les informations de l'arreté sous format CSV
+            # addArreteToFile(object_decree) # Saves the decree information in CSV format
 
             # self.save_keyWords_inFic(
             #     path_apres_mot_clef,

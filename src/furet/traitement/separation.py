@@ -64,7 +64,8 @@ def mainSeparation(inputPath, outputDir, raa):
                         comment="0",
                         publicationDate=raa.publicationDate,
                         docType = documenType,
-                        signingDate = date(2025, 5, 12),
+                        signingDate = date(1900, 1, 1),       # We don't know raaNumber at this time (it's in extract characteristics)
+                        campaign = campaign
                 )
 
                 current = []

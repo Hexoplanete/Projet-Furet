@@ -200,7 +200,7 @@ class Traitement:
         """
         
         listeLabel = []
-        listeKeyWordsNotInterestingAlone = ["armes", "destruction"]
+        listeKeyWordsNotInterestingAlone = [] # ["armes", "destruction"]
         
         for decreeTopic in listeDecreeTopic:
             listeLabel.append(decreeTopic.label)

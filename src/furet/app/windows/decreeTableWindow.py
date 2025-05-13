@@ -9,7 +9,6 @@ from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
 from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
 from furet.app.windows.settingsWindow import SettingsWindow
 from furet.app.windows.importFileWindow import ImportFileWindow
-from furet.app.windows.aboutUsWindow import AboutUsWindow
 from furet.types.department import Department
 
 
@@ -45,11 +44,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._buttonLayer.addWidget(self._fileButton)
 
         self._buttonLayer.addStretch()
-        
-        self._aboutUsButton = QtWidgets.QPushButton('About us')
-        self._aboutUsButton.clicked.connect(self.onClickAboutUsButton)
-        self._buttonLayer.addWidget(self._aboutUsButton)           
-    
+
         self._docButton = QtWidgets.QPushButton('Documentation')
         self._docButton.clicked.connect(self.onClickDocButton)
         self._buttonLayer.addWidget(self._docButton)           
@@ -81,7 +76,6 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
         self._paramWindow: SettingsWindow = None
         self._importFileWindow: ImportFileWindow = None
-        self._aboutUsWindow: AboutUsWindow = None
         self._decreeDetailWindows: dict[int, DecreeDetailsWindow] = {}
 
     def closeEvent(self, event):
@@ -115,15 +109,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             self._importFileWindow.show()
         else:
             self._importFileWindow.activateWindow()
-    
 
-    def onClickAboutUsButton(self):
-        if self._aboutUsWindow == None or not(self._aboutUsWindow.isVisible()):
-            self._aboutUsWindow = AboutUsWindow()
-            self._aboutUsWindow.show()
-        else:
-            self._aboutUsWindow.activateWindow()
-    
     def onClickDocButton(self):
         print(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")

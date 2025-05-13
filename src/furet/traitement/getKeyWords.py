@@ -8,15 +8,6 @@ nlp = spacy.load("fr_core_news_sm") # Loading french language of SpaCy's model
 
 TITLES = {"m.", "mme.", "dr.", "prof.", "mlle.", "me."}
 
-KEYWORDS = [
-    "chasse", "cynégétique", "gibier", "vénerie", "armes", "tir", "loup", "ours",
-    "lynx", "chacal", "prédation", "prédateur", "tir de défense", "tir de prélèvement",
-    "effarouchement", "blaireau", "déterrage", "louveterie", "louvetier", "piège", 
-    "piégeage", "destruction", "battue", "ESOD", "espèce susceptible d'occasionner des dégâts",
-    "sanglier", "lapin", "pigeon", "renard", "corvidés", "fouine", "martre", "belette", 
-    "putois", "corbeau freux", "corneille noire", "pie bavarde", "geai", "étourneau"
-]
-
 # Allows the lemmatize of keywords
 def lemmatize_keywords(keywords):
     lemmatized = {}
@@ -26,32 +17,19 @@ def lemmatize_keywords(keywords):
         lemmatized[lemmatized_kw] = kw 
     return lemmatized
 
-# # Command line arguments
-# parser = argparse.ArgumentParser()
-# parser.add_argument("pdf_path", help="Chemin vers le fichier PDF à traiter")
-# parser.add_argument(
-#     "--debug", 
-#     help="Si debug est alors on affiche le contexte (lemmatisé) des mots clefs trouvés, le nombre d'occurences, etc.", 
-#     action="store_true"  # This makes debug a boolean (True if argument is present)
-# )
-
-# args = parser.parse_args()
-
-# input_path_pdf = args.pdf_path
-# debug = args.debug
-
-debug = False
+# If debug is then we display the (lemmatized) context of the keywords found, the number of occurrences, etc.
+debug = False 
 
 # Algo: For each keyword, we scan the text once, we lemmatize the text and keywords and look for keywords (lemmatized or not) that match the lemmatized text.
 
-def getKeyWords(input_path, output_path):
+def getKeyWords(input_path, output_path, listeKeyWords):
 
     text = extract_text(input_path) # We retrieve the text
     doc = nlp(text.lower()) # We put everything in lower case
 
     # Lemmatization of text and keywords
     lemmatized_tokens = [token.lemma_ for token in doc if not token.is_punct and not token.is_space]
-    lemmatized_kw = lemmatize_keywords(KEYWORDS)
+    lemmatized_kw = lemmatize_keywords(listeKeyWords)
 
     # (Debug) Useful for displaying contexts
     window_size = 3

@@ -48,11 +48,6 @@ class Traitement:
             print(f"Downloaded: {filename}")
         except requests.RequestException as e:
             print(f"Failed to download {url}: {e}")
-   
-    def save_keyWords_inFic(self, output_path, data):
-        with open(output_path, "w") as fichier:
-            for key, value in data.items():
-                fichier.write(f"{key}: {value}\n")
 
     def readLinkFile(self):
         """
@@ -60,7 +55,7 @@ class Traitement:
         """
         rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
         linkFile = os.path.join(rootDir, "src", "furet", "crawler", "resultCrawler.json")
-        #print(linkFile)
+        
         if os.path.exists(linkFile):
             with open(linkFile, 'r') as f:
                 data = json.load(f)
@@ -69,8 +64,7 @@ class Traitement:
             return []
     
     def startTraitement(self):
-
-        print("TEST !!!!")
+        """ Function that is Input to the Processing Framework """
 
         liste_dict_RAA = self.readLinkFile()
 
@@ -101,10 +95,21 @@ class Traitement:
             self.traitement_RAA(raa_save_path, raa)
 
     def traitement_RAA(self, input_path, raa):
-        """ input_path est le chemin vers le RAA """
+        """ 
+        Input : PDF corresponding to an RAA (RAA which was just downloaded from the links obtained by the crawler)
+
+        Reduce PDF quality using magick → Generates a new PDF in -> "output/after_magick/"
+
+        Perform OCR on the input PDF to generate a new "OCR-processed" PDF, meaning it's converted to text format → Generates a new OCR-processed PDF -> "output/after_ocr/"
+
+        Split the RAA into decrees → Generates one PDF per decree from the RAA -> "output/after_split/{RAA_Name}/"
+
+        Assign keywords to a decree
+
+        Ouput → a csv file for each decree -> "database/prefectures/{code_department}/{code_department}_{month}.csv"
+        """
 
         ## We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
-
         directory_apres_magick = os.path.join(self.path_traitement, "output", "apres_magick")
         os.makedirs(directory_apres_magick, exist_ok=True)
         path_apres_magick = os.path.join(directory_apres_magick, os.path.basename(input_path))
@@ -158,10 +163,11 @@ class Traitement:
             object_decree = liste_chemin_objetDecree[i][0]
             path_arrete = liste_chemin_objetDecree[i][1]
 
-            path_apres_mot_clef = os.path.join(directory_apres_mot_clef, f"{os.path.basename(path_arrete).replace('.pdf','')}.txt")
-            dic_key_words = getKeyWords(path_arrete, path_apres_mot_clef.replace(".txt","")) 
-
             dic = self.getDictLabelToId()
+            listeKeyWords = list(dic.keys())
+
+            path_apres_mot_clef = os.path.join(directory_apres_mot_clef, f"{os.path.basename(path_arrete).replace('.pdf','')}.txt")
+            dic_key_words = getKeyWords(path_arrete, path_apres_mot_clef.replace(".txt",""), listeKeyWords) 
             
             liste_decree_topic = []
 
@@ -171,15 +177,32 @@ class Traitement:
 
             object_decree.topic = liste_decree_topic
 
-            addArreteToFile(object_decree) # Enregistre les informations de l'arreté sous format CSV
-
-            # self.save_keyWords_inFic(
-            #     path_apres_mot_clef,
-            #     dic_key_words
-            # )
+            # Verif si arrêté vraiment intéressant
+            # Par exemple, s'il n'y a que armes ou destruction, l'arrêté n'est TRES problablement pas intéressant
+            bool_isArreteProbablyFalsePositive = self.isArreteProbablyFalsePositive(liste_decree_topic)
+            
+            if(not bool_isArreteProbablyFalsePositive):
+                addArreteToFile(object_decree) # Enregistre les informations de l'arreté sous format CSV
             
         print("Fin execution Assignation Keywords")
 
     def getDictLabelToId(self):
             liste_decree_topics = getTopics()
             return {topic.label: topic.id for topic in liste_decree_topics}
+    
+    def isArreteProbablyFalsePositive(self, liste_decree_topic):
+        
+        liste_label = []
+        liste_keyWords_not_interesting_alone = ["armes", "destruction"]
+        
+        for decreeTopic in liste_decree_topic:
+            liste_label.append(decreeTopic.label)
+
+        for el in liste_keyWords_not_interesting_alone:
+            if(el==liste_label):
+                return True
+            
+        return False
+
+
+            

@@ -6,6 +6,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from furet import repository
 from furet.app.utils import buildComboBox, buildDatePicker, buildMultiComboBox
 from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
+from furet.app.widgets.elidedLabel import ElidedHyperlink
 from furet.types.decree import Decree
 
 
@@ -59,8 +60,8 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._publicationDate.setDisabled(True)
         decreeForm.addRow("Date de publication", self._publicationDate)
         
-        label = QtWidgets.QLabel(
-            f"<a href=\"{decree.link}\">{decree.link}</a>")
+        label = ElidedHyperlink(decree.link)
+        label.setMinimumWidth(0)
         label.setTextInteractionFlags(
             QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
         label.setOpenExternalLinks(True)

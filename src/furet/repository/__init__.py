@@ -1,6 +1,6 @@
 import datetime
 from furet.types.department import *
-from furet.types.decree import *
+from furet.types.decree import Decree, DecreeTopic, Campaign, DocumentType
 import os
 import csv
 from datetime import datetime
@@ -21,15 +21,18 @@ def setup():
     loadDepartmentsFromFile(basePath + '/config/departments.csv', departmentList)
     loadTopicsFromFile(basePath + '/config/decreeTopics.csv', topicList)
     loadDocTypesFromFile(basePath + '/config/documentType.csv', docTypeList)
-    #print(campaignList)
+    # print(campaignList)
     # get all csvfiles from os
+    # print(len(allDecreeList))
+
+def readAllArretesFromFiles():
+   #Separate function from setup because setup must be called before processing (information required for processing is retrieved during setup) and processing adds new decrees!
     for root, dirs, files in os.walk(basePath + '/prefectures/'):
         for filename in files:
             if filename.endswith(".csv"):
                 filepath = os.path.join(root, filename)
                 #mod_time = os.path.getmtime(filepath)  # timestamp de modification
                 loadArretesFromFile(filepath,allDecreeList)
-    #print(len(allDecreeList))
 
 def getDecrees() -> list[Decree]:
     return allDecreeList
@@ -68,7 +71,7 @@ def getCampaignById(id: int) -> Campaign:
     return _findByField(getCampaigns(), id)
 
 def getCampaignIdByLabel(label: str) -> Campaign:
-    return _findByField(getCampaign(), label)
+    return _findByField(getCampaigns(), label)
 
 def getTopics() -> list[DecreeTopic]:
     return topicList
@@ -92,6 +95,9 @@ def addArreteToFile(arrete :Decree):
                "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
     row = arrete.toCsvLine()
     file_exists = os.path.isfile(fullPath) #bool
+
+    directory = os.path.dirname(fullPath)
+    os.makedirs(directory, exist_ok=True)
 
     with open(fullPath, 'a', encoding='utf-8', newline='') as file:
         writerCsv = csv.writer(file)
@@ -264,7 +270,7 @@ def updateIdFile(attr : str) -> int:
 def getFileName(arrete : Decree) -> str:
     dYear = arrete.publicationDate.year
     dMonth = arrete.publicationDate.month
-    filename = arrete.department.number + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
+    filename = str(arrete.department.number) + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
     
-    fullPath = basePath + "prefectures/" + arrete.department.number + '/' + filename
+    fullPath = basePath + "prefectures/" + str(arrete.department.number) + '/' + filename
     return fullPath

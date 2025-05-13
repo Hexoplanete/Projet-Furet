@@ -16,13 +16,13 @@
             "departments": {
                 "AlpesMaritimes": "09/05/2025",
                 "Var": "09/05/2025",
-                "BouchesDuRhone": "09/05/2025",
-                "AlpesDeHauteProvence": "09/05/2025"
+                "BouchesDuRhone": "13/05/2025",
+                "AlpesDeHauteProvence": "12/05/2025"
             }
         },
         "AURA": {
             "departments": {
-                "Allier": "09/05/2025"
+                "Allier": "13/05/2025"
             }
         },
         "NouvelleAquitaine": {
@@ -32,12 +32,12 @@
         },
         "PaysDeLaLoire": {
             "departments": {
-                "Sarthe": "12/05/2025"
+                "Sarthe": "13/05/2025"
             }
         },
         "BourgogneFrancheComte": {
             "departments": {
-                "SaoneEtLoire": "08/05/2025",
+                "SaoneEtLoire": "12/05/2025",
                 "Doubs": "09/05/2025",
                 "Jura": "07/05/2025"
             }
@@ -51,7 +51,7 @@
         },
         "Normandie": {
             "departments": {
-                "Calvados": "09/05/2025"
+                "Calvados": "12/05/2025"
             }
         },
         "Bretagne": {

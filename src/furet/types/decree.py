@@ -1,8 +1,11 @@
 from datetime import date
+from typing import Optional
+from typing import Dict
 
 from furet.types.base import dbclass
 from furet.types.department import Department
 from furet.types.raa import RAA
+from furet.repository import *
 
 @dbclass
 class DocumentType:
@@ -33,36 +36,32 @@ class Campaign:
 class Decree:
     id: int
 
+    # raa: RAA Obligatoire
     department: Department
-
-    #arrete
-    docType: DocumentType
-    number: str
-    title: str
-    signingDate: date 
-
-    # raa: RAA
-    raaNumber: str
-    publicationDate: date
     link: str
     startPage: int
     endPage: int
-    
-    docType: DocumentType
-    number: str
-    title: str
-    publicationDate: date
-    signingDate: date
-    
-    # Specific for our use
-    campaign: Campaign
-    topic: list[DecreeTopic] # TODO rename to topics
+    publicationDate : date
+
+    # Decree Obligatoire
     treated: bool
-    comment: str = ""
+
+    # RAA facultatif
+    raaNumber: str = "0"
+
+    # Decree
+    comment: str = "0"
+    docType: Optional[DocumentType] = None
+    number: Optional[str] = "0"
+    title: Optional[str] = None
+    signingDate: Optional[date] = None
+
+    campaign: Optional[Campaign] = None
+    topic: list[DecreeTopic] = None
 
     def toCsvLine(self):
         return [
             self.id, self.department.id, self.docType.id, self.number, self.title, self.signingDate.strftime("%d/%m/%Y"), 
             self.raaNumber, self.publicationDate.strftime("%d/%m/%Y"), self.link, self.startPage, self.endPage, 
-            self.campaign.id, "-".join(map(lambda t: str(t.id),self.topic)), int(self.treated), self.comment
+            self.campaign.id, "-".join(map(lambda t: str(t.id), self.topic)), int(self.treated), self.comment
         ]

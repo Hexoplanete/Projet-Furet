@@ -99,6 +99,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         if decree.id not in self._decreeDetailWindows or not(self._decreeDetailWindows[decree.id].isVisible()):
             self._decreeDetailWindows[decree.id] = DecreeDetailsWindow(decree)
             self._decreeDetailWindows[decree.id].show()
+            self._decreeDetailWindows[decree.id]._returnButton.setFocus()
             self._decreeDetailWindows[decree.id].accepted.connect(onDecreeSaved)
         else:
             self._decreeDetailWindows[decree.id].activateWindow()

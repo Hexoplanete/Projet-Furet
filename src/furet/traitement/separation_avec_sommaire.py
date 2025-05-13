@@ -58,7 +58,7 @@ def main_separation(input_path, output_dir, raa):
                         label="0"
                 )
 
-                campaign = Campaign(id=0, label="allo")
+                campaign = Campaign(id=6, label="Non determinee") # La campagne sera rédéfinie après les keywords
 
                 decree = Decree(
                         id=arrete_id,

@@ -42,7 +42,7 @@ def lemmatize_keywords(keywords):
 
 debug = False
 
-# Algo: For each keyword, we scan the text once
+# Algo: For each keyword, we scan the text once, we lemmatize the text and keywords and look for keywords (lemmatized or not) that match the lemmatized text.
 
 def getKeyWords(input_path, output_path):
 
@@ -90,7 +90,6 @@ def getKeyWords(input_path, output_path):
             # (Debug)
             if(debug): 
                 
-                #print(f"\n🔹 {original_kw} ({keyword_count[original_kw]} occurrence(s)) :")  # Show keyword and number of occurrences
                 seen_contexts = set()
                 # Show contexts (without repetition!!!!!!!!!!)
                 for match in matches:

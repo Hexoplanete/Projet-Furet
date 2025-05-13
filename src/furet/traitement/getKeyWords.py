@@ -99,6 +99,6 @@ def getKeyWords(input_path, output_path, listeKeyWords):
                 with open(name_fic_annoted , "w", encoding="utf-8") as f:
                     f.write(annotated_text)
 
-                print(f"\nTexte annoté exporté dans : {name_fic_annoted}")
+                print(f"\nAnnotated text exported in : {name_fic_annoted}")
 
     return keyword_count

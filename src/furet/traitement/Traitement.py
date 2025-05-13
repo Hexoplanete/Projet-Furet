@@ -64,8 +64,13 @@ class Traitement:
             return []
     
     def startTraitement(self):
-        """ Function that is Input to the Processing Framework """
-
+        """ 
+            Function that is Input to the Processing Framework
+            Retrieves information provided by the crawler for each RAA crawled : url, datePublication, departement (Creates a corresponding RAA object)
+            Downloads the RAA from the URL
+            Calls processing_RAA(...) -> Processes the RAA
+        """
+        # List of dictionaries representing RAAs (retrieved by the crawler)
         liste_dict_RAA = self.readLinkFile()
 
         for el in liste_dict_RAA:
@@ -74,19 +79,15 @@ class Traitement:
             raa_datePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
             raa_departement_label = el["department"]
 
-            departementNumber = str(departements_label_to_code[raa_departement_label])
+            departementNumber = int(departements_label_to_code[raa_departement_label])
+            departement = getDepartmentById(departementNumber)
 
-            departement = Department(
-                    id=departementNumber,
-                    number=departementNumber,
-                    label=raa_departement_label
-            )
-
+            # Creates a RAA object containing information retrieved by the crawler
             raa = RAA(
                 department=departement,
                 publicationDate = raa_datePublication,
                 link=raa_url,
-                number="0", # On ne connaît pas le number à ce moment là (c'est dans extract caractéristiques)
+                number="Non déterminé", # It's going to be in the characteristic extraction section
             )
 
             rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
@@ -123,9 +124,9 @@ class Traitement:
         path_apres_magick
         ]
 
-        print("Début execution magick ")
+        print("Start magick execution")
         subprocess.run(commande, check=True)
-        print("Fin execution magick ")
+        print("End magick execution")
 
         print("--------------------------------")
 
@@ -134,13 +135,13 @@ class Traitement:
         os.makedirs(directory_apres_ocr, exist_ok=True)
         path_apres_ocr = os.path.join(directory_apres_ocr, os.path.basename(input_path))
 
-        print("Début execution ocr")
+        print("Start ocr execution")
         main_ocr(path_apres_magick,path_apres_ocr)
-        print("Fin execution ocr")
+        print("End ocr execution")
         
         print("--------------------------------")
 
-        print("Début execution separation")
+        print("Start separation execution")
         basename_RAA = os.path.basename(input_path).replace(".pdf","")
 
         directory_apres_separation = os.path.join(self.path_traitement, "output", "apres_separation", basename_RAA)
@@ -149,11 +150,11 @@ class Traitement:
 
         liste_chemin_objetDecree = main_separation(path_apres_ocr, directory_apres_separation, raa)    
 
-        print("Fin execution separation")
+        print("End separation execution")
 
         # TO DO Extraction Caractéristique
 
-        print("Début execution Assignation Keywords")
+        print("Start execution of attribution keywords")
 
         directory_apres_mot_clef = os.path.join(self.path_traitement, "output", "apres_mot_cle", basename_RAA)
         os.makedirs(directory_apres_mot_clef, exist_ok=True)
@@ -177,14 +178,14 @@ class Traitement:
 
             object_decree.topic = liste_decree_topic
 
-            # Verif si arrêté vraiment intéressant
-            # Par exemple, s'il n'y a que armes ou destruction, l'arrêté n'est TRES problablement pas intéressant
+            # Check if the decree is really interesting
+            # For example, if there is only "armes" the bylaw is VERY unlikely to be of interest.
             bool_isArreteProbablyFalsePositive = self.isArreteProbablyFalsePositive(liste_decree_topic)
             
             if(not bool_isArreteProbablyFalsePositive):
                 addArreteToFile(object_decree) # Enregistre les informations de l'arreté sous format CSV
             
-        print("Fin execution Assignation Keywords")
+        print("End execution of attribution keywords")
 
     def getDictLabelToId(self):
             liste_decree_topics = getTopics()

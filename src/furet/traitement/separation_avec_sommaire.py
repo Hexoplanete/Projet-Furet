@@ -52,13 +52,10 @@ def main_separation(input_path, output_dir, raa):
 
                 arrete_id = 1 # Deleted after merge
                 #arrete_id = updateIdFile("decree")
-                
-                documentype = DocumentType(
-                        id=0,
-                        label="0"
-                )
 
-                campaign = Campaign(id=6, label="Non determinee") # La campagne sera rédéfinie après les keywords
+                documenType = getDocumentTypeById(1)
+
+                campaign = getCampaignById(1) # La campagne sera rédéfinie après les keywords
 
                 decree = Decree(
                         id=arrete_id,
@@ -70,7 +67,7 @@ def main_separation(input_path, output_dir, raa):
                         treated=False,
                         comment="0",
                         publicationDate=raa.publicationDate,
-                        docType = documentype,
+                        docType = documenType,
                         signingDate = date(2025, 5, 12),
                         campaign = campaign
                 )
@@ -92,7 +89,6 @@ def main_separation(input_path, output_dir, raa):
                 output_path = os.path.join(output_dir, f"Arrete_{i+1}.pdf")
 
                 current.append(output_path)
-                #liste_output_path.append(output_path)
 
                 liste_chemin_objetDecree.append(current)
 

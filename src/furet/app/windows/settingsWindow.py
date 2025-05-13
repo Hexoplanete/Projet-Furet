@@ -23,7 +23,7 @@ class SettingsWindow(QtWidgets.QDialog):
         self._treatedOnOpen = QtWidgets.QCheckBox("")
         self._treatedOnOpen.setChecked(settings.value("app.filters.treatedOnly"))
         self._treatedOnOpen.stateChanged.connect(lambda v: settings.setValue("app.filters.treatedOnly", bool(v)))
-        form.addRow("Non traité par défaut", self._treatedOnOpen)
+        form.addRow("Non traités par défaut", self._treatedOnOpen)
         
         self._notExpired = QtWidgets.QCheckBox("")
         self._notExpired.setChecked(settings.value("app.filters.notExpired"))

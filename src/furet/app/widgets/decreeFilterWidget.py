@@ -70,7 +70,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def _addTreatedFilter(self):
         self._state = QtWidgets.QComboBox()
         self._state.setEditable(True)
-        self._state.addItem("Choisir un status", None)
+        self._state.addItem("Choisir un statut", None)
         self._state.addItem("Traité", True)
         self._state.addItem("Non traité", False)
         self._state.setCurrentIndex(2 if settings.value("app.filters.treatedOnly") else 0)

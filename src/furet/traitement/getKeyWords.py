@@ -26,7 +26,8 @@ def getKeyWords(inputPath, outputPath, listeKeyWords):
     Input : 
     
         inputPath  = Path of the PDF of the decree for which we want to find the matching keywords
-        outputPath = Chemin vers le fichier annoté qui sert au debugagge des mots qui ont matchés
+        outputPath = Path to the annotated file used for debugging matched words
+        listeKeyWords = The list of keywords provided by ASPAS
 
     Algorithm : 
 

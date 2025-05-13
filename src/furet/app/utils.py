@@ -1,7 +1,6 @@
 from datetime import date
 from typing import Any
 from PySide6 import QtWidgets, QtCore
-import locale
 
 from furet.app.widgets.checkableComboBox import CheckableComboBox
 from furet.app.widgets.selectAllComboBox import SelectAllComboBox
@@ -52,8 +51,6 @@ def buildDatePicker(date: date = None) -> QtWidgets.QDateEdit:
     picker.setDisplayFormat("dd MMMM yyyy")
     return picker
 
-
-locale.setlocale(locale.LC_TIME,'')
 
 def formatDate(value: date):
     return value.strftime("%d %B %Y")

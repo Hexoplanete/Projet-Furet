@@ -9,7 +9,7 @@ nlp = spacy.load("fr_core_news_sm") # Loading french language of SpaCy's model
 TITLES = {"m.", "mme.", "dr.", "prof.", "mlle.", "me."}
 
 # Allows the lemmatize of keywords
-def lemmatize_keywords(keywords):
+def lemmatizeKeywords(keywords):
     lemmatized = {}
     for kw in keywords:
         doc = nlp(kw.lower())
@@ -36,22 +36,22 @@ def getKeyWords(input_path, output_path, listeKeyWords):
 
     """
 
-    text = extract_text(input_path) # We retrieve the text
+    text = extractText(inputPath) # We retrieve the text
     doc = nlp(text.lower()) # We put everything in lower case
 
     # Lemmatization of text and keywords
-    lemmatized_tokens = [token.lemma_ for token in doc if not token.is_punct and not token.is_space]
-    lemmatized_kw = lemmatize_keywords(listeKeyWords)
+    lemmatizedTokens = [token.lemma_ for token in doc if not token.is_punct and not token.is_space]
+    lemmatized_kw = lemmatizeKeywords(listeKeyWords)
 
     # (Debug) Useful for displaying contexts
-    window_size = 3
+    windowSize = 3
 
     # Dictionary to store the number of occurrences of each keyword
-    keyword_count = {}
+    keywordCount = {}
 
     # (Debug) To annotate the text
 
-    token_annotations = [""] * len(lemmatized_tokens)
+    tokenAnnotations = [""] * len(lemmatizedTokens)
 
     # Search for occurrences in the text for each keyword
     for kw_lemmatized in lemmatized_kw:
@@ -62,55 +62,55 @@ def getKeyWords(input_path, output_path, listeKeyWords):
         kw_lemmatized = kw_lemmatized.split()
         n = len(kw_lemmatized)
 
-        original_kw_split = original_kw.split() 
+        originalSplit_kw = original_kw.split() 
 
         matches = []  # (Debug) Stores the positions of occurrences = Useful for displaying contexts
 
         # We look for occurrences of the keyword in the text (-n and i+n are used for keywords with several words)
-        for i in range(len(lemmatized_tokens) - n + 1):
-            if (lemmatized_tokens[i:i+n] == kw_lemmatized) or (lemmatized_tokens[i:i+n] == original_kw_split):
-                if i > 0 and lemmatized_tokens[i - 1] in TITLES:
+        for i in range(len(lemmatizedTokens) - n + 1):
+            if (lemmatizedTokens[i:i+n] == kw_lemmatized) or (lemmatizedTokens[i:i+n] == originalSplit_kw):
+                if i > 0 and lemmatizedTokens[i - 1] in TITLES:
                     continue  # Ignore keyword matches in names
                 matches.append(i)
 
         # Count and (Debug) show occurrences
         if matches:
-            keyword_count[original_kw] = len(matches)  # Number of occurrences
+            keywordCount[original_kw] = len(matches)  # Number of occurrences
 
             # (Debug)
             if(debug): 
                 
-                seen_contexts = set()
+                seenContexts = set()
                 # Show contexts (without repetition!!!!!!!!!!)
                 for match in matches:
-                    start = max(0, match - window_size)
-                    end = min(len(lemmatized_tokens), match + n + window_size)
-                    context = " ".join(lemmatized_tokens[start:end])
-                    if context not in seen_contexts:
-                        seen_contexts.add(context)
+                    start = max(0, match - windowSize)
+                    end = min(len(lemmatizedTokens), match + n + windowSize)
+                    context = " ".join(lemmatizedTokens[start:end])
+                    if context not in seenContexts:
+                        seenContexts.add(context)
                         print(f"Contexte : ... {context} ...")
                 
                 # We annotate the text
                 for match in matches:
                     for j in range(n):
                         pos = match + j
-                        if token_annotations[pos] == "":
-                            token_annotations[pos] = f"**{lemmatized_tokens[pos]}**({original_kw})"
+                        if tokenAnnotations[pos] == "":
+                            tokenAnnotations[pos] = f"**{lemmatizedTokens[pos]}**({original_kw})"
     
-                final_annotated = []
-                for i, lemma in enumerate(lemmatized_tokens):
-                    if token_annotations[i]:
-                        final_annotated.append(token_annotations[i])
+                finalAnnotated = []
+                for i, lemma in enumerate(lemmatizedTokens):
+                    if tokenAnnotations[i]:
+                        finalAnnotated.append(tokenAnnotations[i])
                     else:
-                        final_annotated.append(lemma)
+                        finalAnnotated.append(lemma)
 
-                annotated_text = " ".join(final_annotated)
+                annotatedText = " ".join(finalAnnotated)
 
                 # We create a Markdown file for debugging with the annotated text
-                name_fic_annoted = f"{output_path}_annoted.md"
-                with open(name_fic_annoted , "w", encoding="utf-8") as f:
-                    f.write(annotated_text)
+                nameFicAnnoted = f"{outputPath}_annoted.md"
+                with open(nameFicAnnoted , "w", encoding="utf-8") as f:
+                    f.write(annotatedText)
 
-                print(f"\nAnnotated text exported in : {name_fic_annoted}")
+                print(f"\nAnnotated text exported in : {nameFicAnnoted}")
 
-    return keyword_count
+    return keywordCount

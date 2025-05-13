@@ -1,3 +1,4 @@
+
 departements_label_to_code = {
     "Aube": "10",
     "HautesPyrenees": "65",

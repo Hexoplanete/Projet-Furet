@@ -27,9 +27,9 @@ class Traitement:
             "Cache-Control": "max-age=0"
         }
 
-        self.path_traitement = os.path.join(os.getcwd(), "src", "furet", "traitement")
+        self.pathTraitement = os.path.join(os.getcwd(), "src", "furet", "traitement")
     
-    def downloadPDF(self, url, output_path):
+    def downloadPDF(self, url, outputPath):
         """
             Download a PDF file from the given URL and put it in the output directory.
 
@@ -39,13 +39,13 @@ class Traitement:
             response = requests.get(url, stream=True, headers=self.headers)
             response.raise_for_status()
             
-            filename = os.path.join(output_path)
-            if not filename.endswith('.pdf'):
-                filename += ".pdf"
-            with open(filename, 'wb') as file:
+            fileName = os.path.join(outputPath)
+            if not fileName.endswith('.pdf'):
+                fileName += ".pdf"
+            with open(fileName, 'wb') as file:
                 for chunk in response.iter_content(chunk_size=1024):
                     file.write(chunk)
-            print(f"Downloaded: {filename}")
+            print(f"Downloaded: {fileName}")
         except requests.RequestException as e:
             print(f"Failed to download {url}: {e}")
 
@@ -71,31 +71,31 @@ class Traitement:
             Calls processing_RAA(...) -> Processes the RAA
         """
         # List of dictionaries representing RAAs (retrieved by the crawler)
-        liste_dict_RAA = self.readLinkFile()
+        listeDictRAA = self.readLinkFile()
 
-        for el in liste_dict_RAA:
+        for el in listeDictRAA:
 
-            raa_url = el["link"]
-            raa_datePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
-            raa_departement_label = el["department"]
+            raaUrl = el["link"]
+            raaDatePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
+            raaDepartementLabel = el["department"]
 
-            departementNumber = int(departements_label_to_code[raa_departement_label])
+            departementNumber = int(departementsLabelToCode[raaDepartementLabel])
             departement = getDepartmentById(departementNumber)
 
             # Creates a RAA object containing information retrieved by the crawler
             raa = RAA(
                 department=departement,
-                publicationDate = raa_datePublication,
-                link=raa_url,
+                publicationDate = raaDatePublication,
+                link=raaUrl,
                 number="Non déterminé", # It's going to be in the characteristic extraction section
             )
 
             rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-            raa_save_path = os.path.join(rootDir, "src", "furet", "traitement", "input_RAA",f"{os.path.basename(raa_url)}")
-            self.downloadPDF(raa_url, raa_save_path)
-            self.traitement_RAA(raa_save_path, raa)
+            raaSavePath = os.path.join(rootDir, "src", "furet", "traitement", "input_RAA",f"{os.path.basename(raaUrl)}")
+            self.downloadPDF(raaUrl, raaSavePath)
+            self.traitementRAA(raaSavePath, raa)
 
-    def traitement_RAA(self, input_path, raa):
+    def traitementRAA(self, inputPath, raa):
         """ 
         Input : PDF corresponding to an RAA (RAA which was just downloaded from the links obtained by the crawler)
 
@@ -111,17 +111,17 @@ class Traitement:
         """
 
         ## We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
-        directory_apres_magick = os.path.join(self.path_traitement, "output", "apres_magick")
-        os.makedirs(directory_apres_magick, exist_ok=True)
-        path_apres_magick = os.path.join(directory_apres_magick, os.path.basename(input_path))
+        directoryApresMagick = os.path.join(self.pathTraitement, "output", "apres_magick")
+        os.makedirs(directoryApresMagick, exist_ok=True)
+        pathApresMagick = os.path.join(directoryApresMagick, os.path.basename(inputPath))
 
         commande = [
         "magick",
         "-density", "300",
-        f"{input_path}",
+        f"{inputPath}",
         "-resize", "100%",
         "-quality", "85",
-        path_apres_magick
+        pathApresMagick
         ]
 
         print("Start magick execution")
@@ -130,60 +130,61 @@ class Traitement:
 
         print("--------------------------------")
 
-        directory_apres_ocr = os.path.join(self.path_traitement, "output", "apres_ocr")
-        print(directory_apres_ocr)
-        os.makedirs(directory_apres_ocr, exist_ok=True)
-        path_apres_ocr = os.path.join(directory_apres_ocr, os.path.basename(input_path))
+        directoryApresOcr = os.path.join(self.pathTraitement, "output", "apres_ocr")
+        print(directoryApresOcr)
+        os.makedirs(directoryApresOcr, exist_ok=True)
+        pathApresOcr = os.path.join(directoryApresOcr, os.path.basename(inputPath))
 
         print("Start ocr execution")
-        main_ocr(path_apres_magick,path_apres_ocr)
+        mainOcr(pathApresMagick,pathApresOcr)
         print("End ocr execution")
         
         print("--------------------------------")
 
-        basename_RAA = os.path.basename(input_path).replace(".pdf","")
+        print("Start separation execution")
+        basenameRAA = os.path.basename(inputPath).replace(".pdf","")
 
-        directory_apres_separation = os.path.join(self.path_traitement, "output", "apres_separation", basename_RAA)
-        os.makedirs(directory_apres_separation, exist_ok=True)
-        path_apres_separation = os.path.join(directory_apres_separation, os.path.basename(input_path))
+        directoryApresSeparation = os.path.join(self.pathTraitement, "output", "apres_separation", basenameRAA)
+        os.makedirs(directoryApresSeparation, exist_ok=True)
+        pathApresSeparation = os.path.join(directoryApresSeparation, os.path.basename(inputPath))
 
         print("Start separation execution")
-        liste_chemin_objetDecree = main_separation(path_apres_ocr, directory_apres_separation, raa)    
+        listeCheminObjetDecree = mainSeparation(pathApresOcr, directoryApresSeparation, raa)    
         print("End separation execution")
 
         print("--------------------------------")
 
-        directory_apres_mot_clef = os.path.join(self.path_traitement, "output", "apres_mot_cle", basename_RAA)
-        os.makedirs(directory_apres_mot_clef, exist_ok=True)
+        directoryApresMotClef = os.path.join(self.pathTraitement, "output", "apres_mot_cle", basenameRAA)
+        os.makedirs(directoryApresMotClef, exist_ok=True)
 
         print("Start execution of attribution keywords")
         
-        for i in range (len(liste_chemin_objetDecree)):
+        for i in range (len(listeCheminObjetDecree)):
 
-            object_decree = liste_chemin_objetDecree[i][0]
-            path_arrete = liste_chemin_objetDecree[i][1]
+            objectDecree = listeCheminObjetDecree[i][0]
+            pathArrete = listeCheminObjetDecree[i][1]
 
             dic = self.getDictLabelToId() ; listeKeyWords = list(dic.keys())
 
-            path_apres_mot_clef = os.path.join(directory_apres_mot_clef, f"{os.path.basename(path_arrete).replace('.pdf','')}.txt")
-            dic_key_words = getKeyWords(path_arrete, path_apres_mot_clef.replace(".txt",""), listeKeyWords) 
+            pathApresMotClef = os.path.join(directoryApresMotClef, f"{os.path.basename(pathArrete).replace('.pdf','')}.txt")
+            dicKeyWords = getKeyWords(pathArrete, pathApresMotClef.replace(".txt",""), listeKeyWords) 
             
             # We create a list containing a list of DecreeTopics (KeyWords) that match the decree
-            liste_decree_topic = []
+            listeDecreeTopic = []
 
-            for label, id in dic_key_words.items():
+            for label, id in dicKeyWords.items():
                 topic = DecreeTopic(id=dic[label], label=label)
-                liste_decree_topic.append(topic)
+                listeDecreeTopic.append(topic)
 
-            object_decree.topic = liste_decree_topic
+            objectDecree.topic = listeDecreeTopic
 
             # Check if the decree is really interesting
             # For example, if there is only "armes" the bylaw is VERY unlikely to be of interest.
-            bool_isArreteProbablyFalsePositive = self.isArreteProbablyFalsePositive(liste_decree_topic)
+            boolIsArreteProbablyFalsePositive = self.isArreteProbablyFalsePositive(listeDecreeTopic)
             
             # Saves decree information in CSV format if and only if it is of interest
-            if(not bool_isArreteProbablyFalsePositive and liste_decree_topic!=[]):
-                addArreteToFile(object_decree) 
+            if(not boolIsArreteProbablyFalsePositive and liste_decree_topic!=[]):
+                addArreteToFile(objectDecree) 
             
         print("End execution of attribution keywords")
 
@@ -191,26 +192,23 @@ class Traitement:
             """
             Returns a dictionary that associates each topic name with its id
             """
-            liste_decree_topics = getTopics()
-            return {topic.label: topic.id for topic in liste_decree_topics}
+            listeDecreeTopics = getTopics()
+            return {topic.label: topic.id for topic in listeDecreeTopics}
     
-    def isArreteProbablyFalsePositive(self, liste_decree_topic):
+    def isArreteProbablyFalsePositive(self, listeDecreeTopic):
         """
         Returns a boolean that indicates whether the decree is likely to be a false positive from the list of associated decreeTopics, 
         i.e. that some keys words have matched but are not relevant enough to say that it's an interesting decree.
         """
         
-        liste_label = []
-        liste_keyWords_not_interesting_alone = ["armes", "destruction"]
+        listeLabel = []
+        listeKeyWordsNotInterestingAlone = ["armes", "destruction"]
         
-        for decreeTopic in liste_decree_topic:
-            liste_label.append(decreeTopic.label)
+        for decreeTopic in listeDecreeTopic:
+            listeLabel.append(decreeTopic.label)
 
-        for el in liste_keyWords_not_interesting_alone:
-            if(el==liste_label):
+        for el in listeKeyWordsNotInterestingAlone:
+            if(el==listeLabel):
                 return True
             
         return False
-
-
-            

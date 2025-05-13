@@ -1,5 +1,5 @@
 from furet.traitement.ocr import *
-from furet.traitement.separation_avec_sommaire  import *
+from furet.traitement.separation  import *
 from furet.traitement.getKeyWords import *
 from furet.traitement.correspondenceNameNumberDepartment import *
 from furet.types.raa import RAA

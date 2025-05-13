@@ -3,7 +3,7 @@ from . import settings, app
 from furet import repository, crawler
 
 import threading
-from furet.traitement.Traitement import Traitement
+from furet.traitement.processing import Traitement
 
 #from datetime import datetime
 

@@ -17,12 +17,25 @@ class ImportFileWindow(QtWidgets.QDialog):
         self._rootLayout.addLayout(self._fileLayout)
 
         self._URLLayout = QtWidgets.QHBoxLayout()
-
-        fileChoose = QtWidgets.QLabel("Indiquer l'URL du receuil :")
+        fileChoose = QtWidgets.QLabel("Indiquer l'URL du recueil (Ex: https//...) :")
         self._URLLayout.addWidget(fileChoose)
-        self._URLReceuil = QtWidgets.QLineEdit()
-        self._URLLayout.addWidget(self._URLReceuil)
+        self._URLRecueil = QtWidgets.QLineEdit()
+        self._URLLayout.addWidget(self._URLRecueil)
         self._rootLayout.addLayout(self._URLLayout)
+
+        self._departmentLayout = QtWidgets.QHBoxLayout()
+        fileChoose = QtWidgets.QLabel("Indiquer le numéro de département (Ex: 42) :")
+        self._departmentLayout.addWidget(fileChoose)
+        self._departmentRecueil = QtWidgets.QLineEdit()
+        self._departmentLayout.addWidget(self._departmentRecueil)
+        self._rootLayout.addLayout(self._departmentLayout)
+
+        self._dateLayout = QtWidgets.QHBoxLayout()
+        fileChoose = QtWidgets.QLabel("Indiquer la date de publication (jj/mm/aaaa) :")
+        self._dateLayout.addWidget(fileChoose)
+        self._dateRecueil = QtWidgets.QLineEdit()
+        self._dateLayout.addWidget(self._dateRecueil)
+        self._rootLayout.addLayout(self._dateLayout)
 
         self._rootLayout.addSpacing(25)
         self._buttonLayout = QtWidgets.QHBoxLayout()

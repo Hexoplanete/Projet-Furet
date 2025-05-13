@@ -1,5 +1,8 @@
 from PySide6 import QtWidgets, QtCore
 from furet.app.widgets.filePickerWidget import FilePickerWidget
+from furet.app.utils import buildDatePicker, buildComboBox
+from furet import repository
+from datetime import date
 
 class ImportFileWindow(QtWidgets.QDialog):
 
@@ -24,16 +27,16 @@ class ImportFileWindow(QtWidgets.QDialog):
         self._rootLayout.addLayout(self._URLLayout)
 
         self._departmentLayout = QtWidgets.QHBoxLayout()
-        fileChoose = QtWidgets.QLabel("Indiquer le numéro de département (Ex: 42) :")
+        fileChoose = QtWidgets.QLabel("Indiquer le département :")
         self._departmentLayout.addWidget(fileChoose)
-        self._departmentRecueil = QtWidgets.QLineEdit()
+        self._departmentRecueil = buildComboBox(repository.getDepartments(), None, ("Choisir un département", None))
         self._departmentLayout.addWidget(self._departmentRecueil)
         self._rootLayout.addLayout(self._departmentLayout)
 
         self._dateLayout = QtWidgets.QHBoxLayout()
-        fileChoose = QtWidgets.QLabel("Indiquer la date de publication (jj/mm/aaaa) :")
+        fileChoose = QtWidgets.QLabel("Indiquer la date de publication :")
         self._dateLayout.addWidget(fileChoose)
-        self._dateRecueil = QtWidgets.QLineEdit()
+        self._dateRecueil = buildDatePicker(date.today())
         self._dateLayout.addWidget(self._dateRecueil)
         self._rootLayout.addLayout(self._dateLayout)
 

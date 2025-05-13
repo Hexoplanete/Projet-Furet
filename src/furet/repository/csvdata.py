@@ -19,11 +19,11 @@ def setup():
 def load():
     # load config data
     basePath = settings.value(ROOT_KEY)
+    loadTopicsFromFile(os.path.join(basePath, 'config/decreeTopics.csv'), topicList)
     loadCampaignsFromFile(os.path.join(basePath, 'config/campaign.csv'), campaignList)
     loadDepartmentsFromFile(os.path.join(basePath, 'config/departments.csv'), departmentList)
-    loadTopicsFromFile(os.path.join(basePath, 'config/decreeTopics.csv'), topicList)
     loadDocTypesFromFile(os.path.join(basePath, 'config/documentType.csv'), docTypeList)
-    # print(campaignList)
+
     # get all csvfiles from os
     for root, dirs, files in os.walk(os.path.join(basePath, 'prefectures')):
         for filename in files:
@@ -54,173 +54,236 @@ def addArreteToFile(arrete: Decree):
 def updateDecree(id: int, decree: Decree):
     # update decree data in csv file
     fileContent = []
+    try: 
+        # 1. get the file name
+        fullPath = getFileName(decree)
+        # 2. read file and it content
+        with open(fullPath, encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=',')
+            # Get the header separately from the rest, to avoid cast error
+            header = next(reader)
 
-    # 1. get the file name
-    fullPath = getFileName(decree)
-    # 2. read file and it content
-    with open(fullPath, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        # On recupere le header separément du reste des lignes sinon ca pose probleme pour le cast
-        header = next(reader)
+            for row in reader:
+                if int(row[0]) == id:
+                    fileContent.append(decree.toCsvLine())
+                else:
+                    fileContent.append(row)
 
-        for row in reader:
-            if int(row[0]) == id:
-                fileContent.append(decree.toCsvLine())
-            else:
-                fileContent.append(row)
-
-    # 3. re-write the file content (updated)
-    with open(fullPath, 'w', encoding='utf-8', newline='') as file:  # w clears all the file content
-        writerCsv = csv.writer(file)
-        # write the header
-        writerCsv.writerow(header)
-        writerCsv.writerows(fileContent)
+        # 3. re-write the file content (updated)
+        with open(fullPath, 'w', encoding='utf-8', newline='') as file:  # w clears all the file content
+            writerCsv = csv.writer(file)
+            # write the header
+            writerCsv.writerow(header)
+            writerCsv.writerows(fileContent)
+    
+    except Exception as e:
+                print(f"Erreur de lecture de fichier {fullPath}")
+                print(f"Erreur : {e}")
 
 
 def loadArretesFromFile(path: str, listArretes: list[Decree]) -> list[Decree]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
+    try:
+        with open(path, encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=',')
 
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try:
-                aa = Decree(
-                    id=int(row[0]), department=repository.getDepartmentById(int(row[1])), docType=repository.getDocumentTypeById(int(row[2])),
-                    number=row[3], title=row[4], signingDate=datetime.strptime(row[5], format).date(), raaNumber=row[6],
-                    publicationDate=datetime.strptime(row[7], format).date(), link=row[8], startPage=int(row[9]),
-                    endPage=int(row[10]), campaign=repository.getCampaignById(int(row[11])),
-                    topic=list(
-                        map(repository.getTopicById, map(int, row[12].split("-")))),
-                    treated=bool(int(row[13])), comment=row[14]
-                )
-                listArretes.append(aa)
+            # Separate header from the other data of the csv
+            header = next(reader)
+            for row in reader:
+                try:
+                    aa = Decree(
+                        id=int(row[0]), department=repository.getDepartmentById(int(row[1])), docType=repository.getDocumentTypeById(int(row[2])),
+                        number=row[3], title=row[4], signingDate=datetime.strptime(row[5], format).date(), raaNumber=row[6],
+                        publicationDate=datetime.strptime(row[7], format).date(), link=row[8], startPage=int(row[9]),
+                        endPage=int(row[10]), campaign=repository.getCampaignById(int(row[11])),
+                        topic=list(
+                            map(repository.getTopicById, map(int, row[12].split("-")))),
+                        treated=bool(int(row[13])), comment=row[14]
+                    )
+                    listArretes.append(aa)
 
-            except Exception as e:
-                print(f"Erreur de parsing arrêtés, ligne ignorée : {row}")
-                print(f"Erreur : {e}")
+                except Exception as e:
+                    print(f"Erreur de parsing arrêtés, ligne ignorée : {row}")
+                    print(f"Erreur : {e}")
+    except Exception as e:
+        print(f"Erreur fichier non trouvé : {path}")
+        print(f"Erreur : {e}")
     return listArretes
 
 
 def loadCampaignsFromFile(path: str, listCampaigns: list[Campaign]) -> list[Campaign]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
+    try: 
+        with open(path, encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=',')
 
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try:
-                cc = Campaign(id=int(row[0]), label=row[1])
-                listCampaigns.append(cc)
+            # Separate header from the other data of the csv
+            header = next(reader)
+            for row in reader:
+                try:
+                    cc = Campaign(
+                                  id=int(row[0]), 
+                                  label=row[1], 
+                                  topicList = list(map(repository.getTopicById, map(int, row[2].split("-"))))
+                                  )
+                    listCampaigns.append(cc)
 
-            except Exception as e:
-                print(f"Erreur de parsing campagnes, ligne ignorée : {row}")
+                except Exception as e:
+                    print(f"Erreur de parsing campagnes, ligne ignorée : {row}")
+                    print(f"Erreur : {e}")
+    except Exception as e:
+                print(f"Erreur fichier non trouvé {path}")
                 print(f"Erreur : {e}")
     return listCampaigns
 
 
 def loadDepartmentsFromFile(path: str, listDepartments: list[Department]) -> list[Department]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try:
-                dd = Department(id=int(row[0]), number=row[1], label=row[2])
-                listDepartments.append(dd)
+    try: 
+        with open(path, encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=',')
+            # Separate header from the other data of the csv
+            header = next(reader)
+            for row in reader:
+                try:
+                    dd = Department(id=int(row[0]), number=row[1], label=row[2])
+                    listDepartments.append(dd)
 
-            except Exception as e:
-                print(f"Erreur de parsing départements, ligne ignorée : {row}")
-                print(f"Erreur : {e}")
+                except Exception as e:
+                    print(f"Erreur de parsing départements, ligne ignorée : {row}")
+                    print(f"Erreur : {e}")
+    except Exception as e:
+            print(f"Erreur fichier non trouvé {path}")
+            print(f"Erreur : {e}")
     return listDepartments
 
 
 def loadTopicsFromFile(path: str, listTopics: list[DecreeTopic]) -> list[DecreeTopic]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try:
-                tt = DecreeTopic(id=int(row[0]), label=row[1])
-                listTopics.append(tt)
+    try: 
+        with open(path, encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=',')
+            # Separate header from the other data of the csv
+            header = next(reader)
+            for row in reader:
+                try:
+                    tt = DecreeTopic(id=int(row[0]), label=row[1])
+                    listTopics.append(tt)
 
-            except Exception as e:
-                print(f"Erreur de parsing sujets, ligne ignorée : {row}")
-                print(f"Erreur : {e}")
+                except Exception as e:
+                    print(f"Erreur de parsing sujets, ligne ignorée : {row}")
+                    print(f"Erreur : {e}")
+    except Exception as e:
+            print(f"Erreur fichier non trouvé {path}")
+            print(f"Erreur : {e}")
     return listTopics
 
 
 def loadDocTypesFromFile(path: str, listDocTypes: list[DocumentType]) -> list[DocumentType]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try:
-                tt = DocumentType(id=int(row[0]), label=row[1])
-                listDocTypes.append(tt)
+    try: 
+        with open(path, encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=',')
+            # Separate header from the other data of the csv
+            header = next(reader)
+            for row in reader:
+                try:
+                    tt = DocumentType(id=int(row[0]), label=row[1])
+                    listDocTypes.append(tt)
 
-            except Exception as e:
-                print(
-                    f"Erreur de parsing types de docs, ligne ignorée : {row}")
-                print(f"Erreur : {e}")
+                except Exception as e:
+                    print(
+                        f"Erreur de parsing types de docs, ligne ignorée : {row}")
+                    print(f"Erreur : {e}")
+    except Exception as e:
+            print(f"Erreur fichier non trouvé {path}")
+            print(f"Erreur : {e}")
     return listDocTypes
 
-
-def addCampaign(label: str):
+def addTopic(top :DecreeTopic):
     basePath = settings.value(ROOT_KEY)
-    fullPath = basePath + 'config/campaign.csv'
+    fullPath = basePath + '/config/decreeTopics.csv'
+    nId = updateIdFile('topic')
+    top.id = nId
+    try:
+        with open(fullPath, 'a', encoding='utf-8', newline='') as file:
+            writerCsv = csv.writer(file)
+            writerCsv.writerow(top.toCsvLine())
+
+    except Exception as e:
+        print(f"Erreur de modification de fichier")
+        print(f"Erreur : {e}")
+
+def addCampaign(camp :Campaign): 
+    basePath = settings.value(ROOT_KEY)
+    fullPath = basePath + '/config/campaign.csv'
     try:
         nId = updateIdFile('campaign')
+        camp.id = nId
 
         with open(fullPath, 'a', encoding='utf-8', newline='') as file:
             writerCsv = csv.writer(file)
-            writerCsv.writerow([nId, label])
+            writerCsv.writerow(camp.toCsvLine())
 
     except Exception as e:
         print(f"Erreur de modification de fichier")
         print(f"Erreur : {e}")
 
-
-def addTopic(label: str):
+def addTopicToCampaign(top: DecreeTopic, camp : Campaign):
     basePath = settings.value(ROOT_KEY)
-    fullPath = basePath + 'config/decreeTopics.csv'
-    nId = updateIdFile('topic')
+    fullPath = basePath + '/config/campaign.csv'
+    fileContent = []
 
     try:
-        with open(fullPath, 'a', encoding='utf-8', newline='') as file:
+        # read file and it content
+        with open(fullPath, encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=',')
+            # Get the header separately from the rest, to avoid cast error
+            header = next(reader)
+            for row in reader:
+                # find the row corresponding to the campaign in the file
+                if int(row[0]) == camp.id:
+                    topList = list(map(int, row[2].split("-")))
+                    # if the topic is not already in the list, add it
+                    if top.id not in topList:
+                        camp.topicList.append(top)
+                    fileContent.append(camp.toCsvLine())
+                else:
+                    fileContent.append(row)
+
+        # re-write the file content (updated)
+        with open(fullPath, 'w', encoding='utf-8', newline='') as file:  # w clears all the file content
             writerCsv = csv.writer(file)
-            writerCsv.writerow([nId, label])
-
+            # write the header
+            writerCsv.writerow(header)
+            writerCsv.writerows(fileContent)
+    
     except Exception as e:
-        print(f"Erreur de modification de fichier")
-        print(f"Erreur : {e}")
-
+                print(f"Erreur de lecture de fichier {fullPath}")
+                print(f"Erreur : {e}")
 
 def updateIdFile(attr: str) -> int:
     # update decree data in csv file
     basePath = settings.value(ROOT_KEY)
-    fullPath = basePath + 'config/lastId.csv'
+    fullPath = basePath + '/config/lastId.csv'
     fileContent = []
 
-    # 2. read file and its content
-    with open(fullPath, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        header = next(reader)
-        for row in reader:
-            if row[0] == attr:
-                nextId = int(row[1]) + 1
-                fileContent.append([attr, nextId])
-            else:
-                fileContent.append(row)
+    try: 
+        # read file and its content
+        with open(fullPath, encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=',')
+            header = next(reader)
+            for row in reader:
+                if row[0] == attr:
+                    nextId = int(row[1]) + 1
+                    fileContent.append([attr, nextId])
+                else:
+                    fileContent.append(row)
 
-    # 3. re-write the file content (updated)
-    with open(fullPath, 'w', encoding='utf-8', newline='') as file:  # w clears all the file content
-        writerCsv = csv.writer(file)
-        writerCsv.writerow(header)
-        writerCsv.writerows(fileContent)
+        # re-write the file content (updated)
+        with open(fullPath, 'w', encoding='utf-8', newline='') as file:  # w clears all the file content
+            writerCsv = csv.writer(file)
+            writerCsv.writerow(header)
+            writerCsv.writerows(fileContent)
 
+    except Exception as e:
+                print(f"Erreur de lecture de fichier {fullPath}")
+                print(f"Erreur : {e}")
     return nextId
 
 
@@ -231,5 +294,38 @@ def getFileName(arrete: Decree) -> str:
         str(dYear) + "_" + str(dMonth) + "_RAA.csv"
 
     basePath = settings.value(ROOT_KEY)
-    fullPath = basePath + "prefectures/" + arrete.department.number + '/' + filename
+    fullPath = basePath + "/prefectures/" + arrete.department.number + '/' + filename
     return fullPath
+
+def getCampaignFromTopic(topic : DecreeTopic) -> list[Campaign]:
+    listCampaigns = []
+    try:
+            basePath = settings.value(ROOT_KEY)
+            fullPath = os.path.join(basePath, 'config/campaign.csv')
+            # open file and read it
+            with open(fullPath, encoding='utf-8') as file:
+                reader = csv.reader(file, delimiter=',')
+
+                # Separate header from the other data of the csv
+                header = next(reader)
+                for row in reader:
+                    decreeTopicIdList = list(map(int, row[2].split("-")))
+                    # for each campaign, check if the searched topic matches
+                    if topic.id in decreeTopicIdList : 
+                        try:
+                            cc = Campaign(
+                                        id=int(row[0]), 
+                                        label=row[1], 
+                                        topicList = list(map(repository.getTopicById, map(int, row[2].split("-"))))
+                                        )
+                            listCampaigns.append(cc)
+
+                        except Exception as e:
+                            print(f"Erreur de parsing campagnes, ligne ignorée : {row}")
+                            print(f"Erreur : {e}")
+
+    except Exception as e:
+            print(f"Erreur de lecture de fichier {fullPath}")
+            print(f"Erreur : {e}")
+            
+    return listCampaigns

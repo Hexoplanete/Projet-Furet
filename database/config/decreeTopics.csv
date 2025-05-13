@@ -7,44 +7,39 @@ id,label
 6,tir
 7,munition
 8,CDCFS
-9,SDG
+9,SDGC
 10,blaireau
-11,vénerie
-12,déterrage
-13,tuberculose bovine
-14,loup
-15,ours
-16,lynx
-17,chacal
-18,prédation
-19,prédateur
-20,tir de défense
-21,tir de prélèvement
-22,effarouchement
-23,espèce animale protégée
-24,blaireau
-25,vénerie
-26,déterrage
-27,tuberculose bovine
-28,louveterie
-29,louvetier
-30,piège
-31,piégeage
-32,destruction
-33,battue
-34,ESOD
-35,espèce susceptible d'occasionner des dégâts
-36,sanglier
-37,lapin
-38,pigeon
-39,renard
-40,corvidés
-41,fouine
-42,martre
-43,belette
-44,putois
-45,corbeau freux
-46,corneille noire
-47,pie bavarde
-48,geai
-49,étourneau
+11,déterrage
+12,tuberculose bovine
+13,loup
+14,ours
+15,lynx
+16,chacal
+17,prédation
+18,prédateur
+29,tirs de défense
+20,tir de prélèvement
+21,effarouchement
+22,espèce animale protégée
+23,louveterie
+24,louvetier
+25,piège
+26,piégeage
+27,destruction
+28,battue
+29,ESOD
+30,espèce susceptible d'occasionner des dégâts
+31,sanglier
+32,lapin
+33,pigeon
+34,renard
+35,corvidés
+36,fouine
+37,martre
+38,belette
+39,putois
+40,corbeau freux
+41,corneille noire
+42,pie bavarde
+43,geai
+44,étourneau

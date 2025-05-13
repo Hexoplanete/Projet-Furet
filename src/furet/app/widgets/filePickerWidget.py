@@ -1,12 +1,13 @@
 from PySide6 import QtWidgets, QtCore
 
 class FilePickerWidget(QtWidgets.QWidget):
-    def __init__(self, parent: QtWidgets.QWidget = None):
+    def __init__(self, parent: QtWidgets.QWidget = None, /, onDataChange = None):
         super().__init__(parent)
 
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(0,0,0,0)
         self._fileEditText = QtWidgets.QLineEdit()
+        self._fileEditText.textChanged.connect(onDataChange)
         self._layout.addWidget(self._fileEditText)
         self._parcourirButton = QtWidgets.QPushButton("Parcourir")
         self._parcourirButton.clicked.connect(self.onClickParcourir)

@@ -1,5 +1,6 @@
 from PySide6 import QtWidgets, QtCore
 
+import os
 from datetime import date
 from furet.app.utils import buildComboBox, buildDatePicker
 from furet.app.widgets.filePickerWidget import FilePickerWidget
@@ -14,16 +15,19 @@ class ImportFileWindow(QtWidgets.QDialog):
         self._rootLayout = QtWidgets.QVBoxLayout(self)
         decreeForm = QtWidgets.QFormLayout()
         
-        self._filePicker = FilePickerWidget()
+        self._filePicker = FilePickerWidget(onDataChange=self.onValueChange)
         decreeForm.addRow("Indiquer l'URL du recueil (Ex: https//...) :", self._filePicker)
 
         self._URLReceuil = QtWidgets.QLineEdit()
+        self._URLReceuil.textChanged.connect(self.onValueChange)
         decreeForm.addRow("Indiquer l'URL du receuil :", self._URLReceuil)
 
         self._department = buildComboBox(repository.getDepartments(), None, ("Choisir un département", None))
+        self._department.editTextChanged.connect(self.onValueChange)
         decreeForm.addRow("Indiquer le département :", self._department)
         
         self._signingDate = buildDatePicker(date.today())
+        self._signingDate.dateChanged.connect(self.onValueChange)
         decreeForm.addRow("Indiquer la date de publication :", self._signingDate)
 
         self._rootLayout.addLayout(decreeForm)
@@ -34,6 +38,7 @@ class ImportFileWindow(QtWidgets.QDialog):
         self._cancelButton.clicked.connect(self.onClickAnnulerButton)
         self._buttonLayout.addWidget(self._cancelButton)
         self._saveConfirmerButton = QtWidgets.QPushButton("Confirmer")
+        self._saveConfirmerButton.setEnabled(False)
         self._saveConfirmerButton.clicked.connect(self.onClickConfirmerButton)
         self._buttonLayout.addWidget(self._saveConfirmerButton)
         self._rootLayout.addLayout(self._buttonLayout)
@@ -43,3 +48,11 @@ class ImportFileWindow(QtWidgets.QDialog):
 
     def onClickConfirmerButton(self):
         self.accept()
+
+    def onValueChange(self):
+        self._saveConfirmerButton.setEnabled(False)
+        if not(os.path.isfile(self._filePicker.getPath())): return
+        if not(self._URLReceuil.text()): return
+        if not(self._department.currentIndex()): return
+        if not(self._signingDate.date()): return
+        self._saveConfirmerButton.setEnabled(True)

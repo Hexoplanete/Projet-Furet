@@ -20,9 +20,21 @@ def lemmatize_keywords(keywords):
 # If debug is then we display the (lemmatized) context of the keywords found, the number of occurrences, etc.
 debug = False 
 
-# Algo: For each keyword, we scan the text once, we lemmatize the text and keywords and look for keywords (lemmatized or not) that match the lemmatized text.
 
 def getKeyWords(input_path, output_path, listeKeyWords):
+    """
+    Input : 
+    
+        input_path  = Path of the PDF of the decree for which we want to find the matching keywords
+        output_path = Chemin vers le fichier annoté qui sert au debugagge des mots qui ont matchés
+
+    Algorithm : 
+
+        For each keyword, we scan the text once, we lemmatize the text and keywords and look for keywords 
+        (lemmatized or not) that match the lemmatized text.
+        
+
+    """
 
     text = extract_text(input_path) # We retrieve the text
     doc = nlp(text.lower()) # We put everything in lower case

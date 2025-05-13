@@ -23,14 +23,22 @@ class DecreeTopic:
 
     def __str__(self):
         return self.label
+    
+    def toCsvLine(self):
+        return [self.id, self.label]
 
 @dbclass
 class Campaign:
     id: int
     label: str
+    topicList: list[DecreeTopic]
 
     def __str__(self):
         return self.label
+    
+    def toCsvLine(self):
+        topList = "-".join(map(lambda t: str(t.id),self.topicList))
+        return [self.id, self.label, topList]
 
 @dbclass
 class Decree:

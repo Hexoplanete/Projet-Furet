@@ -1,8 +1,9 @@
 from PySide6 import QtWidgets, QtCore
-from furet.app.widgets.filePickerWidget import FilePickerWidget
-from furet.app.utils import buildDatePicker, buildComboBox
-from furet import repository
+
 from datetime import date
+from furet.app.utils import buildComboBox, buildDatePicker
+from furet.app.widgets.filePickerWidget import FilePickerWidget
+from furet import repository
 
 class ImportFileWindow(QtWidgets.QDialog):
 
@@ -11,34 +12,21 @@ class ImportFileWindow(QtWidgets.QDialog):
         self.setWindowTitle("Import Recueil")
 
         self._rootLayout = QtWidgets.QVBoxLayout(self)
-        self._fileLayout = QtWidgets.QHBoxLayout()
-
-        fileChoose = QtWidgets.QLabel("Choisir un fichier :")
-        self._fileLayout.addWidget(fileChoose)
+        decreeForm = QtWidgets.QFormLayout()
+        
         self._filePicker = FilePickerWidget()
-        self._fileLayout.addWidget(self._filePicker)
-        self._rootLayout.addLayout(self._fileLayout)
+        decreeForm.addRow("Indiquer l'URL du recueil (Ex: https//...) :", self._filePicker)
 
-        self._URLLayout = QtWidgets.QHBoxLayout()
-        fileChoose = QtWidgets.QLabel("Indiquer l'URL du recueil (Ex: https//...) :")
-        self._URLLayout.addWidget(fileChoose)
-        self._URLRecueil = QtWidgets.QLineEdit()
-        self._URLLayout.addWidget(self._URLRecueil)
-        self._rootLayout.addLayout(self._URLLayout)
+        self._URLReceuil = QtWidgets.QLineEdit()
+        decreeForm.addRow("Indiquer l'URL du receuil :", self._URLReceuil)
 
-        self._departmentLayout = QtWidgets.QHBoxLayout()
-        fileChoose = QtWidgets.QLabel("Indiquer le département :")
-        self._departmentLayout.addWidget(fileChoose)
-        self._departmentRecueil = buildComboBox(repository.getDepartments(), None, ("Choisir un département", None))
-        self._departmentLayout.addWidget(self._departmentRecueil)
-        self._rootLayout.addLayout(self._departmentLayout)
+        self._department = buildComboBox(repository.getDepartments(), None, ("Choisir un département", None))
+        decreeForm.addRow("Indiquer le département :", self._department)
+        
+        self._signingDate = buildDatePicker(date.today())
+        decreeForm.addRow("Indiquer la date de publication :", self._signingDate)
 
-        self._dateLayout = QtWidgets.QHBoxLayout()
-        fileChoose = QtWidgets.QLabel("Indiquer la date de publication :")
-        self._dateLayout.addWidget(fileChoose)
-        self._dateRecueil = buildDatePicker(date.today())
-        self._dateLayout.addWidget(self._dateRecueil)
-        self._rootLayout.addLayout(self._dateLayout)
+        self._rootLayout.addLayout(decreeForm)
 
         self._rootLayout.addSpacing(25)
         self._buttonLayout = QtWidgets.QHBoxLayout()

@@ -1,16 +1,17 @@
 from datetime import date
 from typing import Any
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
+import locale
 
 from furet.app.widgets.checkableComboBox import CheckableComboBox
+from furet.app.widgets.selectAllComboBox import SelectAllComboBox
 
 from typing import TypeVar
 
 T = TypeVar('T')
 
 def buildComboBox(options: list[T], choice: T, none: tuple[str, Any] = None) -> QtWidgets.QComboBox:
-    box = QtWidgets.QComboBox()
-    box.setEditable(True)
+    box = SelectAllComboBox()
     if none is not None:
         box.addItem(none[0], none[1])
         if choice == None: 
@@ -22,6 +23,13 @@ def buildComboBox(options: list[T], choice: T, none: tuple[str, Any] = None) -> 
         for i, o in enumerate(options):
             if o.id == choice.id:
                 box.setCurrentIndex(i)
+
+    completer = QtWidgets.QCompleter([str(o) for o in options], box)
+    completer.setFilterMode(QtCore.Qt.MatchFlag.MatchContains)
+    completer.setCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
+    completer.setCompletionMode(QtWidgets.QCompleter.CompletionMode.UnfilteredPopupCompletion)
+    box.setCompleter(completer)
+
     return box
 
 def buildMultiComboBox(options: list[T], choices: list[T], none: str = None) -> CheckableComboBox:
@@ -41,9 +49,11 @@ def buildMultiComboBox(options: list[T], choices: list[T], none: str = None) -> 
 def buildDatePicker(date: date = None) -> QtWidgets.QDateEdit:
     picker = QtWidgets.QDateEdit(date=date)
     picker.setCalendarPopup(True)
-    picker.setDisplayFormat("dd MMMM yy")
+    picker.setDisplayFormat("dd MMMM yyyy")
     return picker
 
+
+locale.setlocale(locale.LC_TIME,'')
 
 def formatDate(value: date):
     return value.strftime("%d %B %Y")

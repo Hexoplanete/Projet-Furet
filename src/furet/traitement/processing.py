@@ -6,8 +6,6 @@ from furet.types.raa import RAA
 from furet.types.decree import *
 from furet.repository import * 
 
-from database.config import *
-
 import subprocess
 import os
 import json

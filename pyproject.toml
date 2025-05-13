@@ -25,7 +25,8 @@ dependencies = [
     "bs4",
     "ocrmypdf",
     "PyMuPDF",
-    "spacy"
+    "spacy",
+    "PyInstaller"
 ]
 
 [project.urls]

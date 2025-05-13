@@ -21,12 +21,12 @@ def lemmatizeKeywords(keywords):
 debug = False 
 
 
-def getKeyWords(input_path, output_path, listeKeyWords):
+def getKeyWords(inputPath, outputPath, listeKeyWords):
     """
     Input : 
     
-        input_path  = Path of the PDF of the decree for which we want to find the matching keywords
-        output_path = Chemin vers le fichier annoté qui sert au debugagge des mots qui ont matchés
+        inputPath  = Path of the PDF of the decree for which we want to find the matching keywords
+        outputPath = Chemin vers le fichier annoté qui sert au debugagge des mots qui ont matchés
 
     Algorithm : 
 

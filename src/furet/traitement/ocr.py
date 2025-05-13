@@ -10,9 +10,9 @@ def createSearchable_pdf(inputPath_pdf: str, outputPath_pdf: str):
         outputPath_pdf,
         language='fra',
         deskew=True,
-        progressBar=True,
+        progress_bar=True,
         optimize=0,
-        forceOcr=True,
+        force_ocr=True,
     )
 
 def processFile(inputPath_pdf, outputPath_pdf):

@@ -16,11 +16,11 @@ class ImportFileWindow(QtWidgets.QDialog):
         decreeForm = QtWidgets.QFormLayout()
         
         self._filePicker = FilePickerWidget(onDataChange=self.onValueChange)
-        decreeForm.addRow("Indiquer l'URL du recueil (Ex: https//...) :", self._filePicker)
+        decreeForm.addRow("Choisir un fichier :", self._filePicker)
 
         self._URLReceuil = QtWidgets.QLineEdit()
         self._URLReceuil.textChanged.connect(self.onValueChange)
-        decreeForm.addRow("Indiquer l'URL du receuil :", self._URLReceuil)
+        decreeForm.addRow("Indiquer l'URL du recueil (Ex: https//...) :", self._URLReceuil)
 
         self._department = buildComboBox(repository.getDepartments(), None, ("Choisir un département", None))
         self._department.editTextChanged.connect(self.onValueChange)

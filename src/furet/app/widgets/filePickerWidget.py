@@ -10,6 +10,7 @@ class FilePickerWidget(QtWidgets.QWidget):
         self._fileEditText.textChanged.connect(onDataChange)
         self._layout.addWidget(self._fileEditText)
         self._parcourirButton = QtWidgets.QPushButton("Parcourir")
+        self._parcourirButton.setFixedHeight(self._fileEditText.sizeHint().height())
         self._parcourirButton.clicked.connect(self.onClickParcourir)
         self._layout.addWidget(self._parcourirButton)
 

@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QApplication
-from . import settings, app
-from furet import repository, crawler
+from furet import settings, app, repository, crawler
 
 import threading
 from furet.traitement.processing import Traitement

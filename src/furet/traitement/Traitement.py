@@ -6,7 +6,7 @@ from furet.types.raa import RAA
 from furet.types.decree import *
 from furet.repository import * 
 
-from database.config import * # Contient les derniers IDs attribués
+from database.config import *
 
 import subprocess
 import os
@@ -148,28 +148,28 @@ class Traitement:
         os.makedirs(directoryApresSeparation, exist_ok=True)
         pathApresSeparation = os.path.join(directoryApresSeparation, os.path.basename(inputPath))
 
+        print("Start separation execution")
         listeCheminObjetDecree = mainSeparation(pathApresOcr, directoryApresSeparation, raa)    
-
         print("End separation execution")
 
-        # TO DO Extraction Caractéristique
-
-        print("Start execution of attribution keywords")
+        print("--------------------------------")
 
         directoryApresMotClef = os.path.join(self.pathTraitement, "output", "apres_mot_cle", basenameRAA)
         os.makedirs(directoryApresMotClef, exist_ok=True)
+
+        print("Start execution of attribution keywords")
         
         for i in range (len(listeCheminObjetDecree)):
 
             objectDecree = listeCheminObjetDecree[i][0]
             pathArrete = listeCheminObjetDecree[i][1]
 
-            dic = self.getDictLabelToId()
-            listeKeyWords = list(dic.keys())
+            dic = self.getDictLabelToId() ; listeKeyWords = list(dic.keys())
 
             pathApresMotClef = os.path.join(directoryApresMotClef, f"{os.path.basename(pathArrete).replace('.pdf','')}.txt")
             dicKeyWords = getKeyWords(pathArrete, pathApresMotClef.replace(".txt",""), listeKeyWords) 
             
+            # We create a list containing a list of DecreeTopics (KeyWords) that match the decree
             listeDecreeTopic = []
 
             for label, id in dicKeyWords.items():
@@ -182,16 +182,24 @@ class Traitement:
             # For example, if there is only "armes" the bylaw is VERY unlikely to be of interest.
             boolIsArreteProbablyFalsePositive = self.isArreteProbablyFalsePositive(listeDecreeTopic)
             
-            if(not boolIsArreteProbablyFalsePositive):
-                addArreteToFile(objectDecree) # Enregistre les informations de l'arreté sous format CSV
+            # Saves decree information in CSV format if and only if it is of interest
+            if(not boolIsArreteProbablyFalsePositive and liste_decree_topic!=[]):
+                addArreteToFile(objectDecree) 
             
         print("End execution of attribution keywords")
 
     def getDictLabelToId(self):
+            """
+            Returns a dictionary that associates each topic name with its id
+            """
             listeDecreeTopics = getTopics()
             return {topic.label: topic.id for topic in listeDecreeTopics}
     
     def isArreteProbablyFalsePositive(self, listeDecreeTopic):
+        """
+        Returns a boolean that indicates whether the decree is likely to be a false positive from the list of associated decreeTopics, 
+        i.e. that some keys words have matched but are not relevant enough to say that it's an interesting decree.
+        """
         
         listeLabel = []
         listeKeyWordsNotInterestingAlone = ["armes", "destruction"]

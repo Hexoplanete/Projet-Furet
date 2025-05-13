@@ -55,12 +55,12 @@ def mainSeparation(inputPath, outputDir, raa):
 
                 documenType = getDocumentTypeById(1)
 
-                campaign = getCampaignById(1) # La campagne sera rédéfinie après les keywords
+                campaign = getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
 
                 decree = Decree(
                         id=arreteId,
                         department=raa.department,
-                        raaNumber=raa.number,                   # On ne connaît pas raaNumber à ce moment là (c'est dans extract caractéristiques)
+                        raaNumber=raa.number,                   # We don't know raaNumber at this time (it's in extract characteristics)
                         link=raa.link,
                         startPage=start, 
                         endPage=end,

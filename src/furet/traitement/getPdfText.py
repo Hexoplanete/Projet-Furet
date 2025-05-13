@@ -1,12 +1,12 @@
 import fitz 
 
-def extract_text(input_path):
-    doc = fitz.open(input_path)
+def extractText(inputPath):
+    doc = fitz.open(inputPath)
 
     text = ""
 
-    for page_number in range(len(doc)):
-        page = doc.load_page(page_number)
+    for pageNumber in range(len(doc)):
+        page = doc.load_page(pageNumber)
         text += page.get_text()
     
     return text

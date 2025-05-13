@@ -9,56 +9,56 @@ from datetime import datetime
 import os
 import sys
 
-def main_separation(input_path, output_dir, raa):
+def mainSeparation(inputPath, outputDir, raa):
         now = datetime.now()
-        current_time = now.strftime("%H-%M-%S")
+        currentTime = now.strftime("%H-%M-%S")
 
-        # liste_output_path = []     # List which will contain the different paths to the pdf of the decrees   
-        # liste_objects_decree = []  # List that will contain the different decree objects
-        liste_decrees = []           # List that will contain lists [chemin, objet_decree]
+        # listeOutputPath = []     # List which will contain the different paths to the pdf of the decrees   
+        # listeObjectsDecree = []  # List that will contain the different decree objects
+        listeDecrees = []           # List that will contain lists [chemin, objetDecree]
 
-        basename = os.path.basename(input_path).replace(".pdf","")
+        baseName = os.path.basename(inputPath).replace(".pdf","")
 
-        doc = fitz.open(input_path)
+        doc = fitz.open(inputPath)
 
-        nb_pages = len(doc)
+        nbPages = len(doc)
 
-        full_text = ""
+        fullText = ""
         for page in doc:
-                full_text += page.get_text()
+                fullText += page.get_text()
 
-        print(nb_pages)
+        print(nbPages)
         print("-----------")
 
         # Artificial replacement of "s" and "S" by 5 due to poor OCR recognition!!!!!!
-        full_text = full_text.replace("s","5")
-        full_text = full_text.replace("S","5")
+        fullText = fullText.replace("s","5")
+        fullText = fullText.replace("S","5")
 
         # Extract
-        pages = re.findall(r'Page\s+(\d+)', full_text, flags=re.IGNORECASE)
-        page_start_numbers = [int(p) for p in pages] 
+        pages = re.findall(r'Page\s+(\d+)', fullText, flags=re.IGNORECASE)
+        pageStartNumbers = [int(p) for p in pages] 
 
-        liste_chemin_objetDecree = []
+        listeCheminObjetDecree = []
 
-        for i in range(len(page_start_numbers)):
-                start = page_start_numbers[i]
+        for i in range(len(pageStartNumbers)):
+                start = pageStartNumbers[i]
 
-                if(i == len(page_start_numbers) - 1): # If we process the last decree, it's different because there is no i+1!
-                        end = nb_pages
+                if(i == len(pageStartNumbers) - 1): # If we process the last decree, it's different because there is no i+1!
+                        end = nbPages
                 else:
-                        end = page_start_numbers[i+1] - 1 # -2 because page_start_numbers[i+1] is the start of the next content, -1 is its cover page, -2 is the end of the current
+                        end = pageStartNumbers[i+1] - 1 # -2 because page_start_numbers[i+1] is the start of the next content, -1 is its cover page, -2 is the end of the current
 
                 # Creation of the Decree object
 
-                arrete_id = 1 # Deleted after merge
-                #arrete_id = updateIdFile("decree")
+                arreteId = 1 # Deleted after merge
+                #arreteId = updateIdFile("decree")
 
                 documenType = getDocumentTypeById(1)
 
                 campaign = getCampaignById(1) # La campagne sera rédéfinie après les keywords
 
                 decree = Decree(
-                        id=arrete_id,
+                        id=arreteId,
                         department=raa.department,
                         raaNumber=raa.number,                   # On ne connaît pas raaNumber à ce moment là (c'est dans extract caractéristiques)
                         link=raa.link,
@@ -82,18 +82,18 @@ def main_separation(input_path, output_dir, raa):
                 # We don't know campaign at this time (it's in getKeyWords)
                 # We don't know topic at this time (it's in extract characteristics)
 
-                sub_doc = fitz.open()
+                subDoc = fitz.open()
 
-                sub_doc.insert_pdf(doc, from_page=start-1, to_page=end-1)
+                subDoc.insert_pdf(doc, from_page=start-1, to_page=end-1)
 
-                output_path = os.path.join(output_dir, f"Arrete_{i+1}.pdf")
+                outputPath = os.path.join(outputDir, f"Arrete_{i+1}.pdf")
 
-                current.append(output_path)
+                current.append(outputPath)
 
-                liste_chemin_objetDecree.append(current)
+                listeCheminObjetDecree.append(current)
 
-                sub_doc.save(output_path)
-                sub_doc.close()      
+                subDoc.save(outputPath)
+                subDoc.close()      
 
-        return liste_chemin_objetDecree
+        return listeCheminObjetDecree
 

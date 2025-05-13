@@ -3,40 +3,40 @@ import ocrmypdf
 import os
 from datetime import datetime
 
-def create_searchable_pdf(input_pdf_path: str, output_pdf_path: str):
-    """Apply OCR to the pdf "input_pdf_path" to generate a PDF with text "output_pdf_path" """
+def createSearchable_pdf(inputPath_pdf: str, outputPath_pdf: str):
+    """Apply OCR to the pdf "inputPath_pdf" to generate a PDF with text "outputPath_pdf" """
     ocrmypdf.ocr(
-        input_pdf_path,
-        output_pdf_path,
+        inputPath_pdf,
+        outputPath_pdf,
         language='fra',
         deskew=True,
-        progress_bar=True,
+        progressBar=True,
         optimize=0,
-        force_ocr=True,
+        forceOcr=True,
     )
 
-def process_file(input_pdf_path, output_pdf_path):
+def processFile(inputPath_pdf, outputPath_pdf):
     """OCR and generation of searchable PDF."""
 
-    print(f"\nInput PDF path: {input_pdf_path}")
+    print(f"\nInput PDF path: {inputPath_pdf}")
     
     now = datetime.now()
-    current_time = now.strftime("%H-%M-%S")
+    currentTime = now.strftime("%H-%M-%S")
     
     print("Generating OCR PDF...")
-    create_searchable_pdf(input_pdf_path, output_pdf_path)
+    createSearchable_pdf(inputPath_pdf, outputPath_pdf)
     
-    print(f"Output PDF path: {output_pdf_path}")
+    print(f"Output PDF path: {outputPath_pdf}")
 
-def main_ocr(input_path, output_pdf_path):
+def mainOcr(inputPath, outputPath_pdf):
     """Processes one PDF or all PDFs in a folder."""
-    if os.path.isdir(input_path):
-        for filename in os.listdir(input_path):
-            if filename.endswith(".pdf"):
-                file_path = os.path.join(input_path, filename)
-                process_file(file_path, output_pdf_path)
-    elif input_path.endswith(".pdf"):
-        process_file(input_path,output_pdf_path)
+    if os.path.isdir(inputPath):
+        for fileName in os.listdir(inputPath):
+            if fileName.endswith(".pdf"):
+                filePath = os.path.join(inputPath, fileName)
+                processFile(filePath, outputPath_pdf)
+    elif inputPath.endswith(".pdf"):
+        processFile(inputPath,outputPath_pdf)
     else:
         print("Invalid input. Please provide a PDF file or folder containing PDFs.")
 

@@ -1,5 +1,5 @@
 
-departements_label_to_code = {
+departementsLabelToCode = {
     "Aube": "10",
     "HautesPyrenees": "65",
     "Ariege": "09",

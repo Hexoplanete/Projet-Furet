@@ -8,9 +8,10 @@ from furet.traitement.processing import Traitement
 #from datetime import datetime
 
 def main():
-    QApplication.setApplicationName("Fouille Universelle de Recueils pour Entreposage et Traitement")
+    QApplication.setApplicationName("FURET")
+    QApplication.setApplicationDisplayName("Fouille Universelle de Recueils pour Entreposage et Traitement")
     QApplication.setOrganizationDomain("github.com/Hexoplanete/Projet-Furet/")
-    QApplication.setOrganizationName("Hexoplanète")
+    QApplication.setOrganizationName("Hexoplanete")
 
     settings.setup()
     app.setup()

@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from furet import repository
 from furet.app.utils import formatDate
 from furet.types.decree import *
@@ -49,6 +49,10 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._aboutUsButton = QtWidgets.QPushButton('About us')
         self._aboutUsButton.clicked.connect(self.onClickAboutUsButton)
         self._buttonLayer.addWidget(self._aboutUsButton)           
+    
+        self._docButton = QtWidgets.QPushButton('Documentation')
+        self._docButton.clicked.connect(self.onClickDocButton)
+        self._buttonLayer.addWidget(self._docButton)           
         
         self._paramButton = QtWidgets.QPushButton('Paramètres')
         self._paramButton.clicked.connect(self.onClickParamButton)
@@ -119,3 +123,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             self._aboutUsWindow.show()
         else:
             self._aboutUsWindow.activateWindow()
+    
+    def onClickDocButton(self):
+        print(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
+        QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")

@@ -1,7 +1,6 @@
 import os
 import sys
 from PySide6.QtWidgets import QApplication, QStyleFactory
-from PySide6 import QtGui
 from furet import settings
 import locale
 

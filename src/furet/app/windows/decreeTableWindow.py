@@ -20,13 +20,12 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._layout = QtWidgets.QVBoxLayout(self._content)
         self.setCentralWidget(self._content)
 
-        # TODO set max col lenght
         self._columns = [
             TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: formatDate(v)),
             TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: formatDate(v + relativedelta(months=2))),
             TableColumn[Department]("department", lambda: "Département"),
-            TableColumn[Campaign]("campaign", lambda: "Campagne"),
-            TableColumn[list[DecreeTopic]]("topic", lambda: "Sujet", lambda v: ", ".join(map(str, v))),
+            TableColumn[Campaign]("campaigns", lambda: "Campagnes"),
+            TableColumn[list[DecreeTopic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),
             TableColumn[str]("title", lambda: "Titre"),
             TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
             TableColumn[str]("comment", lambda: "Commentaire"),
@@ -116,5 +115,4 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             self._importFileWindow.activateWindow()
 
     def onClickDocButton(self):
-        print(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")

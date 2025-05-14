@@ -162,6 +162,7 @@ class Processing:
 
         print("Start execution of attribution keywords")
         
+        decrees = []
         for i in range (len(listeCheminObjetDecree)):
 
             objectDecree = listeCheminObjetDecree[i][0]
@@ -187,8 +188,8 @@ class Processing:
             
             # Saves decree information in CSV format if and only if it is of interest
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
-                repository.addDecree(objectDecree) 
-            
+                decrees.append(objectDecree)
+        repository.addDecrees(decrees)
         print("End execution of attribution keywords")
 
     def getDictLabelToId(self):

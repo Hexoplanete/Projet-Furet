@@ -45,11 +45,9 @@ class Decree:
     id: int
 
     # raa: RAA Obligatoire
-    department: Department
-    link: str
     startPage: int
     endPage: int
-    publicationDate : date
+    
 
     # Decree Obligatoire
     treated: bool
@@ -59,6 +57,9 @@ class Decree:
     raaNumber: str = "0"
 
     # Decree
+    department:Optional[Department] = None
+    link: Optional[str] = None
+    publicationDate: Optional[date] = None 
     comment: str = "0"
     docType: Optional[DocumentType] = None
     number: Optional[str] = "0"

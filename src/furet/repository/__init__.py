@@ -95,3 +95,9 @@ def _findByField(collection, value, field: str = "id"):
         if getattr(d, field) == value:
             return d
     return None
+
+def getDecreesWithEmptyLink() -> list[Decree]:
+    return [
+        decree for decree in getDecrees()
+        if decree.link == ""
+    ]

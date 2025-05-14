@@ -121,24 +121,24 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._buttonLayout.addWidget(self._saveAndQuitButton)
         self._rootLayout.addLayout(self._buttonLayout)
 
-    def saveDecree(self):
-        self._decree = Decree(
-            id=self._decree.id,
-            number=self._decreeNumber.text(),
-            title=self._decreeTitle.text(),
-            docType=self._docType.currentData(),
-            publicationDate=self._publicationDate.date().toPython(),
-            signingDate=self._signingDate.date().toPython(),
-            department=self._department.currentData(),
-            raaNumber=self._raaNumber.text(),
-            link=self._decree.link,
-            startPage=int(self._pagesStart.text()),
-            endPage=int(self._pagesEnd.text()),
-            campaigns=self._campaign.currentData(),
-            topics=self._topic.currentData(),
-            treated=self._treated.isChecked(),
-            comment=self._comment.toPlainText(),
-        )
+    # def saveDecree(self):
+    #     self._decree = Decree(
+    #         id=self._decree.id,
+    #         number=self._decreeNumber.text(),
+    #         title=self._decreeTitle.text(),
+    #         docType=self._docType.currentData(),
+    #         publicationDate=self._publicationDate.date().toPython(),
+    #         signingDate=self._signingDate.date().toPython(),
+    #         department=self._department.currentData(),
+    #         raaNumber=self._raaNumber.text(),
+    #         link=self._decree.link,
+    #         startPage=int(self._pagesStart.text()),
+    #         endPage=int(self._pagesEnd.text()),
+    #         campaign=self._campaign.currentData(),
+    #         topic=self._topic.currentData(),
+    #         treated=self._treated.isChecked(),
+    #         comment=self._comment.toPlainText(),
+    #     )
 
     def onClickRetourButton(self):
         self.reject()

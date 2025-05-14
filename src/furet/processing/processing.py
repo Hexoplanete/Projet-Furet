@@ -99,7 +99,7 @@ class Processing:
             self.downloadPDF(raaUrl, raaSavePath)
             self.processingRAA(raaSavePath, raa)
 
-    def processingRAA(self, inputPath, raa):
+    def processingRAA(self, inputPath, raa = None):
         """ 
         Input : PDF corresponding to an RAA (RAA which was just downloaded from the links obtained by the crawler)
 

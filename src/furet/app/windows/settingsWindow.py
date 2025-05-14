@@ -27,7 +27,7 @@ class SettingsWindow(QtWidgets.QDialog):
         validator = QtGui.QDoubleValidator()
         validator.setLocale(QtCore.QLocale.English)
         self.scale.setValidator(validator)
-        self.scale.textChanged.connect(lambda v: settings.setValue("app.scale", min(max(1, int(v)), 2)))
+        self.scale.textChanged.connect(lambda v: settings.setValue("app.scale", min(max(1, float(v)), 2)))
         addFormRow(form, "Échelle de l'interface", self.scale, "Change l'échelle de l'interface. Relancez l'application pour appliquer les changements.")
 
         self.treaded = QtWidgets.QCheckBox("")

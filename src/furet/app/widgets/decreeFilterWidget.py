@@ -17,11 +17,11 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         
         self._addDateFilter()
         
-        self._department = buildComboBox(repository.getDepartments(), None, ("Choisir un département", None))
+        self._department = buildComboBox(repository.getDepartments(), None, ("Aucun département", None))
         self._layout.addWidget(self._department)
 
 
-        self._campaign = buildComboBox(repository.getCampaigns(), None, ("Choisir une campagne", None))
+        self._campaign = buildComboBox(repository.getCampaigns(), None, ("Aucune campagne", None))
         self._layout.addWidget(self._campaign)
 
         self._topic = buildMultiComboBox(repository.getTopics(), [], "Choisir un sujet")
@@ -70,7 +70,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def _addTreatedFilter(self):
         self._state = QtWidgets.QComboBox()
         self._state.setEditable(True)
-        self._state.addItem("Choisir un statut", None)
+        self._state.addItem("Tous les statuts", None)
         self._state.addItem("Traité", True)
         self._state.addItem("Non traité", False)
         self._state.setCurrentIndex(2 if settings.value("app.filter-treated") else 0)

@@ -32,6 +32,9 @@ def updateDecree(id: int, decree: Decree):
 def addDecree(decree: Decree):
     return decrees.addDecree(decree)
 
+def addDecrees(decreesList: list[Decree]):
+    return decrees.addDecrees(decreesList)
+
 # DEPARTMENTS
 
 def getDepartments() -> list[Department]:

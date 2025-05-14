@@ -77,13 +77,25 @@ def getDecrees():
     return l
 
 
-def addDecree(decree: Decree):
+def _addDecree(decree: Decree):
     global maxId
     maxId = maxId+1
     decree.id = maxId
     decreeFile = getFileName(decree)
+    if not decreeFile in decreesPerFile:
+        decreesPerFile[decreeFile] = []
     decreesPerFile[decreeFile].append(decree)
-    saveDecreesToFile(decreeFile)
+def addDecree(decree: Decree):
+    _addDecree(decree)
+    saveDecreesToFile(getFileName(decree))
+
+def addDecrees(decrees: list[Decree]):
+    files = set()
+    for d in decrees:
+        files.add(getFileName(d))
+        _addDecree(d)
+    for f in files:
+        saveDecreesToFile(getFileName(f))
 
 
 def updateDecree(id: int, decree: Decree):

@@ -2,7 +2,6 @@ import threading
 import time
 from furet.crawler.crawler import Crawler
 from furet import settings
-from furet.traitement.processing import Traitement
 
 
 def setup():
@@ -10,6 +9,7 @@ def setup():
     
     autorun = settings.value("crawler.autorun")
     if autorun:
+        from furet.traitement.processing import Traitement
         start_time = time.time()
         crawler = Crawler()
         crawler_thread = threading.Thread(target=crawler.startCrawler)

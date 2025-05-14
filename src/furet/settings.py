@@ -10,9 +10,9 @@ def setup():
     QSettings.setDefaultFormat(QSettings.Format.IniFormat)
 
 
-def setDefaultValue(key: str, defaultValue: Any):
+def setDefaultValue(key: str, defaultValue: Any, valueType: type = None):
     key = parseKey(key)
-    _keyTypes[key] = type(defaultValue)
+    _keyTypes[key] = valueType if valueType is not None else type(defaultValue)
     settings = QSettings()
     settings.setValue(key, settings.value(key, defaultValue=defaultValue))
     settings.sync()

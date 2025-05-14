@@ -1,7 +1,9 @@
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import settings
 from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
+from furet.app.utils import addFormRow
+
 
 class SettingsWindow(QtWidgets.QDialog):
     def __init__(self):
@@ -19,13 +21,20 @@ class SettingsWindow(QtWidgets.QDialog):
             self._rootLayout.addLayout(form)
             return form
         
-        form = addSection("Filtres par défaut")
-        self._treatedOnOpen = QtWidgets.QCheckBox("")
-        self._treatedOnOpen.setChecked(settings.value("app.filters.treatedOnly"))
-        self._treatedOnOpen.stateChanged.connect(lambda v: settings.setValue("app.filters.treatedOnly", bool(v)))
-        form.addRow("Non traités par défaut", self._treatedOnOpen)
-        
-        self._notExpired = QtWidgets.QCheckBox("")
-        self._notExpired.setChecked(settings.value("app.filters.notExpired"))
-        self._notExpired.stateChanged.connect(lambda v: settings.setValue("app.filters.notExpired", bool(v)))
-        form.addRow("Non expirés", self._notExpired)
+        form = addSection("Interface")
+        self.scale = QtWidgets.QLineEdit(str(settings.value("app.scale")))
+        validator = QtGui.QDoubleValidator()
+        validator.setLocale(QtCore.QLocale.English)
+        self.scale.setValidator(validator)
+        self.scale.textChanged.connect(lambda v: settings.setValue("app.scale", min(max(1, int(v)), 2)))
+        addFormRow(form, "Échelle de l'interface", self.scale, "Change l'échelle de l'interface. Relancez l'application pour appliquer les changements.")
+
+        self.treaded = QtWidgets.QCheckBox("")
+        self.treaded.setChecked(settings.value("app.filter-treated"))
+        self.treaded.stateChanged.connect(lambda v: settings.setValue("app.filter-treated", bool(v)))
+        addFormRow(form, "Filter les arrêtés traités", self.treaded, "Filter automatiquement les arrêtés traites lors du lancement de l'application")
+
+        self.expired = QtWidgets.QCheckBox("")
+        self.expired.setChecked(settings.value("app.filter-expired"))
+        self.expired.stateChanged.connect(lambda v: settings.setValue("app.filter-expired", bool(v)))
+        addFormRow(form, "Filter les arrêtés expirés", self.expired, "Filter automatiquement les arrêtés de plus de 2 mois lors du lancement de l'application")

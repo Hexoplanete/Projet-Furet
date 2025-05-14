@@ -94,7 +94,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         topicWidget = QtWidgets.QWidget()
         topicLayout = QtWidgets.QHBoxLayout(topicWidget)
         topicLayout.setContentsMargins(0,0,0,0)
-        self._topic = buildMultiComboBox(repository.getTopics(), decree.topic)
+        self._topic = buildMultiComboBox(repository.getTopics(), decree.topics)
         self._topic.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         topicLayout.addWidget(self._topic)
 
@@ -139,8 +139,8 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
             link=self._decree.link,
             startPage=int(self._pagesStart.text()),
             endPage=int(self._pagesEnd.text()),
-            campaign=self._campaign.currentData(),
-            topic=self._topic.currentData(),
+            campaigns=self._campaign.currentData(),
+            topics=self._topic.currentData(),
             treated=self._treated.isChecked(),
             missing=self._missing.isChecked(),
             comment=self._comment.toPlainText(),

@@ -74,7 +74,7 @@ def mainSeparation(inputPath, outputDir, raa = None):
                                 publicationDate=raa.publicationDate,
                                 docType = documentType,
                                 signingDate = date(1900, 1, 1),       # We don't know raaNumber at this time (it's in extract characteristics)
-                                campaign = campaign,
+                                campaigns = [campaign],
                                 #text_content = decreeTextContent
                         )
                 else:
@@ -90,7 +90,7 @@ def mainSeparation(inputPath, outputDir, raa = None):
                                 comment="0",
                                 docType = documentType,
                                 signingDate = date(1900, 1, 1),       # We don't know signingDate at this time (it's in extract characteristics)
-                                campaign = campaign,
+                                campaigns = [campaign],
                                 #text_content = decreeTextContent
                         )
 

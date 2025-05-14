@@ -90,7 +90,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         topicWidget = QtWidgets.QWidget()
         topicLayout = QtWidgets.QHBoxLayout(topicWidget)
         topicLayout.setContentsMargins(0,0,0,0)
-        self._topic = buildMultiComboBox(repository.getTopics(), decree.topic)
+        self._topic = buildMultiComboBox(repository.getTopics(), decree.topics)
         self._topic.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         topicLayout.addWidget(self._topic)
 

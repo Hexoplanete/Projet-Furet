@@ -224,7 +224,7 @@ class Processing:
 
         campaignsDecree = set()
 
-        for currentDecreeTopic in decree.topic :
+        for currentDecreeTopic in decree.topics :
             listeCampaignCurrentTopic = getCampaignFromTopic(currentDecreeTopic)
             campaignsDecree.update(listeCampaignCurrentTopic)
             print(listeCampaignCurrentTopic)

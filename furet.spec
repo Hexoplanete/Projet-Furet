@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_data_files
 
-datas = [('libs/fr_core_news_sm', 'fr_core_news_sm'), ('libs/fr_core_news_sm/fr_core_news_sm-3.8.0/', 'fr_core_news_sm')]
+datas = [('libs/fr_core_news_sm/fr_core_news_sm-3.8.0/', 'fr_core_news_sm'), ('src/furet/crawler/regions/', 'crawler-regions')]
 datas += collect_data_files('ocrmypdf')
 
 
@@ -11,7 +11,7 @@ a = Analysis(
     binaries=[],
     datas=datas,
     hiddenimports=[],
-    hookspath=[],
+    hookspath=['hook'],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],

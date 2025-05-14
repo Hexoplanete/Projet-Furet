@@ -52,6 +52,7 @@ class Crawler:
                 moduleName = region.replace(" ", "").lower().lower() # Remove spaces and convert to lowercase for valid module names
                 className = department.replace(" ", "")  # Remove spaces for valid class names
                 try:
+                    
                     module = __import__(f"furet.crawler.regions.{moduleName}", fromlist=[className])
                     spiderClass = getattr(module, className)
                     listPoc = ["AlpesDeHauteProvence", "Calvados", "BouchesDuRhone", "SaoneEtLoire", "Allier", "Sarthe", "Charente"]

@@ -6,3 +6,5 @@ __pycache__
 resultCrawler.json
 database/debug/**
 database/pdfDirectory/**
+dist/
+build/

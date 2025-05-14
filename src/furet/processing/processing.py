@@ -143,7 +143,6 @@ class Processing:
         
         print("--------------------------------")
 
-        print("Start separation execution")
         basenameRAA = os.path.basename(inputPath).replace(".pdf","")
 
         directoryApresSeparation = os.path.join(self.outputProcessingSteps_path, "after_separation", basenameRAA)

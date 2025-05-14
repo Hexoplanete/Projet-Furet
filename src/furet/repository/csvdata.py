@@ -16,13 +16,14 @@ docTypeList = []
 
 ROOT_KEY = "repository.csv-root"
 def setup():
-    settings.setDefaultValue(ROOT_KEY,  QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
+    settings.setDefaultValue(ROOT_KEY, os.path.join(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation), 'database'))
 
     basePath = settings.value(ROOT_KEY)    
     # create folder 'prefectures' if the database doesn't exists
     if not os.path.exists(basePath):
-        settings.setValue(ROOT_KEY, QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
+        settings.setValue(ROOT_KEY, os.path.join(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation), 'database'))
         basePath = settings.value(ROOT_KEY)    
+        os.makedirs(basePath, exist_ok=True)
 
     if not os.path.exists(os.path.join(basePath, 'prefectures')):
         os.makedirs(os.path.join(basePath, 'prefectures'))

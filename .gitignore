@@ -5,5 +5,5 @@ __pycache__
 .idea
 dist
 resultCrawler.json
-src/furet/processing/output/**
-src/furet/processing/input_RAA/**
+database/debug/**
+database/pdfDirectory/**

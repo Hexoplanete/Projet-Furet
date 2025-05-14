@@ -12,10 +12,10 @@
 
 input : PDF correspondant à un RAA 
 
-- Réduit qualité PDF avec magick (ouput/apres_magick/) -> Génère un nouveau pdf
-- OCR sur le pdf d'entrée pour générer un nouveau pdf "OCR isé", c'est à dire sous forme de texte (ouput/apres_ocr/) -> Génère un nouveau pdf ocrisé
-- Séparation des arrêtés d'un recueil : (ouput/apres_separation/{Nom_RAA}/) -> Génère 1 pdf par arrêté du RAA 
-- Assignation des mots clefs à un arrêté (ouput/apres_mot_cle/{Nom_RAA}/) -> Génère des .txt contenant les mots clefs qui ont matchés
+- Réduit qualité PDF avec magick (ouput/after_magick/) -> Génère un nouveau pdf
+- OCR sur le pdf d'entrée pour générer un nouveau pdf "OCR isé", c'est à dire sous forme de texte (ouput/after_ocr/) -> Génère un nouveau pdf ocrisé
+- Séparation des arrêtés d'un recueil : (ouput/after_separation/{Nom_RAA}/) -> Génère 1 pdf par arrêté du RAA 
+- Assignation des mots clefs à un arrêté (ouput/after_mot_cle/{Nom_RAA}/) -> Génère des .txt contenant les mots clefs qui ont matchés
 
 **Informations récupérées :**
 

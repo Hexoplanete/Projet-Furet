@@ -27,6 +27,12 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._topic = buildMultiComboBox(repository.getTopics(), [], "Choisir un sujet")
         self._layout.addWidget(self._topic)
 
+        self._unselectTopic = QtWidgets.QPushButton('X')
+        self._unselectTopic.setFixedSize(20,20)
+        self._unselectTopic.setContentsMargins(0,0,0,0)
+        self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
+        self._layout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignLeft)
+
         self._name = QtWidgets.QLineEdit(placeholderText="Choisir un titre")
         self._layout.addWidget(self._name)
 
@@ -129,3 +135,6 @@ class DecreeFilterWidget(QtWidgets.QWidget):
             self._dateRangeButton.setText(f"Publié après le {formatDate(self._dateAfter.date().toPython())}")
         else:
             self._dateRangeButton.setText(f"Publié du {formatDate(self._dateAfter.date().toPython())} au {formatDate(self._dateBefore.date().toPython())}")
+    
+    def onClickUnselectTopic(self):
+        self._topic.unselectAllItems()

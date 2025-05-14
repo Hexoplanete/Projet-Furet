@@ -11,6 +11,9 @@ class DocumentType:
 
     def __str__(self):
         return self.label
+    
+    def toCsvLine(self):
+        return [self.id, self.label]
 
 @dbclass
 class DecreeTopic:

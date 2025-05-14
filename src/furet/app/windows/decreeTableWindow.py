@@ -20,7 +20,6 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._layout = QtWidgets.QVBoxLayout(self._content)
         self.setCentralWidget(self._content)
 
-        # TODO set max col lenght
         self._columns = [
             TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: formatDate(v)),
             TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: formatDate(v + relativedelta(months=2))),

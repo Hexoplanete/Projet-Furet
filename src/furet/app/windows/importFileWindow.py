@@ -5,7 +5,6 @@ from datetime import date
 from furet.app.utils import buildComboBox, buildDatePicker
 from furet.app.widgets.filePickerWidget import FilePickerWidget
 from furet import repository
-from furet.traitement.processing import Traitement
 from furet.types.raa import RAA
 
 class ImportFileWindow(QtWidgets.QDialog):
@@ -49,6 +48,7 @@ class ImportFileWindow(QtWidgets.QDialog):
         self.reject()
 
     def onClickConfirmerButton(self):
+        from furet.traitement.processing import Traitement
         traitement = Traitement()
         traitement.traitementRAA(self._filePicker.getPath(), RAA(department=self._department.currentData(),
                                                                  number="ND",

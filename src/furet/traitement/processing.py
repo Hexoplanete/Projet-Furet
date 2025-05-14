@@ -1,10 +1,9 @@
-from furet.traitement.ocr import *
-from furet.traitement.separation  import *
-from furet.traitement.getKeyWords import *
-from furet.traitement.correspondenceNameNumberDepartment import *
+from furet.traitement import getKeyWords
+from furet.traitement.correspondenceNameNumberDepartment import departementsLabelToCode
+from furet.traitement.ocr import mainOcr
+from furet.traitement.separation import mainSeparation
 from furet.types.raa import RAA
 from furet.types.decree import *
-from furet.repository import * 
 
 import subprocess
 import os

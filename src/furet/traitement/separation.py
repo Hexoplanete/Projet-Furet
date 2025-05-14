@@ -1,5 +1,4 @@
 from furet.types.decree import *
-from furet.repository import * 
 from datetime import date
 
 import fitz 

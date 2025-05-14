@@ -1,11 +1,8 @@
 from datetime import date
 from typing import Optional
-from typing import Dict
 
 from furet.types.base import dbclass
 from furet.types.department import Department
-from furet.types.raa import RAA
-from furet.repository import *
 
 @dbclass
 class DocumentType:

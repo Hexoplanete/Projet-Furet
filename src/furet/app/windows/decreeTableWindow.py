@@ -20,16 +20,16 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._layout = QtWidgets.QVBoxLayout(self._content)
         self.setCentralWidget(self._content)
 
-        # TODO set max col lenght
         self._columns = [
-            TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: formatDate(v)),
-            TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: formatDate(v + relativedelta(months=2))),
-            TableColumn[Department]("department", lambda: "Département"),
-            TableColumn[Campaign]("campaigns", lambda: "Campagnes"),
-            TableColumn[list[DecreeTopic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),
-            TableColumn[str]("title", lambda: "Titre"),
-            TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
-            TableColumn[str]("comment", lambda: "Commentaire"),
+            TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: formatDate(v)),                         # 0
+            TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: formatDate(v + relativedelta(months=2))), # 1
+            TableColumn[Department]("department", lambda: "Département"),                                                         # 2
+            TableColumn[Campaign]("campaigns", lambda: "Campagnes"),                                                              # 3
+            TableColumn[list[DecreeTopic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),                         # 4
+            TableColumn[str]("title", lambda: "Titre"),                                                                           # 5
+            TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),                               # 6
+            TableColumn[bool]("missingData", lambda: "À compléter", lambda v: "Oui" if v else "Non"),                             # 7
+            TableColumn[str]("comment", lambda: "Commentaire"),                                                                   # 8
         ]
         self._decrees = ObjectTableModel(repository.getDecrees(), self._columns)
 
@@ -70,7 +70,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self._table.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self._table.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self._table.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.setSortingEnabled(True)
         self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
 

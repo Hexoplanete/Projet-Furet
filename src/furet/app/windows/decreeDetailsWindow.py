@@ -84,6 +84,10 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         # ASPAS specific
         decreeForm = addSection("Informations supplémentaires")
 
+        self._missing = QtWidgets.QCheckBox("", )
+        self._missing.setChecked(decree.treated)
+        addFormRow(decreeForm, "À compléter", self._missing)
+        
         self._campaign = buildMultiComboBox(repository.getCampaigns(), decree.campaigns)
         addFormRow(decreeForm, "Campagne", self._campaign)
 
@@ -105,6 +109,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._treated = QtWidgets.QCheckBox("", )
         self._treated.setChecked(decree.treated)
         addFormRow(decreeForm, "Traité", self._treated)
+        
 
         commentSep = QtWidgets.QLabel("Commentaire")
         self._rootLayout.addWidget(commentSep)
@@ -137,6 +142,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
             campaigns=self._campaign.currentData(),
             topics=self._topic.currentData(),
             treated=self._treated.isChecked(),
+            missing=self._missing.isChecked(),
             comment=self._comment.toPlainText(),
         )
 

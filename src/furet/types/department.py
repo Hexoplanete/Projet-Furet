@@ -10,3 +10,6 @@ class Department:
 
     def __str__(self):
         return f"{self.number} - {self.label}"
+    
+    def toCsvLine(self):
+        return [self.id, self.number, self.label]

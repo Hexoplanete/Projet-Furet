@@ -11,6 +11,9 @@ class DocumentType:
 
     def __str__(self):
         return self.label
+    
+    def toCsvLine(self):
+        return [self.id, self.label]
 
 @dbclass
 class DecreeTopic:
@@ -42,11 +45,9 @@ class Decree:
     id: int
 
     # raa: RAA Obligatoire
-    department: Department
-    link: str
     startPage: int
     endPage: int
-    publicationDate : date
+    
 
     # Decree Obligatoire
     treated: bool
@@ -56,6 +57,9 @@ class Decree:
     raaNumber: str = "0"
 
     # Decree
+    department:Optional[Department] = None
+    link: Optional[str] = None
+    publicationDate: Optional[date] = None 
     comment: str = "0"
     docType: Optional[DocumentType] = None
     number: Optional[str] = "0"
@@ -64,10 +68,13 @@ class Decree:
 
     campaigns: list[Campaign] = None
     topics: list[DecreeTopic] = None
+    
+    missingData: bool = False
 
     def toCsvLine(self):
         return [
             self.id, self.department.id, self.docType.id, self.number, self.title, self.signingDate.strftime("%d/%m/%Y"), 
             self.raaNumber, self.publicationDate.strftime("%d/%m/%Y"), self.link, self.startPage, self.endPage, 
-            self.campaigns.id, "-".join(map(lambda t: str(t.id), self.topics)), int(self.treated), self.comment
+            "-".join(map(lambda t: str(t.id), self.campaigns)), "-".join(map(lambda t: str(t.id), self.topics)), int(self.treated), self.comment,
+            self.missingData
         ]

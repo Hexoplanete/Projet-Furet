@@ -48,9 +48,17 @@ class ImportFileWindow(QtWidgets.QDialog):
         self.reject()
 
     def onClickConfirmerButton(self):
-        from furet.traitement.processing import Traitement
-        traitement = Traitement()
-        traitement.traitementRAA(self._filePicker.getPath(), RAA(department=self._department.currentData(),
+
+        from furet.processing.processing import Processing
+
+        paramPdfStorageDirectory_path = os.path.join(os.getcwd(), "database", "pdfDirectory") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
+        paramOutputProcessingSteps_path = os.path.join(os.getcwd(), "database", "debug", "processingSteps") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
+
+        os.makedirs(paramPdfStorageDirectory_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 
+        os.makedirs(paramOutputProcessingSteps_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 
+
+        traitement = Processing(pdfDirectory_path=paramPdfStorageDirectory_path, outputProcessingSteps_path=paramOutputProcessingSteps_path)
+        traitement.processingRAA(self._filePicker.getPath(), RAA(department=self._department.currentData(),
                                                                  number="ND",
                                                                  link=self._URLRecueil.text(),
                                                                  publicationDate=self._pubDate.date().toPython()))

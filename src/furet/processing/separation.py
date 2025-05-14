@@ -56,7 +56,7 @@ def mainSeparation(inputPath, outputDir, raa):
                 arreteId = 1 # Deleted after merge
                 #arreteId = updateIdFile("decree")
 
-                documenType = repository.getDocumentTypeById(1)
+                documentType = repository.getDocumentTypeById(1)
 
                 decree = Decree(
                         id=arreteId,

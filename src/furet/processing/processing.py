@@ -1,7 +1,9 @@
-from furet.processing.ocr import *
-from furet.processing.separation  import *
-from furet.processing.getKeyWords import *
-from furet.processing.correspondenceNameNumberDepartment import *
+from furet.processing.getKeyWords import getKeyWords
+from furet.processing.correspondenceNameNumberDepartment import departementsLabelToCode
+from furet.processing.ocr import mainOcr
+from furet.processing.separation import mainSeparation
+from furet.repository import getTopics, getDepartmentById
+from furet.repository.csvdata import addArreteToFile
 from furet.types.raa import RAA
 from furet.types.decree import *
 
@@ -185,7 +187,7 @@ class Processing:
             
             # Saves decree information in CSV format if and only if it is of interest
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
-                csvdata.addArreteToFile(objectDecree) 
+                addArreteToFile(objectDecree) 
             
         print("End execution of attribution keywords")
 

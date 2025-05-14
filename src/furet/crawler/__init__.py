@@ -3,6 +3,7 @@ import time
 from furet.crawler.crawler import Crawler
 from furet import settings
 import os
+from furet.processing.processing import Processing
 
 
 def setup():
@@ -10,7 +11,7 @@ def setup():
     
     autorun = settings.value("crawler.autorun")
     if autorun:
-        from furet.traitement.processing import Traitement
+        from furet.processing.processing import Traitement
         start_time = time.time()
         crawler = Crawler()
         crawler_thread = threading.Thread(target=crawler.startCrawler)
@@ -21,8 +22,10 @@ def setup():
         end_time = time.time()
         print(f"Total execution time: {end_time - start_time:.2f} seconds")
 
-        paramPdfStorageDirectory_path = os.path.join(os.getcwd(), "database", "pdfDirectory") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
-        paramOutputProcessingSteps_path = os.path.join(os.getcwd(), "database", "debug", "processingSteps") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
+        pathDatabase = settings.value("repository.csv-root")
+
+        paramPdfStorageDirectory_path = os.path.join(os.getcwd(), pathDatabase, "pdfDirectory") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
+        paramOutputProcessingSteps_path = os.path.join(os.getcwd(), pathDatabase, "debug", "processingSteps") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
 
         os.makedirs(paramPdfStorageDirectory_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 
         os.makedirs(paramOutputProcessingSteps_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 

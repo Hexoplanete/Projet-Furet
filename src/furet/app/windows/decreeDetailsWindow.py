@@ -87,8 +87,20 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._campaign = buildMultiComboBox(repository.getCampaigns(), decree.campaigns)
         addFormRow(decreeForm, "Campagne", self._campaign)
 
-        self._topic = buildMultiComboBox(repository.getTopics(), decree.topics)
-        addFormRow(decreeForm, "Sujet", self._topic)
+        topicWidget = QtWidgets.QWidget()
+        topicLayout = QtWidgets.QHBoxLayout(topicWidget)
+        topicLayout.setContentsMargins(0,0,0,0)
+        self._topic = buildMultiComboBox(repository.getTopics(), decree.topic)
+        self._topic.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        topicLayout.addWidget(self._topic)
+
+        self._unselectTopic = QtWidgets.QPushButton('X')
+        self._unselectTopic.setFixedSize(20,20)
+        self._unselectTopic.setContentsMargins(0,0,0,0)
+        self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
+        self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
+        topicLayout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignLeft)
+        addFormRow(decreeForm, "Sujet", topicWidget)
 
         self._treated = QtWidgets.QCheckBox("", )
         self._treated.setChecked(decree.treated)
@@ -137,3 +149,6 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
 
     def decree(self):
         return self._decree
+
+    def onClickUnselectTopic(self):
+        self._topic.unselectAllItems()

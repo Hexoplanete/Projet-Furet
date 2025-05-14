@@ -17,17 +17,24 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         
         self._addDateFilter()
         
-        self._department = buildComboBox(repository.getDepartments(), None, ("Choisir un département", None))
+        self._department = buildComboBox(repository.getDepartments(), None, ("Tous les départements", None))
         self._layout.addWidget(self._department)
 
 
-        self._campaign = buildComboBox(repository.getCampaigns(), None, ("Choisir une campagne", None))
+        self._campaign = buildComboBox(repository.getCampaigns(), None, ("Toutes les campagnes", None))
         self._layout.addWidget(self._campaign)
 
-        self._topic = buildMultiComboBox(repository.getTopics(), [], "Choisir un sujet")
+        self._topic = buildMultiComboBox(repository.getTopics(), [], "Tous les sujets")
         self._layout.addWidget(self._topic)
 
-        self._name = QtWidgets.QLineEdit(placeholderText="Choisir un titre")
+        self._unselectTopic = QtWidgets.QPushButton('X')
+        self._unselectTopic.setFixedSize(20,20)
+        self._unselectTopic.setContentsMargins(0,0,0,0)
+        self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
+        self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
+        self._layout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignLeft)
+
+        self._name = QtWidgets.QLineEdit(placeholderText="Tous les titres")
         self._layout.addWidget(self._name)
 
         self._addTreatedFilter()
@@ -70,7 +77,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def _addTreatedFilter(self):
         self._state = QtWidgets.QComboBox()
         self._state.setEditable(True)
-        self._state.addItem("Choisir un statut", None)
+        self._state.addItem("Tous les statuts", None)
         self._state.addItem("Traité", True)
         self._state.addItem("Non traité", False)
         self._state.setCurrentIndex(2 if settings.value("app.filter-treated") else 0)
@@ -134,3 +141,6 @@ class DecreeFilterWidget(QtWidgets.QWidget):
             self._dateRangeButton.setText(f"Publié après le {formatDate(self._dateAfter.date().toPython())}")
         else:
             self._dateRangeButton.setText(f"Publié du {formatDate(self._dateAfter.date().toPython())} au {formatDate(self._dateBefore.date().toPython())}")
+    
+    def onClickUnselectTopic(self):
+        self._topic.unselectAllItems()

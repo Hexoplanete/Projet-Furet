@@ -59,7 +59,7 @@ def mainSeparation(inputPath, outputDir, raa):
 
                 documentType = repository.getDocumentTypeById(1)
 
-                campaign = repository.getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
+                #campaign = repository.getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
 
                 decree = Decree(
                         id=arreteId,
@@ -73,7 +73,7 @@ def mainSeparation(inputPath, outputDir, raa):
                         publicationDate=raa.publicationDate,
                         docType = documentType,
                         signingDate = date(1900, 1, 1),       # We don't know raaNumber at this time (it's in extract characteristics)
-                        campaign = campaign,
+                        campaigns = None,
                         #text_content = decreeTextContent
                 )
 

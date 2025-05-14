@@ -4,6 +4,8 @@ import os
 import json
 from time import sleep
 from random import uniform
+from furet import settings
+import ast
 
 class Spider:
     """
@@ -23,7 +25,7 @@ class Spider:
             "Cache-Control": "max-age=0"
         }
         self.mostRecentRAA = datetime.strptime(date, "%d/%m/%Y")
-        self.configFile = configFile
+        self.configFile = settings.value("crawler.config")
         self.linkFile = linkFile
         self.baseUrl = None
         self.months = {
@@ -52,12 +54,10 @@ class Spider:
         :param date: Date to set.
         """
         try:
-            with open(self.configFile, 'r') as file:
-                data = json.load(file)
-                data["regions"][region]["departments"][department] = date.strftime("%d/%m/%Y")
-            
-            with open(self.configFile, 'w') as file:
-                json.dump(data, file, indent=4)
+            data = ast.literal_eval(settings.value("crawler.config"))
+            data["regions"][region]["departments"][department] = date.strftime("%d/%m/%Y")
+            test = str(data)
+            settings.setValue("crawler.config", str(data))
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error writing to config file: {e}")
 

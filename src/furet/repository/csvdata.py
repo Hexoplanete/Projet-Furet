@@ -261,6 +261,9 @@ def addArreteToFile(arrete: Decree):
     headers = ['id', 'Département', "Type de document", "Numéro de l'arrêté", "Titre de l'arrêté",
                "Date de signature de l'arrêté", "Numéro du RAA", "Date de publication du RAA", 'URL du RAA',
                "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
+    
+    nId = updateIdFile('decree')
+    arrete.id = nId
     row = arrete.toCsvLine()
     file_exists = os.path.isfile(fullPath)  # bool
 

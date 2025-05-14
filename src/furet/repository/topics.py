@@ -34,7 +34,7 @@ def loadAllTopics():
             DecreeTopic(id=16, label='chacal'),
             DecreeTopic(id=17, label='prédation'),
             DecreeTopic(id=18, label='prédateur'),
-            DecreeTopic(id=29, label='tirs de défense'),
+            DecreeTopic(id=19, label='tirs de défense'),
             DecreeTopic(id=20, label='tir de prélèvement'),
             DecreeTopic(id=21, label='effarouchement'),
             DecreeTopic(id=22, label='espèce animale protégée'),

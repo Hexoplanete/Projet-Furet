@@ -145,7 +145,7 @@ class Processing:
         
         print("--------------------------------")
 
-        basenameRAA = os.path.basename(inputPath).replace(".pdf","")
+        basenameRAA = os.path.basename(inputPath).replace(".pdf","").replace(" ","")
 
         directoryApresSeparation = os.path.join(self.outputProcessingSteps_path, "after_separation", basenameRAA)
         os.makedirs(directoryApresSeparation, exist_ok=True)

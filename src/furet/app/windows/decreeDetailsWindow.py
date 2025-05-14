@@ -37,7 +37,6 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._decreeNumber = QtWidgets.QLineEdit(decree.number)
         addFormRow(decreeForm, "N° de l'arrêté", self._decreeNumber)
 
-        self._docType = QtWidgets.QComboBox()
         self._docType = buildComboBox(repository.getDocumentTypes(), decree.docType)
         addFormRow(decreeForm, "Type de document", self._docType)
 
@@ -85,8 +84,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         # ASPAS specific
         decreeForm = addSection("Informations supplémentaires")
 
-        self._campaign = buildComboBox(
-            repository.getCampaigns(), decree.campaigns)
+        self._campaign = buildMultiComboBox(repository.getCampaigns(), decree.campaigns)
         addFormRow(decreeForm, "Campagne", self._campaign)
 
         self._topic = buildMultiComboBox(repository.getTopics(), decree.topics)

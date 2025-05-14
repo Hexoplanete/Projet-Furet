@@ -13,6 +13,6 @@ def init():
     end_time = time.time()
     print(f"Total execution time: {end_time - start_time:.2f} seconds")
 
-    # traitement = Traitement()
-    # traitement_thread = threading.Thread(target=traitement.startTraitement)
-    # traitement_thread.start()
+    # processing = Traitement()
+    # processing_thread = threading.Thread(target=processing.startTraitement)
+    # processing_thread.start()

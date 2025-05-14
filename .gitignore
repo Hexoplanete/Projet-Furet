@@ -5,5 +5,5 @@ __pycache__
 .idea
 dist
 resultCrawler.json
-src/furet/traitement/output/**
-src/furet/traitement/input_RAA/**
+src/furet/processing/output/**
+src/furet/processing/input_RAA/**

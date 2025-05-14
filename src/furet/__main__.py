@@ -3,7 +3,8 @@ from . import settings, app
 from furet import repository, crawler
 
 import threading
-from furet.traitement.processing import Traitement
+from furet.processing.processing import Processing
+import os
 
 #from datetime import datetime
 
@@ -17,10 +18,13 @@ def main():
     crawler.init()
     repository.setup()  
     
-    traitement = Traitement()
-    traitement_thread = threading.Thread(target=traitement.startTraitement)
-    traitement_thread.start()
-    traitement_thread.join()
+    paramPdfStorageDirectory_path = os.path.join(os.getcwd(), "database", "pdfDirectory") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
+    paramOutputProcessingSteps_path = os.path.join(os.getcwd(), "database", "debug", "processingSteps") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
+
+    processing = Processing(pdfDirectory_path=paramPdfStorageDirectory_path, outputProcessingSteps_path=paramOutputProcessingSteps_path)
+    processing_thread = threading.Thread(target=processing.startTraitement)
+    processing_thread.start()
+    processing_thread.join()
 
     repository.readAllArretesFromFiles()
     

@@ -83,7 +83,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         pagesLayout.setContentsMargins(0, 0, 0, 0)
 
         # ASPAS specific
-        decreeForm = addSection("Information supplémentaires")
+        decreeForm = addSection("Informations supplémentaires")
 
         self._campaign = buildComboBox(
             repository.getCampaigns(), decree.campaign)

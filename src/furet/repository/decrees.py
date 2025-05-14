@@ -33,7 +33,7 @@ def loadDecreeFromFiles(decreeFile: str):
             decrees: list[Decree] = []
             for row in reader:
                 try:
-                    decrees.append[Decree(
+                    decrees.append(Decree(
                         id=int(row[0]),
 
                         raaNumber=row[6],
@@ -41,12 +41,12 @@ def loadDecreeFromFiles(decreeFile: str):
                         link=row[8],
                         startPage=int(row[9]), endPage=int(row[10]),
                         publicationDate=datetime.strptime(
-                            row[7], format).date(),
+                            row[7], "%d/%m/%Y").date(),
 
                         docType=repository.getDocumentTypeById(int(row[2])),
                         number=row[3],
                         title=row[4],
-                        signingDate=datetime.strptime(row[5], format).date(),
+                        signingDate=datetime.strptime(row[5], "%d/%m/%Y").date(),
 
                         campaigns=list(
                             map(repository.getCampaignById, map(int, row[11].split("-")))),
@@ -55,7 +55,7 @@ def loadDecreeFromFiles(decreeFile: str):
                         treated=bool(int(row[13])),
                         missingData=row[14],
                         comment=row[15],
-                    )]
+                    ))
                     maxId = max(maxId, decrees[-1].id)
 
 
@@ -95,7 +95,7 @@ def addDecrees(decrees: list[Decree]):
         files.add(getFileName(d))
         _addDecree(d)
     for f in files:
-        saveDecreesToFile(getFileName(f))
+        saveDecreesToFile(f)
 
 
 def updateDecree(id: int, decree: Decree):
@@ -113,7 +113,7 @@ def saveDecreesToFile(decreeFile: str):
                "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire', "Données Manquantes"]
 
     try:
-        os.makedirs(decreeFile, exist_ok=True)
+        os.makedirs(os.path.dirname(decreeFile), exist_ok=True)
         with open(decreeFile, 'w', encoding='utf-8', newline='') as file:
             writerCsv = csv.writer(file)
             writerCsv.writerow(headers)

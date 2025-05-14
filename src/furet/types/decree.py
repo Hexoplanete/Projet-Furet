@@ -69,7 +69,7 @@ class Decree:
     campaigns: list[Campaign] = None
     topics: list[DecreeTopic] = None
     
-    missingData: bool = False
+    missingData: bool = True
 
     def toCsvLine(self):
         return [

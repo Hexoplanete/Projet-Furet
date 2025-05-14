@@ -189,7 +189,6 @@ class Processing:
             # Saves decree information in CSV format if and only if it is of interest
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
                 objectDecree.campaigns = self.getCampaignFromDecree(objectDecree) 
-                repository.addDecree(objectDecree) 
             
                 decrees.append(objectDecree)
         repository.addDecrees(decrees)
@@ -230,7 +229,6 @@ class Processing:
         for currentDecreeTopic in decree.topics :
             listeCampaignCurrentTopic = getCampaignFromTopic(currentDecreeTopic)
             campaignsDecree.update(listeCampaignCurrentTopic)
-            print(listeCampaignCurrentTopic)
 
         return list(campaignsDecree)
 

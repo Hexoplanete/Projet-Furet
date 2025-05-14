@@ -24,7 +24,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: formatDate(v)),                         # 0
             TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: formatDate(v + relativedelta(months=2))), # 1
             TableColumn[Department]("department", lambda: "Département"),                                                         # 2
-            TableColumn[Campaign]("campaigns", lambda: "Campagnes"),                                                              # 3
+            TableColumn[Campaign]("campaigns", lambda: "Campagnes", lambda v: ", ".join(map(str, v))),                                                              # 3
             TableColumn[list[DecreeTopic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),                         # 4
             TableColumn[str]("title", lambda: "Titre"),                                                                           # 5
             TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),                               # 6

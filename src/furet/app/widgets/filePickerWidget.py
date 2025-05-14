@@ -36,8 +36,8 @@ class FilePickerWidget(QtWidgets.QWidget):
                     self._fileEditText.setText("; ".join(filePaths[0]))
             case PickMode.Folder:
                 filePath = dialog.getExistingDirectory(None, "Choisir un dossier", self._path)
-        if filePath:
-            self._fileEditText.setText(filePath)
+                if filePath:
+                    self._fileEditText.setText(filePath)
     
     def setPath(self, path: str) -> str:
         self._fileEditText.setText(path)

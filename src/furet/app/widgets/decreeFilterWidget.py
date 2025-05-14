@@ -119,7 +119,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         if self._departementValue is not None and decree.department.id != self._departementValue.id: return False
         if self._stateValues is not None and decree.treated != self._stateValues: return False
         if self._stateValues is not None and decree.treated != self._stateValues: return False
-        if self._campaignValues is not None and self._campaignValues not in decree.campaigns: return False
+        # if self._campaignValues is not None and self._campaignValues not in decree.campaigns: return False
         if self._nameValue != "" and decree.title.lower().find(self._nameValue.lower()) == -1: return False
         if self._dateAfterValue is not None and decree.publicationDate < self._dateAfterValue: return False
         if self._dateBeforeValue is not None and decree.publicationDate > self._dateBeforeValue: return False

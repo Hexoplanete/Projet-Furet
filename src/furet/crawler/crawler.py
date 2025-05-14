@@ -97,39 +97,20 @@ class Crawler:
 
         return jsonList
     
-    def readLinkFile(self):
-        """
-        Reads the link file and returns the list of links.
-        """
-        rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-        linkFile = os.path.join(rootDir, "src", "furet", "crawler", "resultCrawler.json")
-        if os.path.exists(linkFile):
-            with open(linkFile, 'r') as f:
-                data = json.load(f)
-            return data["links"]
-        else:
-            return []
-
     def startCrawler(self):
         """
         Starts the crawling process by creating and starting spiders.
         This method is a wrapper around `createSpiders` and `startSpiders`.
         """
-        # Use an absolute path to ensure the file is found
-        # configFile = os.path.join(os.path.dirname(__file__), "configCrawler.json")
-        # if not os.path.exists(configFile):
-        #     raise FileNotFoundError(f"Config file not found: {configFile}")
-        # self.configFile = configFile
 
         self.configFile = ast.literal_eval(settings.value("crawler.config"))
 
-        linkFile = os.path.join(os.path.dirname(__file__), "resultCrawler.json")
+        linkFile = os.path.join(settings.value("crawler.result"), "resultCrawler.json")
         with open(linkFile, 'w') as f:
             json.dump({"links": []}, f, indent=4)
         self.linkFile = linkFile
-
+        
         self.createSpiders()  
         self.startSpiders()
-        # print(self.readLinkFile())
         print("All spiders have finished crawling.")
 

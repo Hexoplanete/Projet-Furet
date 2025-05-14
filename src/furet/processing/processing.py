@@ -6,6 +6,7 @@ from furet.repository import getTopics, getDepartmentById
 from furet.repository.csvdata import addArreteToFile, getCampaignFromTopic
 from furet.types.raa import RAA
 from furet.types.decree import *
+from furet import settings
 
 import subprocess
 import os
@@ -56,8 +57,7 @@ class Processing:
         """
         Reads the link file and returns the list of links.
         """
-        rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-        linkFile = os.path.join(rootDir, "src", "furet", "crawler", "resultCrawler.json")
+        linkFile = os.path.join(settings.value("crawler.result"), "resultCrawler.json")
         
         if os.path.exists(linkFile):
             with open(linkFile, 'r') as f:

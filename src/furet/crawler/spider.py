@@ -56,7 +56,6 @@ class Spider:
         try:
             data = ast.literal_eval(settings.value("crawler.config"))
             data["regions"][region]["departments"][department] = date.strftime("%d/%m/%Y")
-            test = str(data)
             settings.setValue("crawler.config", str(data))
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error writing to config file: {e}")

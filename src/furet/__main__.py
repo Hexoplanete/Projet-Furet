@@ -12,7 +12,7 @@ def main():
     crawler.setup()
     repository.setup()
 
-    repository.readAllArretesFromFiles()
+    repository.csvdata.readAllArretesFromFiles()
     
     app.main()
 

@@ -27,11 +27,8 @@ class Processing:
         # Folder where the RAW PDFs of the downloaded RAA will be stored (those whose links are obtained with the craxwler which are therefore the PDFs directly available on the prefecture websites)
         self.pdfDirectory_path = pdfDirectory_path
         
-        # Output folder where there are the outputs of each of the stages of the processing part
+        # Output folder where there are the outputs of each of the stages of the processing part, 
         self.outputProcessingSteps_path = outputProcessingSteps_path
-
-        # Folder of processing directory
-        self.pathProcessing = os.path.join(os.getcwd(), "src", "furet", "processing")
     
     def downloadPDF(self, url, outputPath):
         """
@@ -94,8 +91,9 @@ class Processing:
                 number="Non déterminé", # It's going to be in the characteristic extraction section
             )
 
-            rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-            raaSavePath = os.path.join(rootDir, "src", "furet", "processing", "input_RAA",f"{os.path.basename(raaUrl)}")
+            #rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+            #raaSavePath = os.path.join(rootDir, "src", "furet", "processing", "input_RAA",f"{os.path.basename(raaUrl)}")
+            raaSavePath = os.path.join(self.pdfDirectory_path,f"{os.path.basename(raaUrl)}")
             self.downloadPDF(raaUrl, raaSavePath)
             self.processingRAA(raaSavePath, raa)
 
@@ -103,11 +101,11 @@ class Processing:
         """ 
         Input : PDF corresponding to an RAA (RAA which was just downloaded from the links obtained by the crawler)
 
-        Reduce PDF quality using magick → Generates a new PDF in -> "output/after_magick/"
+        Reduce PDF quality using magick → Generates a new PDF in -> "self.outputProcessingSteps_path/after_magick/"
 
-        Perform OCR on the input PDF to generate a new "OCR-processed" PDF, meaning it's converted to text format → Generates a new OCR-processed PDF -> "output/after_ocr/"
+        Perform OCR on the input PDF to generate a new "OCR-processed" PDF, meaning it's converted to text format → Generates a new OCR-processed PDF -> "self.outputProcessingSteps_path/after_ocr/"
 
-        Split the RAA into decrees → Generates one PDF per decree from the RAA -> "output/after_split/{RAA_Name}/"
+        Split the RAA into decrees → Generates one PDF per decree from the RAA -> "self.outputProcessingSteps_path/after_split/{RAA_Name}/"
 
         Assign keywords to a decree
 
@@ -115,7 +113,7 @@ class Processing:
         """
 
         ## We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
-        directoryApresMagick = os.path.join(self.pathProcessing, "output", "apres_magick")
+        directoryApresMagick = os.path.join(self.outputProcessingSteps_path, "after_magick")
         os.makedirs(directoryApresMagick, exist_ok=True)
         pathApresMagick = os.path.join(directoryApresMagick, os.path.basename(inputPath))
 
@@ -134,7 +132,7 @@ class Processing:
 
         print("--------------------------------")
 
-        directoryApresOcr = os.path.join(self.pathProcessing, "output", "apres_ocr")
+        directoryApresOcr = os.path.join(self.outputProcessingSteps_path, "after_ocr")
         print(directoryApresOcr)
         os.makedirs(directoryApresOcr, exist_ok=True)
         pathApresOcr = os.path.join(directoryApresOcr, os.path.basename(inputPath))
@@ -148,7 +146,7 @@ class Processing:
         print("Start separation execution")
         basenameRAA = os.path.basename(inputPath).replace(".pdf","")
 
-        directoryApresSeparation = os.path.join(self.pathProcessing, "output", "apres_separation", basenameRAA)
+        directoryApresSeparation = os.path.join(self.outputProcessingSteps_path, "after_separation", basenameRAA)
         os.makedirs(directoryApresSeparation, exist_ok=True)
         pathApresSeparation = os.path.join(directoryApresSeparation, os.path.basename(inputPath))
 
@@ -158,7 +156,7 @@ class Processing:
 
         print("--------------------------------")
 
-        directoryApresMotClef = os.path.join(self.pathProcessing, "output", "apres_mot_cle", basenameRAA)
+        directoryApresMotClef = os.path.join(self.outputProcessingSteps_path, "after_mot_cle", basenameRAA)
         os.makedirs(directoryApresMotClef, exist_ok=True)
 
         print("Start execution of attribution keywords")

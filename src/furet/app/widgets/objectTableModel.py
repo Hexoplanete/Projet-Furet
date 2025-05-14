@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from PySide6 import QtCore
+from PySide6 import QtCore, QtGui
 
 from typing import Callable, TypeVar, Generic
 
@@ -34,6 +34,10 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             field = self._fields[index.column()]
             return field.format(getattr(self._data[index.row()], field.name))
+        elif role == QtCore.Qt.ForegroundRole:
+            if index.column() == 6:
+                field = self._fields[index.column()]
+                return QtGui.QColor("green") if getattr(self._data[index.row()], field.name) else QtGui.QColor("red")
 
     def rowCount(self, /, parent=...):
         return len(self._data)

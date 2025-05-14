@@ -147,22 +147,15 @@ class Traitement:
 
         print("Fin execution separation")
         
-        print("--------------------------------")
-
-        print("Starting base information extraction")
-
-        #TODO
-
-        print("End of base information extraction")
-
-        print("--------------------------------")
-
-        print("Début execution Assignation Keywords")
+        
 
         directory_apres_mot_clef = os.path.join(self.path_traitement, "output", "apres_mot_cle", basename_RAA)
         os.makedirs(directory_apres_mot_clef, exist_ok=True)
         
         for i in range (len(liste_chemin_objetDecree)):
+
+            print("--------------------------------")
+            print("Début execution Assignation Keywords")
 
             object_decree = liste_chemin_objetDecree[i][0]
             path_arrete = liste_chemin_objetDecree[i][1]
@@ -177,17 +170,40 @@ class Traitement:
             for label, id in dic_key_words.items():
                 topic = DecreeTopic(id=dic[label], label=label)
                 liste_decree_topic.append(topic)
+            
+            print("Fin execution Assignation Keywords")
+            print("--------------------------------")
+            
+            if liste_decree_topic: #If 1 or more relevant topics have been found in the decree
+               
+                print("Starting base information extraction")
 
-            object_decree.topic = liste_decree_topic
+                characteristics = extractDocumentCharacterisics(path_arrete)
 
-            addArreteToFile(object_decree) # Enregistre les informations de l'arreté sous format CSV
+                print("End of base information extraction")
+                print("--------------------------------")
+                print("Saving the decree")
+
+                object_decree.topic = liste_decree_topic
+                if characteristics is not None:
+                    object_decree.title = characteristics["Title"]
+                    object_decree.number = characteristics["Number"]
+
+                    if characteristics["Type"] is not None:
+                        object_decree.docType = getDocumentTypeById(characteristics["Type"])
+                
+                addArreteToFile(object_decree) # Enregistre les informations de l'arreté sous format CSV
+
+                print("Decree saved")
+
+                
 
             # self.save_keyWords_inFic(
             #     path_apres_mot_clef,
             #     dic_key_words
             # )
             
-        print("Fin execution Assignation Keywords")
+        
 
     def getDictLabelToId(self):
             liste_decree_topics = getTopics()

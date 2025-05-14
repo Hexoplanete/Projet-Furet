@@ -98,7 +98,7 @@ def updateTopic(id: int, topic: DecreeTopic):
     topic.id = id
     for i in range(len(topics)):
         if topics[i].id == topic.id:
-            topics[i].id = topic
+            topics[i] = topic
     saveTopicsToFile()
 
 

@@ -1,7 +1,8 @@
-from furet.traitement import getKeyWords
+from furet.traitement.getKeyWords import getKeyWords
 from furet.traitement.correspondenceNameNumberDepartment import departementsLabelToCode
 from furet.traitement.ocr import mainOcr
 from furet.traitement.separation import mainSeparation
+from furet.repository import getTopics, getDepartmentById, addArreteToFile
 from furet.types.raa import RAA
 from furet.types.decree import *
 

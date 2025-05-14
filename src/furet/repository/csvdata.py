@@ -253,15 +253,7 @@ def load():
     loadCampaignsFromFile(os.path.join(basePath, 'config/campaign.csv'), campaignList)
     loadDepartmentsFromFile(os.path.join(basePath, 'config/departments.csv'), departmentList)
     loadDocTypesFromFile(os.path.join(basePath, 'config/documentType.csv'), docTypeList)
-
-    # get all csvfiles from os
-    for root, dirs, files in os.walk(os.path.join(basePath, 'prefectures')):
-        for filename in files:
-            if filename.endswith(".csv"):
-                filepath = os.path.join(root, filename)
-                # mod_time = os.path.getmtime(filepath)  # timestamp de modification
-                loadArretesFromFile(filepath, allDecreeList)
-    # print(len(allDecreeList))
+    readAllArretesFromFiles()
 
 def addArreteToFile(arrete: Decree):
     # get the year and month

@@ -10,8 +10,9 @@ from furet.app.widgets.objectTableModel import singleRowEditableModel
 
 
 class SettingsWindow(QtWidgets.QDialog):
-    def __init__(self):
+    def __init__(self, mainWindow):
         super().__init__()
+        self._mainWindow = mainWindow
         self.setWindowTitle("Paramètres")
 
         self._rootLayout = QtWidgets.QVBoxLayout(self)
@@ -49,10 +50,10 @@ class SettingsWindow(QtWidgets.QDialog):
         
         def onCampaignChanged(topLeft, bottomRight, roles):
             for row in range(topLeft.row(), bottomRight.row() + 1):
-                campaign = repository.getCampaigns()[1:][row]
-                print(f"Modifié : ID={campaign.id}, Nouveau label='{campaign.label}'")
+                campaign = repository.getCampaigns()[row]
+                self._mainWindow.updateCampaignsComboBox()
 
-        self.modelCampaign = singleRowEditableModel(repository.getCampaigns()[1:], "Campagne")
+        self.modelCampaign = singleRowEditableModel(repository.getCampaigns(), "Campagne")
         self.modelCampaign.dataChanged.connect(onCampaignChanged)
         self.viewCampaign = QtWidgets.QTableView()
         self.viewCampaign.setModel(self.modelCampaign)
@@ -62,7 +63,7 @@ class SettingsWindow(QtWidgets.QDialog):
         def onTopicChanged(topLeft, bottomRight, roles):
             for row in range(topLeft.row(), bottomRight.row() + 1):
                 topic = repository.getTopics()[row]
-                print(f"Modifié : ID={topic.id}, Nouveau label='{topic.label}'")
+                self._mainWindow.updateTopicsComboBox()
 
         self.modelTopic = singleRowEditableModel(repository.getTopics(), "Sujet")
         self.modelTopic.dataChanged.connect(onTopicChanged)

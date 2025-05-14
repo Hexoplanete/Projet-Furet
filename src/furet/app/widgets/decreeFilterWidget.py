@@ -144,3 +144,27 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     
     def onClickUnselectTopic(self):
         self._topic.unselectAllItems()
+
+    def updateTopicsComboBox(self):
+        self._topic.blockSignals(True)
+        isChecked = []
+        for i in range(self._topic.length()):
+            isChecked.append(self._topic.isChecked(i))
+        while self._topic.length():
+            self._topic.removeItem(1)
+        i = 0
+        for t in repository.getTopics():
+            self._topic.addItem(str(t), userData = t)
+            self._topic.setSelectedIndex(i, isChecked[i])
+            i += 1
+        self._topic.blockSignals(False)
+
+    def updateCampaignsComboBox(self):
+        self._campaign.blockSignals(True)
+        index = self._campaign.currentIndex()
+        self._campaign.clear()
+        self._campaign.addItem("Toutes les campagnes", None)
+        for c in repository.getCampaigns():
+            self._campaign.addItem(str(c), c)
+        self._campaign.setCurrentIndex(index)
+        self._campaign.blockSignals(False)

@@ -53,8 +53,6 @@ def mainSeparation(inputPath, outputDir, raa):
 
                 documenType = repository.getDocumentTypeById(1)
 
-                campaign = repository.getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
-
                 decree = Decree(
                         id=arreteId,
                         department=raa.department,
@@ -67,7 +65,6 @@ def mainSeparation(inputPath, outputDir, raa):
                         publicationDate=raa.publicationDate,
                         docType = documenType,
                         signingDate = date(2025, 5, 12),
-                        campaign = campaign
                 )
 
                 current = []

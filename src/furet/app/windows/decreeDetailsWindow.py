@@ -86,7 +86,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         decreeForm = addSection("Informations supplémentaires")
 
         self._campaign = buildComboBox(
-            repository.getCampaigns(), decree.campaign)
+            repository.getCampaigns(), decree.campaigns)
         addFormRow(decreeForm, "Campagne", self._campaign)
 
         topicWidget = QtWidgets.QWidget()
@@ -136,8 +136,8 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
             link=self._decree.link,
             startPage=int(self._pagesStart.text()),
             endPage=int(self._pagesEnd.text()),
-            campaign=self._campaign.currentData(),
-            topic=self._topic.currentData(),
+            campaigns=self._campaign.currentData(),
+            topics=self._topic.currentData(),
             treated=self._treated.isChecked(),
             comment=self._comment.toPlainText(),
         )

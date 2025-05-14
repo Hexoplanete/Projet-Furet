@@ -228,8 +228,8 @@ def setup():
         fileContent = [
                         ['label', 'value'],
                         ['decree', 1],
-                        ['campaign',5],
-                        ['topic',44]
+                        ['campaigns',5],
+                        ['topics',44]
                     ]
         with open(os.path.join(basePath, 'config/lastId.csv'), 'w', encoding='utf-8', newline='') as file:
             writerCsv = csv.writer(file)
@@ -331,9 +331,9 @@ def loadArretesFromFile(path: str, listArretes: list[Decree]) -> list[Decree]:
                         id=int(row[0]), department=repository.getDepartmentById(int(row[1])), docType=repository.getDocumentTypeById(int(row[2])),
                         number=row[3], title=row[4], signingDate=datetime.strptime(row[5], format).date(), raaNumber=row[6],
                         publicationDate=datetime.strptime(row[7], format).date(), link=row[8], startPage=int(row[9]),
-                        endPage=int(row[10]), campaign=repository.getCampaignById(int(row[11])),
-                        topic=list(
-                            map(repository.getTopicById, map(int, row[12].split("-")))),
+                        endPage=int(row[10]),
+                        campaigns=list(map(repository.getCampaignById, map(int, row[11].split("-")))),
+                        topics=list(map(repository.getTopicById, map(int, row[12].split("-")))),
                         treated=bool(int(row[13])), comment=row[14]
                     )
                     listArretes.append(aa)

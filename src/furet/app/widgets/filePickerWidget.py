@@ -10,7 +10,7 @@ class FilePickerWidget(QtWidgets.QWidget):
     def __init__(self, path: str = None, parent: QtWidgets.QWidget = None, /, pickMode: PickMode = PickMode.File, onDataChange = None):
         super().__init__(parent)
 
-        self._path = path if os.path.exists(path) else QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.HomeLocation)
+        self._path = path if path is not None and os.path.exists(path) else QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.HomeLocation)
         self._pickMode = pickMode
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(0,0,0,0)

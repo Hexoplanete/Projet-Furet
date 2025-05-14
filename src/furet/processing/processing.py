@@ -187,7 +187,7 @@ class Processing:
 
             # Saves decree information in CSV format if and only if it is of interest
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
-                #objectDecree.campaign = self.getCampaignFromDecree(objectDecree) # A decommenter après corentin
+                objectDecree.campaigns = self.getCampaignFromDecree(objectDecree) # A decommenter après corentin
                 addArreteToFile(objectDecree) 
             
         print("End execution of attribution keywords")

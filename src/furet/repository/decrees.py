@@ -82,6 +82,8 @@ def addDecree(decree: Decree):
     maxId = maxId+1
     decree.id = maxId
     decreeFile = getFileName(decree)
+    if not decreeFile in decreesPerFile:
+        decreesPerFile[decreeFile] = []
     decreesPerFile[decreeFile].append(decree)
     saveDecreesToFile(decreeFile)
 

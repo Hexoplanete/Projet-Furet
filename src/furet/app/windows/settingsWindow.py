@@ -1,6 +1,7 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import settings
+from furet.app.widgets.filePickerWidget import FilePickerWidget, PickMode
 from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
 from furet.app.utils import addFormRow
 
@@ -38,3 +39,7 @@ class SettingsWindow(QtWidgets.QDialog):
         self.expired.setChecked(settings.value("app.filter-expired"))
         self.expired.stateChanged.connect(lambda v: settings.setValue("app.filter-expired", bool(v)))
         addFormRow(form, "Filter les arrêtés expirés", self.expired, "Filter automatiquement les arrêtés de plus de 2 mois lors du lancement de l'application")
+
+        form = addSection("Stockage")
+        self.csvRoot = FilePickerWidget(settings.value("repository.csv-root"), pickMode=PickMode.Folder, onDataChange=lambda p: settings.setValue("repository.csv-root", p))
+        addFormRow(form, "Dossier de stockage des arrêtés", self.csvRoot, "Le dossier où sont enregistrées les données des arrêtés")

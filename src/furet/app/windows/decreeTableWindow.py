@@ -116,5 +116,4 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             self._importFileWindow.activateWindow()
 
     def onClickDocButton(self):
-        print(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")

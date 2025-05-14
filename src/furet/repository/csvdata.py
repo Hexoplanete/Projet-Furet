@@ -5,6 +5,8 @@ import csv
 from datetime import datetime
 from furet import repository, settings
 
+from PySide6 import QtCore
+
 format = '%d/%m/%Y'
 allDecreeList = []
 campaignList = []
@@ -12,12 +14,16 @@ topicList = []
 departmentList = []
 docTypeList = []
 
-ROOT_KEY = "repository.csv.root"
+ROOT_KEY = "repository.csv-root"
 def setup():
-    settings.setDefaultValue(ROOT_KEY,  "database")
+    settings.setDefaultValue(ROOT_KEY,  QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
 
     basePath = settings.value(ROOT_KEY)    
     # create folder 'prefectures' if the database doesn't exists
+    if not os.path.exists(basePath):
+        settings.setValue(ROOT_KEY, QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
+        basePath = settings.value(ROOT_KEY)    
+
     if not os.path.exists(os.path.join(basePath, 'prefectures')):
         os.makedirs(os.path.join(basePath, 'prefectures'))
     # create folder 'config' if the database doesn't exists
@@ -230,6 +236,7 @@ def setup():
 
 def readAllArretesFromFiles():
    #Separate function from setup because setup must be called before processing (information required for processing is retrieved during setup) and processing adds new decrees!
+    allDecreeList.clear()
     basePath = settings.value(ROOT_KEY)
     for root, dirs, files in os.walk(basePath + '/prefectures/'):
         for filename in files:
@@ -307,6 +314,7 @@ def updateDecree(id: int, decree: Decree):
     except Exception as e:
                 print(f"Erreur de lecture de fichier {fullPath}")
                 print(f"Erreur : {e}")
+    readAllArretesFromFiles()
 
 
 def loadArretesFromFile(path: str, listArretes: list[Decree]) -> list[Decree]:

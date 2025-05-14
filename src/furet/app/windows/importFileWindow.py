@@ -2,7 +2,7 @@ from PySide6 import QtWidgets, QtCore
 
 import os
 from datetime import date
-from furet.app.utils import buildComboBox, buildDatePicker
+from furet.app.utils import addFormRow, buildComboBox, buildDatePicker
 from furet.app.widgets.filePickerWidget import FilePickerWidget
 from furet import repository
 from furet.types.raa import RAA
@@ -17,19 +17,19 @@ class ImportFileWindow(QtWidgets.QDialog):
         decreeForm = QtWidgets.QFormLayout()
         
         self._filePicker = FilePickerWidget(onDataChange=self.onValueChange)
-        decreeForm.addRow("Choisir un fichier :", self._filePicker)
+        addFormRow(decreeForm, "Choisir un fichier", self._filePicker)
 
         self._URLRecueil = QtWidgets.QLineEdit()
         self._URLRecueil.textChanged.connect(self.onValueChange)
-        decreeForm.addRow("Indiquer l'URL du recueil (Ex: https//...) :", self._URLRecueil)
+        addFormRow(decreeForm, "Indiquer l'URL du recueil (Ex: https//...)", self._URLRecueil)
 
         self._department = buildComboBox(repository.getDepartments(), None, ("Choisir un département", None))
         self._department.editTextChanged.connect(self.onValueChange)
-        decreeForm.addRow("Indiquer le département :", self._department)
+        addFormRow(decreeForm, "Indiquer le département", self._department)
         
         self._pubDate = buildDatePicker(date.today())
         self._pubDate.dateChanged.connect(self.onValueChange)
-        decreeForm.addRow("Indiquer la date de publication :", self._pubDate)
+        addFormRow(decreeForm, "Indiquer la date de publication", self._pubDate)
 
         self._rootLayout.addLayout(decreeForm)
 

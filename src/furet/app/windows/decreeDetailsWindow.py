@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import repository
-from furet.app.utils import buildComboBox, buildDatePicker, buildMultiComboBox
+from furet.app.utils import addFormRow, buildComboBox, buildDatePicker, buildMultiComboBox
 from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
 from furet.app.widgets.elidedLabel import ElidedLabel
 from furet.types.decree import Decree
@@ -32,42 +32,42 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         decreeForm = addSection("Arrêté")
 
         self._decreeTitle = QtWidgets.QLineEdit(decree.title)
-        decreeForm.addRow("Titre", self._decreeTitle)
+        addFormRow(decreeForm, "Titre", self._decreeTitle)
 
         self._decreeNumber = QtWidgets.QLineEdit(decree.number)
-        decreeForm.addRow("N° de l'arrêté", self._decreeNumber)
+        addFormRow(decreeForm, "N° de l'arrêté", self._decreeNumber)
 
         self._docType = QtWidgets.QComboBox()
         self._docType = buildComboBox(repository.getDocumentTypes(), decree.docType)
-        decreeForm.addRow("Type de document", self._docType)
+        addFormRow(decreeForm, "Type de document", self._docType)
 
 
         self._signingDate = buildDatePicker(decree.signingDate)
-        decreeForm.addRow("Date de signature", self._signingDate)
+        addFormRow(decreeForm, "Date de signature", self._signingDate)
         
         self._expireDate = buildDatePicker(decree.publicationDate + relativedelta(months=2))
         self._expireDate.setDisabled(True)
-        decreeForm.addRow("Date d'expiration", self._expireDate)
+        addFormRow(decreeForm, "Date d'expiration", self._expireDate)
 
         # RAA
         decreeForm = addSection("Recueil")
         self._department = buildComboBox(
             repository.getDepartments(), decree.department)
         self._department.setDisabled(True)
-        decreeForm.addRow("Département", self._department)
+        addFormRow(decreeForm, "Département", self._department)
 
         self._publicationDate = buildDatePicker(decree.publicationDate)
         self._publicationDate.setDisabled(True)
-        decreeForm.addRow("Date de publication", self._publicationDate)
+        addFormRow(decreeForm, "Date de publication", self._publicationDate)
         
         label = ElidedLabel(decree.link)
         label.setMinimumWidth(0)
         label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
         label.setOpenExternalLinks(True)
-        decreeForm.addRow("Lien", label)
+        addFormRow(decreeForm, "Lien", label)
 
         self._raaNumber = QtWidgets.QLineEdit(decree.raaNumber)
-        decreeForm.addRow("Numéro RAA", self._raaNumber)
+        addFormRow(decreeForm, "Numéro RAA", self._raaNumber)
 
         pagesRange = QtWidgets.QWidget()
         pagesLayout = QtWidgets.QHBoxLayout(pagesRange)
@@ -79,7 +79,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         pagesLayout.addWidget(self._pagesStart)
         pagesLayout.addWidget(pagesSep)
         pagesLayout.addWidget(self._pagesEnd)
-        decreeForm.addRow("Pages", pagesRange)
+        addFormRow(decreeForm, "Pages", pagesRange)
         pagesLayout.setContentsMargins(0, 0, 0, 0)
 
         # ASPAS specific
@@ -87,14 +87,14 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
 
         self._campaign = buildComboBox(
             repository.getCampaigns(), decree.campaign)
-        decreeForm.addRow("Campagne", self._campaign)
+        addFormRow(decreeForm, "Campagne", self._campaign)
 
         self._topic = buildMultiComboBox(repository.getTopics(), decree.topic)
-        decreeForm.addRow("Sujet", self._topic)
+        addFormRow(decreeForm, "Sujet", self._topic)
 
         self._treated = QtWidgets.QCheckBox("", )
         self._treated.setChecked(decree.treated)
-        decreeForm.addRow("Traité", self._treated)
+        addFormRow(decreeForm, "Traité", self._treated)
 
         commentSep = QtWidgets.QLabel("Commentaire")
         self._rootLayout.addWidget(commentSep)

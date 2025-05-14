@@ -47,6 +47,10 @@ def mainSeparation(inputPath, outputDir, raa):
                 else:
                         end = pageStartNumbers[i+1] - 1 # -2 because page_start_numbers[i+1] is the start of the next content, -1 is its cover page, -2 is the end of the current
 
+                # The text of the decree is extracted  
+                # Change extract text so that it returns a dictionary like that when we retrieve all the text before, we don't have to do it again there!
+                #decreeTextContent = extractText(inputPath, start_page=start-1, end_page=end-1)
+
                 # Creation of the Decree object
 
                 arreteId = 1 # Deleted after merge
@@ -66,7 +70,8 @@ def mainSeparation(inputPath, outputDir, raa):
                         publicationDate=raa.publicationDate,
                         docType = documentType,
                         signingDate = date(1900, 1, 1),       # We don't know raaNumber at this time (it's in extract characteristics)
-                        campaign = campaign
+                        campaign = campaign,
+                        #text_content = decreeTextContent
                 )
 
                 current = []

@@ -21,19 +21,20 @@ def mainSeparation(inputPath, outputDir, raa):
 
         nbPages = len(doc)
 
-        fullText = ""
+        raaTextContent = ""
         for page in doc:
-                fullText += page.get_text()
+                raaTextContent += page.get_text()
 
-        print(nbPages)
-        print("-----------")
+        # print(nbPages)
+        # print("-----------")
 
-        # Artificial replacement of "s" and "S" by 5 due to poor OCR recognition!!!!!!
-        fullText = fullText.replace("s","5")
-        fullText = fullText.replace("S","5")
+        # Artificial replacement of "s" and "S" by 5 due to poor OCR recognition!!!!!! 
+        # The separation is made with the summary of the decree (page numbers) in it so it is absolutely necessary that the numbers are correct!!!
+        raaTextContent = raaTextContent.replace("s","5")
+        raaTextContent = raaTextContent.replace("S","5")
 
         # Extract
-        pages = re.findall(r'Page\s+(\d+)', fullText, flags=re.IGNORECASE)
+        pages = re.findall(r'Page\s+(\d+)', raaTextContent, flags=re.IGNORECASE)
         pageStartNumbers = [int(p) for p in pages] 
 
         listeCheminObjetDecree = []
@@ -63,7 +64,7 @@ def mainSeparation(inputPath, outputDir, raa):
                         treated=False,
                         comment="0",
                         publicationDate=raa.publicationDate,
-                        docType = documenType,
+                        docType = documentType,
                         signingDate = date(1900, 1, 1),       # We don't know raaNumber at this time (it's in extract characteristics)
                         campaign = campaign
                 )

@@ -57,7 +57,7 @@ def mainSeparation(inputPath, outputDir, raa):
                 arreteId = 1 # Deleted after merge
                 #arreteId = updateIdFile("decree")
 
-                documenType = repository.getDocumentTypeById(1)
+                documentType = repository.getDocumentTypeById(1)
 
                 campaign = repository.getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
 

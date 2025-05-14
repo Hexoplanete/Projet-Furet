@@ -10,8 +10,8 @@ def main():
 
     settings.setup()
     app.setup()
-    crawler.setup()
     repository.setup()
+    crawler.setup()
     repository.csvdata.readAllArretesFromFiles()
     app.main()
     pass

@@ -31,3 +31,7 @@ python -m spacy download fr_core_news_sm
 Magick : https://imagemagick.org/archive/binaries/ImageMagick-7.1.1-47-Q16-HDRI-x64-dll.exe (Réduit la qualité des images -> Nécessaire pour prétraitement avant OCR !)
 GhostScript : https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10051/gs10051w64.exe (Requirements direct de la bibliothèque OCR utilisée )
 Tesseract : https://github.com/tesseract-ocr/tesseract/releases/download/5.5.0/tesseract-ocr-w64-setup-5.5.0.20241111.exe (Requirements direct de la bibliothèque OCR utilisée )
+
+# Path .config sur
+
+C:\Users\thoth\AppData\Roaming\Hexoplanete\FURET.ini

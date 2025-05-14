@@ -99,6 +99,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._unselectTopic = QtWidgets.QPushButton('X')
         self._unselectTopic.setFixedSize(20,20)
         self._unselectTopic.setContentsMargins(0,0,0,0)
+        self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
         self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
         topicLayout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignLeft)
         addFormRow(decreeForm, "Sujet", topicWidget)

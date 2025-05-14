@@ -227,7 +227,7 @@ def setup():
     if not os.path.isfile(os.path.join(basePath, 'config/lastId.csv')):     
         fileContent = [
                         ['label', 'value'],
-                        ['decree', 1000],
+                        ['decree', 1],
                         ['campaign',5],
                         ['topic',44]
                     ]
@@ -348,6 +348,7 @@ def loadArretesFromFile(path: str, listArretes: list[Decree]) -> list[Decree]:
 
 
 def loadCampaignsFromFile(path: str, listCampaigns: list[Campaign]) -> list[Campaign]:
+    listCampaigns.clear()
     try: 
         with open(path, encoding='utf-8') as file:
             reader = csv.reader(file, delimiter=',')
@@ -393,6 +394,7 @@ def loadDepartmentsFromFile(path: str, listDepartments: list[Department]) -> lis
 
 
 def loadTopicsFromFile(path: str, listTopics: list[DecreeTopic]) -> list[DecreeTopic]:
+    listTopics.clear()
     try: 
         with open(path, encoding='utf-8') as file:
             reader = csv.reader(file, delimiter=',')
@@ -445,6 +447,7 @@ def addTopic(top :DecreeTopic):
     except Exception as e:
         print(f"Erreur de modification de fichier")
         print(f"Erreur : {e}")
+    loadTopicsFromFile()
 
 def addCampaign(camp :Campaign): 
     basePath = settings.value(ROOT_KEY)
@@ -460,6 +463,7 @@ def addCampaign(camp :Campaign):
     except Exception as e:
         print(f"Erreur de modification de fichier")
         print(f"Erreur : {e}")
+    loadCampaignsFromFile()
 
 def addTopicToCampaign(top: DecreeTopic, camp : Campaign):
     basePath = settings.value(ROOT_KEY)
@@ -493,6 +497,7 @@ def addTopicToCampaign(top: DecreeTopic, camp : Campaign):
     except Exception as e:
                 print(f"Erreur de lecture de fichier {fullPath}")
                 print(f"Erreur : {e}")
+    loadCampaignsFromFile()
 
 def updateIdFile(attr: str) -> int:
     # update decree data in csv file

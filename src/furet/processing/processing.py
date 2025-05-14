@@ -34,7 +34,7 @@ class Processing:
         self.outputProcessingSteps_path = outputProcessingSteps_path
 
         # Folder of processing directory
-        self.pathTraitement = os.path.join(os.getcwd(), "src", "furet", "processing")
+        self.pathProcessing = os.path.join(os.getcwd(), "src", "furet", "processing")
     
     def downloadPDF(self, url, outputPath):
         """
@@ -70,7 +70,7 @@ class Processing:
         else:
             return []
     
-    def startTraitement(self):
+    def startProcessing(self):
         """ 
             Function that is Input to the Processing Framework
             Retrieves information provided by the crawler for each RAA crawled : url, datePublication, departement (Creates a corresponding RAA object)
@@ -118,7 +118,7 @@ class Processing:
         """
 
         ## We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
-        directoryApresMagick = os.path.join(self.pathTraitement, "output", "apres_magick")
+        directoryApresMagick = os.path.join(self.pathProcessing, "output", "apres_magick")
         os.makedirs(directoryApresMagick, exist_ok=True)
         pathApresMagick = os.path.join(directoryApresMagick, os.path.basename(inputPath))
 
@@ -137,7 +137,7 @@ class Processing:
 
         print("--------------------------------")
 
-        directoryApresOcr = os.path.join(self.pathTraitement, "output", "apres_ocr")
+        directoryApresOcr = os.path.join(self.pathProcessing, "output", "apres_ocr")
         print(directoryApresOcr)
         os.makedirs(directoryApresOcr, exist_ok=True)
         pathApresOcr = os.path.join(directoryApresOcr, os.path.basename(inputPath))
@@ -151,7 +151,7 @@ class Processing:
         print("Start separation execution")
         basenameRAA = os.path.basename(inputPath).replace(".pdf","")
 
-        directoryApresSeparation = os.path.join(self.pathTraitement, "output", "apres_separation", basenameRAA)
+        directoryApresSeparation = os.path.join(self.pathProcessing, "output", "apres_separation", basenameRAA)
         os.makedirs(directoryApresSeparation, exist_ok=True)
         pathApresSeparation = os.path.join(directoryApresSeparation, os.path.basename(inputPath))
 
@@ -161,7 +161,7 @@ class Processing:
 
         print("--------------------------------")
 
-        directoryApresMotClef = os.path.join(self.pathTraitement, "output", "apres_mot_cle", basenameRAA)
+        directoryApresMotClef = os.path.join(self.pathProcessing, "output", "apres_mot_cle", basenameRAA)
         os.makedirs(directoryApresMotClef, exist_ok=True)
 
         print("Start execution of attribution keywords")

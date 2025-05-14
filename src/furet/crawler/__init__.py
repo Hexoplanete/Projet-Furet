@@ -12,7 +12,3 @@ def init():
     crawler_thread.join()
     end_time = time.time()
     print(f"Total execution time: {end_time - start_time:.2f} seconds")
-
-    # processing = Traitement()
-    # processing_thread = threading.Thread(target=processing.startTraitement)
-    # processing_thread.start()

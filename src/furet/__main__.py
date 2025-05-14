@@ -22,7 +22,7 @@ def main():
     paramOutputProcessingSteps_path = os.path.join(os.getcwd(), "database", "debug", "processingSteps") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
 
     processing = Processing(pdfDirectory_path=paramPdfStorageDirectory_path, outputProcessingSteps_path=paramOutputProcessingSteps_path)
-    processing_thread = threading.Thread(target=processing.startTraitement)
+    processing_thread = threading.Thread(target=processing.startProcessing)
     processing_thread.start()
     processing_thread.join()
 

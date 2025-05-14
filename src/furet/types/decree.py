@@ -45,7 +45,7 @@ class Decree:
 
     # Decree Obligatoire
     treated: bool
-    text_content : str
+    #text_content : str
 
     # RAA facultatif
     raaNumber: str = "0"

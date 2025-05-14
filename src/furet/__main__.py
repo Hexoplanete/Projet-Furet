@@ -1,37 +1,20 @@
 from PySide6.QtWidgets import QApplication
-from . import settings, app
-from furet import repository, crawler
+from furet import repository, app, crawler, settings
 
-import threading
-from furet.processing.processing import Processing
-import os
-
-#from datetime import datetime
 
 def main():
-    QApplication.setApplicationName("Fouille Universelle de Recueils pour Entreposage et Traitement")
+    QApplication.setApplicationName("FURET")
+    QApplication.setApplicationDisplayName("Fouille Universelle de Recueils pour Entreposage et Traitement")
     QApplication.setOrganizationDomain("github.com/Hexoplanete/Projet-Furet/")
-    QApplication.setOrganizationName("Hexoplanète")
+    QApplication.setOrganizationName("Hexoplanete")
 
     settings.setup()
     app.setup()
-    crawler.init()
-    repository.setup()  
-    
-    paramPdfStorageDirectory_path = os.path.join(os.getcwd(), "database", "pdfDirectory") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
-    paramOutputProcessingSteps_path = os.path.join(os.getcwd(), "database", "debug", "processingSteps") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
-
-    os.makedirs(paramPdfStorageDirectory_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 
-    os.makedirs(paramOutputProcessingSteps_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 
-
-    processing = Processing(pdfDirectory_path=paramPdfStorageDirectory_path, outputProcessingSteps_path=paramOutputProcessingSteps_path)
-    processing_thread = threading.Thread(target=processing.startProcessing)
-    processing_thread.start()
-    processing_thread.join()
-
-    repository.readAllArretesFromFiles()
-    
+    crawler.setup()
+    repository.setup()
+    repository.csvdata.readAllArretesFromFiles()
     app.main()
+    pass
 
 if __name__ == '__main__':
     main()

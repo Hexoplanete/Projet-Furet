@@ -1,8 +1,6 @@
-import argparse
 import spacy
-import os
 
-from furet.processing.getPdfText import *
+from furet.traitement.getPdfText import extractText
 
 nlp = spacy.load("fr_core_news_sm") # Loading french language of SpaCy's model
 

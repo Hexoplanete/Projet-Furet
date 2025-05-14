@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from furet import repository
 from furet.app.utils import formatDate
 from furet.types.decree import *
@@ -8,6 +8,7 @@ from furet.app.widgets.objectTableModel import ObjectTableModel, TableColumn
 from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
 from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
 from furet.app.windows.settingsWindow import SettingsWindow
+from furet.app.windows.importFileWindow import ImportFileWindow
 from furet.types.department import Department
 
 
@@ -32,17 +33,32 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         ]
         self._decrees = ObjectTableModel(repository.getDecrees(), self._columns)
 
-        self._topBar = QtWidgets.QHBoxLayout()
+        self._topBar = QtWidgets.QVBoxLayout()
+        self._topBar.setContentsMargins(0,0,0,0)
+        self._buttonLayer = QtWidgets.QHBoxLayout()
+        self._buttonLayer.setContentsMargins(0,0,0,0)
         self._layout.addLayout(self._topBar)
+        
+        self._fileButton = QtWidgets.QPushButton('Importer un recueil')
+        self._fileButton.clicked.connect(self.onClickImportButton)
+        self._buttonLayer.addWidget(self._fileButton)
+
+        self._buttonLayer.addStretch()
+
+        self._docButton = QtWidgets.QPushButton('Documentation')
+        self._docButton.clicked.connect(self.onClickDocButton)
+        self._buttonLayer.addWidget(self._docButton)           
+        
+        self._paramButton = QtWidgets.QPushButton('Paramètres')
+        self._paramButton.clicked.connect(self.onClickParamButton)
+        self._buttonLayer.addWidget(self._paramButton)
+        
+        self._topBar.addLayout(self._buttonLayer)
 
         self._filters = DecreeFilterWidget()
         self._filters.setModel(self._decrees)
         self._topBar.addWidget(self._filters)
-        
-        self._paramButton = QtWidgets.QPushButton('Paramètres')
-        self._paramButton.clicked.connect(self.onClickParamButton)
-        self._topBar.addWidget(self._paramButton)
-        
+
         self._table = QtWidgets.QTableView()
         self._table.setModel(self._filters.proxyModel())
         self._layout.addWidget(self._table, 1)
@@ -59,6 +75,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
 
         self._paramWindow: SettingsWindow = None
+        self._importFileWindow: ImportFileWindow = None
         self._decreeDetailWindows: dict[int, DecreeDetailsWindow] = {}
 
     def closeEvent(self, event):
@@ -77,17 +94,26 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         id = decree.id
         def onDecreeSaved():
             repository.updateDecree(id, self._decreeDetailWindows[decree.id].decree())
-            self._decrees.setItemAt(source_index.row(), self._decreeDetailWindows[decree.id].decree())
+            self._decrees.resetData(repository.getDecrees())
 
         if decree.id not in self._decreeDetailWindows or not(self._decreeDetailWindows[decree.id].isVisible()):
             self._decreeDetailWindows[decree.id] = DecreeDetailsWindow(decree)
             self._decreeDetailWindows[decree.id].show()
+            self._decreeDetailWindows[decree.id]._returnButton.setFocus()
             self._decreeDetailWindows[decree.id].accepted.connect(onDecreeSaved)
         else:
             self._decreeDetailWindows[decree.id].activateWindow()
 
-    # def resizeEvent(self, event):
-    #     newSize = event.size()
-    #     tableWidth = self._table.viewport().width()
-    #     print(f"Fenêtre redimensionnée : {newSize.width()} x {new_size.height()}")
-    #     super().resizeEvent(event)  # Important pour ne pas bloquer le comportement par défaut
+    def onClickImportButton(self):
+        def onImportDone():
+            self._decrees.resetData(repository.getDecrees())
+
+        if self._importFileWindow == None or not(self._importFileWindow.isVisible()):
+            self._importFileWindow = ImportFileWindow()
+            self._importFileWindow.show()
+            self._importFileWindow.accepted.connect(onImportDone)
+        else:
+            self._importFileWindow.activateWindow()
+
+    def onClickDocButton(self):
+        QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")

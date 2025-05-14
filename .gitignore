@@ -4,6 +4,7 @@ __pycache__
 .python-version
 .idea
 dist
+build
 resultCrawler.json
 database/debug/**
 database/pdfDirectory/**

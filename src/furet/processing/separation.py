@@ -1,14 +1,12 @@
+from furet import repository
 from furet.types.decree import *
-from database.config import *
-from furet.repository import * 
-from furet.processing.getPdfText import *
+from furet.processing.getPdfText import extractText
 from datetime import date
 
 import fitz 
 import re
 from datetime import datetime
 import os
-import sys
 
 def mainSeparation(inputPath, outputDir, raa):
         now = datetime.now()
@@ -59,9 +57,9 @@ def mainSeparation(inputPath, outputDir, raa):
                 arreteId = 1 # Deleted after merge
                 #arreteId = updateIdFile("decree")
 
-                documentType = getDocumentTypeById(1)
+                documenType = repository.getDocumentTypeById(1)
 
-                campaign = getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
+                campaign = repository.getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
 
                 decree = Decree(
                         id=arreteId,

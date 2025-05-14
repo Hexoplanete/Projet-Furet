@@ -1,11 +1,8 @@
 from datetime import date
 from typing import Optional
-from typing import Dict
 
 from furet.types.base import dbclass
 from furet.types.department import Department
-from furet.types.raa import RAA
-from furet.repository import *
 
 @dbclass
 class DocumentType:
@@ -23,14 +20,22 @@ class DecreeTopic:
 
     def __str__(self):
         return self.label
+    
+    def toCsvLine(self):
+        return [self.id, self.label]
 
 @dbclass
 class Campaign:
     id: int
     label: str
+    topicList: list[DecreeTopic]
 
     def __str__(self):
         return self.label
+    
+    def toCsvLine(self):
+        topList = "-".join(map(lambda t: str(t.id),self.topicList))
+        return [self.id, self.label, topList]
 
 @dbclass
 class Decree:

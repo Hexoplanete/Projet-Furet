@@ -11,6 +11,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self._layout = QtWidgets.QHBoxLayout(self)
+        self._layout.setContentsMargins(0,0,0,0)
 
         self._proxy = ObjectFilterProxy[Decree](filterer=self.filterDecrees)
         
@@ -69,12 +70,12 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def _addTreatedFilter(self):
         self._state = QtWidgets.QComboBox()
         self._state.setEditable(True)
-        self._state.addItem("Choisir un status", None)
+        self._state.addItem("Choisir un statut", None)
         self._state.addItem("Traité", True)
         self._state.addItem("Non traité", False)
-        self._state.setCurrentIndex(2 if settings.value("app.filters.treatedOnly") else 0)
-        self._dateAfterToggle.setChecked(settings.value("app.filters.notExpired"))
-        self._dateBeforeToggle.setChecked(settings.value("app.filters.notExpired"))
+        self._state.setCurrentIndex(2 if settings.value("app.filter-treated") else 0)
+        self._dateAfterToggle.setChecked(settings.value("app.filter-expired"))
+        self._dateBeforeToggle.setChecked(settings.value("app.filter-expired"))
         self.syncDateFilterLabel()
         self._layout.addWidget(self._state)
 

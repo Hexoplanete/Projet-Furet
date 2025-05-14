@@ -62,7 +62,7 @@ class Decree:
     title: Optional[str] = None
     signingDate: Optional[date] = None
 
-    campaign: Optional[Campaign] = None
+    campaign: list[Campaign] = None
     topic: list[DecreeTopic] = None
 
     def toCsvLine(self):

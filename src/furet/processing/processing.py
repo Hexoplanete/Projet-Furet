@@ -3,7 +3,7 @@ from furet.processing.correspondenceNameNumberDepartment import departementsLabe
 from furet.processing.ocr import mainOcr
 from furet.processing.separation import mainSeparation
 from furet.repository import getTopics, getDepartmentById
-from furet.repository.csvdata import addArreteToFile
+from furet.repository.csvdata import addArreteToFile, getCampaignFromTopic
 from furet.types.raa import RAA
 from furet.types.decree import *
 
@@ -184,9 +184,10 @@ class Processing:
             # Check if the decree is really interesting
             # For example, if there is only "armes" the bylaw is VERY unlikely to be of interest.
             boolIsArreteProbablyFalsePositive = self.isArreteProbablyFalsePositive(listeDecreeTopic)
-            
+
             # Saves decree information in CSV format if and only if it is of interest
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
+                #objectDecree.campaign = self.getCampaignFromDecree(objectDecree) # A decommenter après corentin
                 addArreteToFile(objectDecree) 
             
         print("End execution of attribution keywords")
@@ -215,3 +216,23 @@ class Processing:
                 return True
             
         return False
+    
+    def getCampaignFromDecree(self, decree):
+        """
+        Takes a decree as input and returns the list of objects campaigns that match the associated keywords
+        """
+
+        campaignsDecree = set()
+
+        for currentDecreeTopic in decree.topic :
+            listeCampaignCurrentTopic = getCampaignFromTopic(currentDecreeTopic)
+            campaignsDecree.update(listeCampaignCurrentTopic)
+            print(listeCampaignCurrentTopic)
+
+        return list(campaignsDecree)
+
+            
+
+
+
+    

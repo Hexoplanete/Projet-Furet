@@ -9,12 +9,11 @@ def main():
     QApplication.setOrganizationName("Hexoplanete")
 
     settings.setup()
-    app.setup()
     repository.setup()
     crawler.setup()
-    repository.csvdata.readAllArretesFromFiles()
+    app.setup()
+
     app.main()
-    pass
 
 if __name__ == '__main__':
     main()

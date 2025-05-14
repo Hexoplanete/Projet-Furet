@@ -33,10 +33,10 @@ input : PDF correspondant à un RAA
 | arreteNumber     | Extraction Caractéristiques (code juliette à intégrer)              | TO DO
 | title            | Extraction Caractéristiques (code juliette à intégrer)              | TO DO
 | signingDate      | On récupère pas au final                                            | 
-| topic            | Dans getKeyWords() car le topic c'est des keywords                  |
+| topics           | Dans getKeyWords() car le topic c'est des keywords                  |
 | startPage        | Separation RAA                                                      | OK 
 | endPage          | Separation RAA                                                      | OK
-| campaign         | Dans getKeyWords() car campagne dépend du keyword qui matche        | TO DO now
+| campaigns        | Dans getKeyWords() car campagne dépend du keyword qui matche        | TO DO now
                                                                                          
 
 ### Requirements

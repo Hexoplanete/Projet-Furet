@@ -16,13 +16,14 @@ docTypeList = []
 
 ROOT_KEY = "repository.csv-root"
 def setup():
-    settings.setDefaultValue(ROOT_KEY,  QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
+    settings.setDefaultValue(ROOT_KEY, os.path.join(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation), 'database'))
 
     basePath = settings.value(ROOT_KEY)    
     # create folder 'prefectures' if the database doesn't exists
     if not os.path.exists(basePath):
-        settings.setValue(ROOT_KEY, QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
+        settings.setValue(ROOT_KEY, os.path.join(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation), 'database'))
         basePath = settings.value(ROOT_KEY)    
+        os.makedirs(basePath, exist_ok=True)
 
     if not os.path.exists(os.path.join(basePath, 'prefectures')):
         os.makedirs(os.path.join(basePath, 'prefectures'))
@@ -226,9 +227,9 @@ def setup():
     if not os.path.isfile(os.path.join(basePath, 'config/lastId.csv')):     
         fileContent = [
                         ['label', 'value'],
-                        ['decree', 1000],
-                        ['campaign',5],
-                        ['topic',44]
+                        ['decree', 1],
+                        ['campaigns',5],
+                        ['topics',44]
                     ]
         with open(os.path.join(basePath, 'config/lastId.csv'), 'w', encoding='utf-8', newline='') as file:
             writerCsv = csv.writer(file)
@@ -252,15 +253,7 @@ def load():
     loadCampaignsFromFile(os.path.join(basePath, 'config/campaign.csv'), campaignList)
     loadDepartmentsFromFile(os.path.join(basePath, 'config/departments.csv'), departmentList)
     loadDocTypesFromFile(os.path.join(basePath, 'config/documentType.csv'), docTypeList)
-
-    # get all csvfiles from os
-    for root, dirs, files in os.walk(os.path.join(basePath, 'prefectures')):
-        for filename in files:
-            if filename.endswith(".csv"):
-                filepath = os.path.join(root, filename)
-                # mod_time = os.path.getmtime(filepath)  # timestamp de modification
-                loadArretesFromFile(filepath, allDecreeList)
-    # print(len(allDecreeList))
+    readAllArretesFromFiles()
 
 def addArreteToFile(arrete: Decree):
     # get the year and month
@@ -330,9 +323,9 @@ def loadArretesFromFile(path: str, listArretes: list[Decree]) -> list[Decree]:
                         id=int(row[0]), department=repository.getDepartmentById(int(row[1])), docType=repository.getDocumentTypeById(int(row[2])),
                         number=row[3], title=row[4], signingDate=datetime.strptime(row[5], format).date(), raaNumber=row[6],
                         publicationDate=datetime.strptime(row[7], format).date(), link=row[8], startPage=int(row[9]),
-                        endPage=int(row[10]), campaign=repository.getCampaignById(int(row[11])),
-                        topic=list(
-                            map(repository.getTopicById, map(int, row[12].split("-")))),
+                        endPage=int(row[10]),
+                        campaigns=list(map(repository.getCampaignById, map(int, row[11].split("-")))),
+                        topics=list(map(repository.getTopicById, map(int, row[12].split("-")))),
                         treated=bool(int(row[13])), comment=row[14]
                     )
                     listArretes.append(aa)
@@ -347,6 +340,7 @@ def loadArretesFromFile(path: str, listArretes: list[Decree]) -> list[Decree]:
 
 
 def loadCampaignsFromFile(path: str, listCampaigns: list[Campaign]) -> list[Campaign]:
+    listCampaigns.clear()
     try: 
         with open(path, encoding='utf-8') as file:
             reader = csv.reader(file, delimiter=',')
@@ -392,6 +386,7 @@ def loadDepartmentsFromFile(path: str, listDepartments: list[Department]) -> lis
 
 
 def loadTopicsFromFile(path: str, listTopics: list[DecreeTopic]) -> list[DecreeTopic]:
+    listTopics.clear()
     try: 
         with open(path, encoding='utf-8') as file:
             reader = csv.reader(file, delimiter=',')
@@ -444,6 +439,7 @@ def addTopic(top :DecreeTopic):
     except Exception as e:
         print(f"Erreur de modification de fichier")
         print(f"Erreur : {e}")
+    loadTopicsFromFile()
 
 def addCampaign(camp :Campaign): 
     basePath = settings.value(ROOT_KEY)
@@ -459,6 +455,7 @@ def addCampaign(camp :Campaign):
     except Exception as e:
         print(f"Erreur de modification de fichier")
         print(f"Erreur : {e}")
+    loadCampaignsFromFile()
 
 def addTopicToCampaign(top: DecreeTopic, camp : Campaign):
     basePath = settings.value(ROOT_KEY)
@@ -492,6 +489,7 @@ def addTopicToCampaign(top: DecreeTopic, camp : Campaign):
     except Exception as e:
                 print(f"Erreur de lecture de fichier {fullPath}")
                 print(f"Erreur : {e}")
+    loadCampaignsFromFile()
 
 def updateIdFile(attr: str) -> int:
     # update decree data in csv file

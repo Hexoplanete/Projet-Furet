@@ -1,4 +1,5 @@
 import enum
+import os
 from PySide6 import QtWidgets, QtCore
 
 class PickMode(enum.Enum):
@@ -9,10 +10,11 @@ class FilePickerWidget(QtWidgets.QWidget):
     def __init__(self, path: str = None, parent: QtWidgets.QWidget = None, /, pickMode: PickMode = PickMode.File, onDataChange = None):
         super().__init__(parent)
 
+        self._path = path if path is not None and os.path.exists(path) else QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.HomeLocation)
         self._pickMode = pickMode
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(0,0,0,0)
-        self._fileEditText = QtWidgets.QLineEdit(text=path)
+        self._fileEditText = QtWidgets.QLineEdit(text=self._path)
         self._fileEditText.textChanged.connect(onDataChange)
         self._layout.addWidget(self._fileEditText)
         self._parcourirButton = QtWidgets.QPushButton("Parcourir")
@@ -26,7 +28,7 @@ class FilePickerWidget(QtWidgets.QWidget):
             case PickMode.File:
                 filePath = dialog.getOpenFileName(None, "Choisir un fichier", QtCore.QDir.homePath())[0]
             case PickMode.Folder:
-                filePath = dialog.getExistingDirectory(None, "Choisir un dossier", QtCore.QDir.homePath())
+                filePath = dialog.getExistingDirectory(None, "Choisir un dossier", self._path)
         if filePath:
             self._fileEditText.setText(filePath)
     

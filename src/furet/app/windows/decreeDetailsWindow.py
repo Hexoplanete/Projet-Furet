@@ -37,7 +37,6 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._decreeNumber = QtWidgets.QLineEdit(decree.number)
         addFormRow(decreeForm, "N° de l'arrêté", self._decreeNumber)
 
-        self._docType = QtWidgets.QComboBox()
         self._docType = buildComboBox(repository.getDocumentTypes(), decree.docType)
         addFormRow(decreeForm, "Type de document", self._docType)
 
@@ -83,13 +82,12 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         pagesLayout.setContentsMargins(0, 0, 0, 0)
 
         # ASPAS specific
-        decreeForm = addSection("Information supplémentaires")
+        decreeForm = addSection("Informations supplémentaires")
 
-        self._campaign = buildComboBox(
-            repository.getCampaigns(), decree.campaign)
+        self._campaign = buildMultiComboBox(repository.getCampaigns(), decree.campaigns)
         addFormRow(decreeForm, "Campagne", self._campaign)
 
-        self._topic = buildMultiComboBox(repository.getTopics(), decree.topic)
+        self._topic = buildMultiComboBox(repository.getTopics(), decree.topics)
         addFormRow(decreeForm, "Sujet", self._topic)
 
         self._treated = QtWidgets.QCheckBox("", )
@@ -124,8 +122,8 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
             link=self._decree.link,
             startPage=int(self._pagesStart.text()),
             endPage=int(self._pagesEnd.text()),
-            campaign=self._campaign.currentData(),
-            topic=self._topic.currentData(),
+            campaigns=self._campaign.currentData(),
+            topics=self._topic.currentData(),
             treated=self._treated.isChecked(),
             comment=self._comment.toPlainText(),
         )

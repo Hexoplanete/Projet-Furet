@@ -22,3 +22,4 @@ uv run pyinstaller --onefile -n furet src/furet/__main__.py
 magick, gswin et tesseract 
 
 
+python -m spacy download fr_core_news_sm

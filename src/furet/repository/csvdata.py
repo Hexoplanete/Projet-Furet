@@ -228,6 +228,15 @@ def setup():
             writerCsv = csv.writer(file)
             writerCsv.writerows(fileContent)
 
+def readAllArretesFromFiles():
+   #Separate function from setup because setup must be called before processing (information required for processing is retrieved during setup) and processing adds new decrees!
+    basePath = settings.value(ROOT_KEY)
+    for root, dirs, files in os.walk(basePath + '/prefectures/'):
+        for filename in files:
+            if filename.endswith(".csv"):
+                filepath = os.path.join(root, filename)
+                #mod_time = os.path.getmtime(filepath)  # timestamp de modification
+                loadArretesFromFile(filepath,allDecreeList)
 
 def load():
     # load config data
@@ -254,6 +263,9 @@ def addArreteToFile(arrete: Decree):
                "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
     row = arrete.toCsvLine()
     file_exists = os.path.isfile(fullPath)  # bool
+
+    directory = os.path.dirname(fullPath)
+    os.makedirs(directory, exist_ok=True)
 
     with open(fullPath, 'a', encoding='utf-8', newline='') as file:
         writerCsv = csv.writer(file)

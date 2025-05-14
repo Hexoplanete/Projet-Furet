@@ -2,7 +2,10 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import settings
 from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
+from furet import repository
 from furet.app.utils import addFormRow
+from furet.types.decree import *
+from furet.app.widgets.objectTableModel import singleRowEditableModel
 
 
 class SettingsWindow(QtWidgets.QDialog):
@@ -38,3 +41,36 @@ class SettingsWindow(QtWidgets.QDialog):
         self.expired.setChecked(settings.value("app.filter-expired"))
         self.expired.stateChanged.connect(lambda v: settings.setValue("app.filter-expired", bool(v)))
         addFormRow(form, "Filter les arrêtés expirés", self.expired, "Filter automatiquement les arrêtés de plus de 2 mois lors du lancement de l'application")
+
+        topicCampaignSection = addSection("Sujet et Campagne")
+
+        topicCampaign = QtWidgets.QHBoxLayout()
+        
+        def onCampaignChanged(topLeft, bottomRight, roles):
+            for row in range(topLeft.row(), bottomRight.row() + 1):
+                campaign = repository.getCampaigns()[1:][row]
+                print(f"Modifié : ID={campaign.id}, Nouveau label='{campaign.label}'")
+
+        self.modelCampaign = singleRowEditableModel(repository.getCampaigns()[1:], "Campagne")
+        self.modelCampaign.dataChanged.connect(onCampaignChanged)
+        self.viewCampaign = QtWidgets.QTableView()
+        self.viewCampaign.setModel(self.modelCampaign)
+        self.viewCampaign.verticalHeader().setVisible(False)
+        self.viewCampaign.horizontalHeader().setStretchLastSection(True)
+
+        def onTopicChanged(topLeft, bottomRight, roles):
+            for row in range(topLeft.row(), bottomRight.row() + 1):
+                topic = repository.getTopics()[row]
+                print(f"Modifié : ID={topic.id}, Nouveau label='{topic.label}'")
+
+        self.modelTopic = singleRowEditableModel(repository.getTopics(), "Sujet")
+        self.modelTopic.dataChanged.connect(onTopicChanged)
+        self.viewTopic = QtWidgets.QTableView()
+        self.viewTopic.setModel(self.modelTopic)
+        self.viewTopic.verticalHeader().setVisible(False)
+        self.viewTopic.horizontalHeader().setStretchLastSection(True)
+
+        topicCampaign.addWidget(self.viewCampaign)
+        topicCampaign.addWidget(self.viewTopic)
+
+        self._rootLayout.addLayout(topicCampaign)

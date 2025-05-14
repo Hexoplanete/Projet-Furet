@@ -2,6 +2,8 @@ import threading
 import json
 import os
 import time
+from furet import settings
+import ast 
 
 class Crawler:
     """
@@ -43,8 +45,7 @@ class Crawler:
               and logged, but the process continues for other regions and departments.
         """
 
-        with open(self.configFile, 'r') as file:
-            config = json.load(file)
+        config = self.configFile
 
         for region, regionData in config["regions"].items():
             for department, lastDate in regionData["departments"].items():
@@ -115,11 +116,13 @@ class Crawler:
         This method is a wrapper around `createSpiders` and `startSpiders`.
         """
         # Use an absolute path to ensure the file is found
-        configFile = os.path.join(os.path.dirname(__file__), "configCrawler.json")
-        if not os.path.exists(configFile):
-            raise FileNotFoundError(f"Config file not found: {configFile}")
-        self.configFile = configFile
-        
+        # configFile = os.path.join(os.path.dirname(__file__), "configCrawler.json")
+        # if not os.path.exists(configFile):
+        #     raise FileNotFoundError(f"Config file not found: {configFile}")
+        # self.configFile = configFile
+
+        self.configFile = ast.literal_eval(settings.value("crawler.config"))
+
         linkFile = os.path.join(os.path.dirname(__file__), "resultCrawler.json")
         with open(linkFile, 'w') as f:
             json.dump({"links": []}, f, indent=4)

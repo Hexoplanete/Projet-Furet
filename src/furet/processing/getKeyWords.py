@@ -1,8 +1,24 @@
 import spacy
+import os
+import sys
 
 from furet.processing.getPdfText import extractText
 
-nlp = spacy.load("fr_core_news_sm") # Loading french language of SpaCy's model
+
+def load_spacy_model():
+    # Si exécutable PyInstaller → accès via _MEIPASS (répertoire temporaire)
+    if hasattr(sys, '_MEIPASS'):
+        model_path = os.path.join(sys._MEIPASS, "fr_core_news_sm")
+    else:
+        # En développement local → charger normalement
+        model_path = "fr_core_news_sm"
+
+    return spacy.load(model_path)
+
+# Exemple d'utilisation
+nlp = load_spacy_model()
+
+#nlp = spacy.load(model_path) # Loading french language of SpaCy's model
 
 TITLES = {"m.", "mme.", "dr.", "prof.", "mlle.", "me."}
 

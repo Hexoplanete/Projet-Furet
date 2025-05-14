@@ -1,11 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files
+
+datas = [('libs/fr_core_news_sm', 'fr_core_news_sm'), ('libs/fr_core_news_sm/fr_core_news_sm-3.8.0/', 'fr_core_news_sm')]
+datas += collect_data_files('ocrmypdf')
 
 
 a = Analysis(
-    ['src/furet/__main__.py'],
+    ['src\\furet\\__main__.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=datas,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

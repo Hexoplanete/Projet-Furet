@@ -71,6 +71,9 @@ def updateCampaign(id: int, campaign: Campaign):
 def addCampaign(campaign: Campaign):
     return campaigns.addCampaign(campaign)
 
+def getCampaignFromTopic(topic: DecreeTopic) -> list[Campaign]:
+    return campaigns.getCampaignFromTopic(DecreeTopic)
+
 
 # TOPICS
 

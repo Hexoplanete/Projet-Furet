@@ -1,3 +1,4 @@
+from furet import repository
 from furet.types.decree import *
 from datetime import date
 
@@ -50,9 +51,9 @@ def mainSeparation(inputPath, outputDir, raa):
                 arreteId = 1 # Deleted after merge
                 #arreteId = updateIdFile("decree")
 
-                documenType = getDocumentTypeById(1)
+                documenType = repository.getDocumentTypeById(1)
 
-                campaign = getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
+                campaign = repository.getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
 
                 decree = Decree(
                         id=arreteId,

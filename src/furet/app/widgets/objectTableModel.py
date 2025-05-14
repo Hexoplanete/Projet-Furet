@@ -74,3 +74,46 @@ class ObjectFilterProxy(Generic[T], QtCore.QSortFilterProxyModel):
     
     def lessThan(self, source_left, source_right, /):
         return self.sourceModel().lessThan(source_left, source_right)
+
+
+class singleRowEditableModel(QtCore.QAbstractTableModel):
+    def __init__(self, data: list[T], columnName):
+        super().__init__()
+        self.topics = data
+        self._columnName = columnName
+
+    def rowCount(self, parent=QtCore.QModelIndex()):
+        return len(self.topics)
+
+    def columnCount(self, parent=QtCore.QModelIndex()):
+        return 1
+
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if not index.isValid():
+            return None
+
+        topic = self.topics[index.row()]
+        if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
+            return topic.label
+
+        return None
+
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
+        if not index.isValid():
+            return False
+
+        if role == QtCore.Qt.EditRole:
+            self.topics[index.row()].label = value
+            self.dataChanged.emit(index, index, [QtCore.Qt.DisplayRole, QtCore.Qt.EditRole])
+            return True
+
+        return False
+
+    def flags(self, index):
+        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable
+
+    def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
+        if role == QtCore.Qt.DisplayRole and orientation == QtCore.Qt.Horizontal:
+            return self._columnName
+        return super().headerData(section, orientation, role)
+    

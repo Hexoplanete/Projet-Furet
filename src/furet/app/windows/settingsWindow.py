@@ -83,6 +83,72 @@ class SettingsWindow(QtWidgets.QDialog):
         
         def onCampaignChanged(topLeft, bottomRight, roles):
             for row in range(topLeft.row(), bottomRight.row() + 1):
+                campaign = repository.getCampaigns()[row]
+                self._mainWindow.updateCampaignsComboBox()
+
+        self.modelCampaign = singleRowEditableModel(repository.getCampaigns(), "Campagne")
+        self.modelCampaign.dataChanged.connect(onCampaignChanged)
+        self.viewCampaign = QtWidgets.QTableView()
+        self.viewCampaign.setModel(self.modelCampaign)
+        self.viewCampaign.verticalHeader().setVisible(False)
+        self.viewCampaign.horizontalHeader().setStretchLastSection(True)
+
+        def onTopicChanged(topLeft, bottomRight, roles):
+            for row in range(topLeft.row(), bottomRight.row() + 1):
+                topic = repository.getTopics()[row]
+                self._mainWindow.updateTopicsComboBox()
+
+        self.modelTopic = singleRowEditableModel(repository.getTopics(), "Sujet")
+        self.modelTopic.dataChanged.connect(onTopicChanged)
+        self.viewTopic = QtWidgets.QTableView()
+        self.viewTopic.setModel(self.modelTopic)
+        self.viewTopic.verticalHeader().setVisible(False)
+        self.viewTopic.horizontalHeader().setStretchLastSection(True)
+
+        topicCampaign.addWidget(self.viewCampaign)
+        topicCampaign.addWidget(self.viewTopic)
+
+        self._rootLayout.addLayout(topicCampaign)
+
+        topicCampaignSection = addSection("Sujet et Campagne")
+
+        topicCampaign = QtWidgets.QHBoxLayout()
+        
+        def onCampaignChanged(topLeft, bottomRight, roles):
+            for row in range(topLeft.row(), bottomRight.row() + 1):
+                campaign = repository.getCampaigns()[row]
+                self._mainWindow.updateCampaignsComboBox()
+
+        self.modelCampaign = singleRowEditableModel(repository.getCampaigns(), "Campagne")
+        self.modelCampaign.dataChanged.connect(onCampaignChanged)
+        self.viewCampaign = QtWidgets.QTableView()
+        self.viewCampaign.setModel(self.modelCampaign)
+        self.viewCampaign.verticalHeader().setVisible(False)
+        self.viewCampaign.horizontalHeader().setStretchLastSection(True)
+
+        def onTopicChanged(topLeft, bottomRight, roles):
+            for row in range(topLeft.row(), bottomRight.row() + 1):
+                topic = repository.getTopics()[row]
+                self._mainWindow.updateTopicsComboBox()
+
+        self.modelTopic = singleRowEditableModel(repository.getTopics(), "Sujet")
+        self.modelTopic.dataChanged.connect(onTopicChanged)
+        self.viewTopic = QtWidgets.QTableView()
+        self.viewTopic.setModel(self.modelTopic)
+        self.viewTopic.verticalHeader().setVisible(False)
+        self.viewTopic.horizontalHeader().setStretchLastSection(True)
+
+        topicCampaign.addWidget(self.viewCampaign)
+        topicCampaign.addWidget(self.viewTopic)
+
+        self._rootLayout.addLayout(topicCampaign)
+
+        topicCampaignSection = addSection("Sujet et Campagne")
+
+        topicCampaign = QtWidgets.QHBoxLayout()
+        
+        def onCampaignChanged(topLeft, bottomRight, roles):
+            for row in range(topLeft.row(), bottomRight.row() + 1):
                 campaign = repository.getCampaigns()[1:][row]
                 print(f"Modifié : ID={campaign.id}, Nouveau label='{campaign.label}'")
 

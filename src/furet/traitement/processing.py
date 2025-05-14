@@ -2,7 +2,8 @@ from furet.traitement.getKeyWords import getKeyWords
 from furet.traitement.correspondenceNameNumberDepartment import departementsLabelToCode
 from furet.traitement.ocr import mainOcr
 from furet.traitement.separation import mainSeparation
-from furet.repository import getTopics, getDepartmentById, addArreteToFile
+from furet.traitement.getCharacteristics import extractDocumentCharacterisics
+from furet.repository import getTopics, getDepartmentById, addArreteToFile, getDocumentTypeById
 from furet.types.raa import RAA
 from furet.types.decree import *
 
@@ -182,6 +183,16 @@ class Traitement:
             
             # Saves decree information in CSV format if and only if it is of interest
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
+                
+                characteristics = extractDocumentCharacterisics(pathArrete)
+                if characteristics is not None:
+                    objectDecree.title = characteristics["Title"]
+                    objectDecree.number = characteristics["Number"]
+
+                    if characteristics["Type"] is not None:
+                        objectDecree.docType = getDocumentTypeById(characteristics["Type"])
+                
+
                 addArreteToFile(objectDecree) 
             
         print("End execution of attribution keywords")

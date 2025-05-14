@@ -73,9 +73,9 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._state.addItem("Choisir un statut", None)
         self._state.addItem("Traité", True)
         self._state.addItem("Non traité", False)
-        self._state.setCurrentIndex(2 if settings.value("app.filters.treatedOnly") else 0)
-        self._dateAfterToggle.setChecked(settings.value("app.filters.notExpired"))
-        self._dateBeforeToggle.setChecked(settings.value("app.filters.notExpired"))
+        self._state.setCurrentIndex(2 if settings.value("app.filter-treated") else 0)
+        self._dateAfterToggle.setChecked(settings.value("app.filter-expired"))
+        self._dateBeforeToggle.setChecked(settings.value("app.filter-expired"))
         self.syncDateFilterLabel()
         self._layout.addWidget(self._state)
 

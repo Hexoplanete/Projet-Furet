@@ -1,12 +1,24 @@
-# https://wiki.qt.io/Elided_Label
-
 from PySide6 import QtWidgets, QtCore, QtGui
 
 class ElidedLabel(QtWidgets.QLabel):
-
+    _txt: str = ""
     _elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight
-    _cachedElidedText: str = ""
-    _cachedText: str = ""
+
+    def __init__(self, text: str, elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight, parent: QtWidgets.QWidget = None):
+        if parent is None:
+            super().__init__("")
+        else:
+            super().__init__(parent, "")
+        self._txt = text
+        self._elideMode = elideMode
+        self.updateDisplayedText()
+
+    def setText(self, arg__1):
+        self._txt = arg__1
+        self.updateDisplayedText()
+
+    def text(self):
+        return self._txt
 
     def setElideMode(self, elidedMode: QtCore.Qt.TextElideMode):
         self._elideMode = elidedMode
@@ -14,100 +26,17 @@ class ElidedLabel(QtWidgets.QLabel):
     def elideMode(self):
         return self._elideMode
 
-
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        self._cachedText = ""
-    
-    def paintEvent(self, event, /):
-        if (self._elideMode == QtCore.Qt.TextElideMode.ElideNone):
-            return super().paintEvent(event)
+        self.updateDisplayedText()
 
-        self.updateCachedTexts()
-        super().setText(self._cachedElidedText)
-        super().paintEvent(event)
-        super().setText(self._cachedText)
-
-    def updateCachedTexts(self): 
-        txt = self.text()
-        if (self._cachedText == txt):
-            return 
-        self._cachedText = txt
+    def updateDisplayedText(self):
         fm = QtGui.QFontMetrics(self.fontMetrics())
-        self._cachedElidedText = fm.elidedText(self.text(), self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
-        if (len(self._cachedText) > 0):
-            showFirstCharacter = self._cachedText[0] + "..."
+        elidedText = fm.elidedText(
+            self.text(), self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
+        if (len(self._txt) > 0):
+            showFirstCharacter = self._txt[0] + "..."
             self.setMinimumWidth(fm.horizontalAdvance(showFirstCharacter) + 1)
-class ElidedLabel(QtWidgets.QLabel):
-
-    _elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight
-    _cachedElidedText: str = ""
-    _cachedText: str = ""
-
-    def setElideMode(self, elidedMode: QtCore.Qt.TextElideMode):
-        self._elideMode = elidedMode
-
-    def elideMode(self):
-        return self._elideMode
-
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._cachedText = ""
-    
-    def paintEvent(self, event, /):
-        if (self._elideMode == QtCore.Qt.TextElideMode.ElideNone):
-            return super().paintEvent(event)
-
-        self.updateCachedTexts()
-        super().setText(self._cachedElidedText)
-        super().paintEvent(event)
-        super().setText(self._cachedText)
-
-    def updateCachedTexts(self): 
-        txt = self.text()
-        if (self._cachedText == txt):
-            return 
-        self._cachedText = txt
-        fm = QtGui.QFontMetrics(self.fontMetrics())
-        self._cachedElidedText = fm.elidedText(self.text(), self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
-        if (len(self._cachedText) > 0):
-            showFirstCharacter = self._cachedText[0] + "..."
-            self.setMinimumWidth(fm.horizontalAdvance(showFirstCharacter) + 1)
-
-class ElidedHyperlink(QtWidgets.QLabel):
-
-    _elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight
-    _cachedElidedText: str = ""
-    _cachedText: str = ""
-
-    def setElideMode(self, elidedMode: QtCore.Qt.TextElideMode):
-        self._elideMode = elidedMode
-
-    def elideMode(self):
-        return self._elideMode
-
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._cachedText = ""
-    
-    def paintEvent(self, event, /):
-        if (self._elideMode == QtCore.Qt.TextElideMode.ElideNone):
-            return super().paintEvent(event)
-
-        self.updateCachedTexts()
-        super().setText(f"<a href=\"{self.text()}\">{self._cachedElidedText}</a>")
-        super().paintEvent(event)
-        super().setText(self._cachedText)
-
-    def updateCachedTexts(self): 
-        txt = self.text()
-        if (self._cachedText == txt):
-            return 
-        self._cachedText = txt
-        fm = QtGui.QFontMetrics(self.fontMetrics())
-        self._cachedElidedText = fm.elidedText(self.text(), self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
-        if (len(self._cachedText) > 0):
-            showFirstCharacter = self._cachedText[0] + "..."
-            self.setMinimumWidth(fm.horizontalAdvance(showFirstCharacter) + 1)
+        if self.textInteractionFlags() == QtCore.Qt.TextInteractionFlag.TextBrowserInteraction:
+            elidedText = f'<a href="{self._txt}">{elidedText}</a>'
+        super().setText(elidedText)

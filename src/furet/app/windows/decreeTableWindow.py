@@ -94,7 +94,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         id = decree.id
         def onDecreeSaved():
             repository.updateDecree(id, self._decreeDetailWindows[decree.id].decree())
-            self._decrees.setItemAt(source_index.row(), self._decreeDetailWindows[decree.id].decree())
+            self._decrees.resetData(repository.getDecrees())
 
         if decree.id not in self._decreeDetailWindows or not(self._decreeDetailWindows[decree.id].isVisible()):
             self._decreeDetailWindows[decree.id] = DecreeDetailsWindow(decree)
@@ -105,12 +105,15 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             self._decreeDetailWindows[decree.id].activateWindow()
 
     def onClickImportButton(self):
+        def onImportDone():
+            self._decrees.resetData(repository.getDecrees())
+
         if self._importFileWindow == None or not(self._importFileWindow.isVisible()):
             self._importFileWindow = ImportFileWindow()
             self._importFileWindow.show()
+            self._importFileWindow.accepted.connect(onImportDone)
         else:
             self._importFileWindow.activateWindow()
 
     def onClickDocButton(self):
-        print(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation))
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")

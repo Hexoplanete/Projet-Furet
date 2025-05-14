@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QApplication
-from furet import settings, app, repository, crawler
+from furet import repository, app, crawler, settings
+
 
 def main():
     QApplication.setApplicationName("FURET")
@@ -11,10 +12,9 @@ def main():
     app.setup()
     crawler.setup()
     repository.setup()
-
     repository.csvdata.readAllArretesFromFiles()
-    
     app.main()
+    pass
 
 if __name__ == '__main__':
     main()

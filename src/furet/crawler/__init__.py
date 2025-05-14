@@ -3,7 +3,6 @@ import time
 from furet.crawler.crawler import Crawler
 from furet import settings
 import os
-from furet.processing.processing import Processing
 
 
 def setup():

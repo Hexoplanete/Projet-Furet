@@ -84,6 +84,10 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         # ASPAS specific
         decreeForm = addSection("Informations supplémentaires")
 
+        self._missing = QtWidgets.QCheckBox("", )
+        self._missing.setChecked(decree.treated)
+        addFormRow(decreeForm, "À compléter", self._missing)
+        
         self._campaign = buildMultiComboBox(repository.getCampaigns(), decree.campaigns)
         addFormRow(decreeForm, "Campagne", self._campaign)
 
@@ -105,6 +109,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._treated = QtWidgets.QCheckBox("", )
         self._treated.setChecked(decree.treated)
         addFormRow(decreeForm, "Traité", self._treated)
+        
 
         commentSep = QtWidgets.QLabel("Commentaire")
         self._rootLayout.addWidget(commentSep)
@@ -121,24 +126,25 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._buttonLayout.addWidget(self._saveAndQuitButton)
         self._rootLayout.addLayout(self._buttonLayout)
 
-    # def saveDecree(self):
-    #     self._decree = Decree(
-    #         id=self._decree.id,
-    #         number=self._decreeNumber.text(),
-    #         title=self._decreeTitle.text(),
-    #         docType=self._docType.currentData(),
-    #         publicationDate=self._publicationDate.date().toPython(),
-    #         signingDate=self._signingDate.date().toPython(),
-    #         department=self._department.currentData(),
-    #         raaNumber=self._raaNumber.text(),
-    #         link=self._decree.link,
-    #         startPage=int(self._pagesStart.text()),
-    #         endPage=int(self._pagesEnd.text()),
-    #         campaign=self._campaign.currentData(),
-    #         topic=self._topic.currentData(),
-    #         treated=self._treated.isChecked(),
-    #         comment=self._comment.toPlainText(),
-    #     )
+    def saveDecree(self):
+        self._decree = Decree(
+            id=self._decree.id,
+            number=self._decreeNumber.text(),
+            title=self._decreeTitle.text(),
+            docType=self._docType.currentData(),
+            publicationDate=self._publicationDate.date().toPython(),
+            signingDate=self._signingDate.date().toPython(),
+            department=self._department.currentData(),
+            raaNumber=self._raaNumber.text(),
+            link=self._decree.link,
+            startPage=int(self._pagesStart.text()),
+            endPage=int(self._pagesEnd.text()),
+            campaign=self._campaign.currentData(),
+            topic=self._topic.currentData(),
+            treated=self._treated.isChecked(),
+            missing=self._missing.isChecked(),
+            comment=self._comment.toPlainText(),
+        )
 
     def onClickRetourButton(self):
         self.reject()

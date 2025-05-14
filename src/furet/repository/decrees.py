@@ -53,7 +53,8 @@ def loadDecreeFromFiles(decreeFile: str):
                         topics=list(map(repository.getTopicById,
                                     map(int, row[12].split("-")))),
                         treated=bool(int(row[13])),
-                        comment=row[14]
+                        missingData=row[14],
+                        comment=row[15],
                     )]
                     maxId = max(maxId, decrees[-1].id)
 
@@ -90,14 +91,14 @@ def updateDecree(id: int, decree: Decree):
     decreeFile = getFileName(decree)
     for i in range(len(decreesPerFile[decreeFile])):
         if decreesPerFile[decreeFile][i].id == decree.id:
-            decreesPerFile[decreeFile][i].id = decree
+            decreesPerFile[decreeFile][i] = decree
     saveDecreesToFile(decree)
 
 
 def saveDecreesToFile(decreeFile: str):
     headers = ['id', 'Département', "Type de document", "Numéro de l'arrêté", "Titre de l'arrêté",
                "Date de signature de l'arrêté", "Numéro du RAA", "Date de publication du RAA", 'URL du RAA',
-               "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
+               "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire', "Données Manquantes"]
 
     try:
         os.makedirs(decreeFile, exist_ok=True)

@@ -1,0 +1,26 @@
+
+departementsLabelToCode = {
+    "Aube": "10",
+    "HautesPyrenees": "65",
+    "Ariege": "09",
+    "Gers": "32",
+    "AlpesMaritimes": "06",
+    "Var": "83",
+    "BouchesDuRhone": "13",
+    "AlpesDeHauteProvence": "04",
+    "Allier": "03",
+    "Charente": "16",
+    "Sarthe": "72",
+    "SaoneEtLoire": "71",
+    "Doubs": "25",
+    "Jura": "39",
+    "Nord": "59",
+    "PasDeCalais": "62",
+    "Somme": "80",
+    "Calvados": "14",
+    "CotesDArmor": "22",
+    "Morbihan": "56",
+    "Loiret": "45",
+    "Indre": "36",
+    "Cher": "18"
+}

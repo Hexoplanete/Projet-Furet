@@ -1,5 +1,4 @@
 from furet.types.decree import *
-from database.config import *
 from furet.repository import * 
 from datetime import date
 
@@ -7,7 +6,6 @@ import fitz
 import re
 from datetime import datetime
 import os
-import sys
 
 def mainSeparation(inputPath, outputDir, raa):
         now = datetime.now()

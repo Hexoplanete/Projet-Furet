@@ -13,8 +13,14 @@ pip install uv
 uv sync
 ```
 
+```bash
+uv run pyinstaller --onefile -n furet src/furet/__main__.py 
+```
+
 # Requirements Traitement
 
-pip install ocrmypdf PyMuPDF spacy 
-
 python -m spacy download fr_core_news_sm
+
+magick, gswin et tesseract 
+
+

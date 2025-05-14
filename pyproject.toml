@@ -25,13 +25,14 @@ dependencies = [
     "bs4",
     "ocrmypdf",
     "PyMuPDF",
-    "spacy"
+    "spacy",
+    "PyInstaller"
 ]
 
 [project.urls]
 homepage = "https://github.com/Hexoplanete/Projet-Furet"
 repository = "https://github.com/Hexoplanete/Projet-Furet"
-# documentation = "https://github.com/Hexoplanete/Projet-Furet/wiki" # TODO 
+documentation = "https://github.com/Hexoplanete/Projet-Furet/wiki"
 
 [project.gui-scripts]
 furet = "furet.__main__:main"

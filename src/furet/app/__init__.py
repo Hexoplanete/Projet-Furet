@@ -2,12 +2,14 @@ import os
 import sys
 from PySide6.QtWidgets import QApplication, QStyleFactory
 from furet import settings
+import locale
 
 from .windows.decreeTableWindow import DecreeTableWindow
 
 def setup():
     settings.setDefaultValue("app.filters.treatedOnly", True)
     settings.setDefaultValue("app.filters.notExpired", True)
+    locale.setlocale(locale.LC_TIME,'')
 
 def main():
     app = QApplication(sys.argv)

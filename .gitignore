@@ -4,6 +4,7 @@ __pycache__
 .python-version
 .idea
 dist
+build
 resultCrawler.json
 src/furet/traitement/output/**
 src/furet/traitement/input_RAA/**

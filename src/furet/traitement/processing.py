@@ -174,7 +174,7 @@ class Traitement:
                 topic = DecreeTopic(id=dic[label], label=label)
                 listeDecreeTopic.append(topic)
 
-            objectDecree.topic = listeDecreeTopic
+            objectDecree.topics = listeDecreeTopic
 
             # Check if the decree is really interesting
             # For example, if there is only "armes" the bylaw is VERY unlikely to be of interest.

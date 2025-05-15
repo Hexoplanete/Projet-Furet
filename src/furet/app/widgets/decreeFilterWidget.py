@@ -17,17 +17,24 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         
         self._addDateFilter()
         
-        self._department = buildComboBox(repository.getDepartments(), None, ("Choisir un département", None))
+        self._department = buildComboBox(repository.getDepartments(), None, ("Tous les départements", None))
         self._layout.addWidget(self._department)
 
 
-        self._campaign = buildComboBox(repository.getCampaigns(), None, ("Choisir une campagne", None))
+        self._campaign = buildComboBox(repository.getCampaigns(), None, ("Toutes les campagnes", None))
         self._layout.addWidget(self._campaign)
 
-        self._topic = buildMultiComboBox(repository.getTopics(), [], "Choisir un sujet")
+        self._topic = buildMultiComboBox(repository.getTopics(), [], "Tous les sujets")
         self._layout.addWidget(self._topic)
 
-        self._name = QtWidgets.QLineEdit(placeholderText="Choisir un titre")
+        self._unselectTopic = QtWidgets.QPushButton('X')
+        self._unselectTopic.setFixedSize(20,20)
+        self._unselectTopic.setContentsMargins(0,0,0,0)
+        self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
+        self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
+        self._layout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignLeft)
+
+        self._name = QtWidgets.QLineEdit(placeholderText="Tous les titres")
         self._layout.addWidget(self._name)
 
         self._addTreatedFilter()
@@ -70,7 +77,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def _addTreatedFilter(self):
         self._state = QtWidgets.QComboBox()
         self._state.setEditable(True)
-        self._state.addItem("Choisir un statut", None)
+        self._state.addItem("Tous les statuts", None)
         self._state.addItem("Traité", True)
         self._state.addItem("Non traité", False)
         self._state.setCurrentIndex(2 if settings.value("app.filter-treated") else 0)
@@ -79,7 +86,6 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self.syncDateFilterLabel()
         self._layout.addWidget(self._state)
 
-
     def syncFilters(self):
         self._departementValue = self._department.currentData()
         self._topicValue = self._topic.currentData()
@@ -87,6 +93,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._dateAfterValue = None if not self._dateAfterToggle.isChecked() else self._dateAfter.date().toPython()
         self._dateBeforeValue = None if not self._dateBeforeToggle.isChecked() else self._dateBefore.date().toPython()
         self._stateValues = self._state.currentData()
+        self._campaignValues = self._campaign.currentData()
 
 
     def data(self, index, /, role = ...):
@@ -111,12 +118,17 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def filterDecrees(self, decree: Decree):
         if self._departementValue is not None and decree.department.id != self._departementValue.id: return False
         if self._stateValues is not None and decree.treated != self._stateValues: return False
+        if self._stateValues is not None and decree.treated != self._stateValues: return False
+        # if self._campaignValues is not None and self._campaignValues not in decree.campaigns: return False
         if self._nameValue != "" and decree.title.lower().find(self._nameValue.lower()) == -1: return False
         if self._dateAfterValue is not None and decree.publicationDate < self._dateAfterValue: return False
         if self._dateBeforeValue is not None and decree.publicationDate > self._dateBeforeValue: return False
         if len(self._topicValue) > 0:
             for id in self._topicValue:
-                if id not in decree.topic: return False
+                if id not in decree.topics: return False
+        
+        if len(self._topicValue) > 0:
+            if id not in decree.topics: return False
     
         return True
 
@@ -129,3 +141,30 @@ class DecreeFilterWidget(QtWidgets.QWidget):
             self._dateRangeButton.setText(f"Publié après le {formatDate(self._dateAfter.date().toPython())}")
         else:
             self._dateRangeButton.setText(f"Publié du {formatDate(self._dateAfter.date().toPython())} au {formatDate(self._dateBefore.date().toPython())}")
+    
+    def onClickUnselectTopic(self):
+        self._topic.unselectAllItems()
+
+    def updateTopicsComboBox(self):
+        self._topic.blockSignals(True)
+        isChecked = []
+        for i in range(self._topic.length()):
+            isChecked.append(self._topic.isChecked(i))
+        while self._topic.length():
+            self._topic.removeItem(1)
+        i = 0
+        for t in repository.getTopics():
+            self._topic.addItem(str(t), userData = t)
+            self._topic.setSelectedIndex(i, isChecked[i])
+            i += 1
+        self._topic.blockSignals(False)
+
+    def updateCampaignsComboBox(self):
+        self._campaign.blockSignals(True)
+        index = self._campaign.currentIndex()
+        self._campaign.clear()
+        self._campaign.addItem("Toutes les campagnes", None)
+        for c in repository.getCampaigns():
+            self._campaign.addItem(str(c), c)
+        self._campaign.setCurrentIndex(index)
+        self._campaign.blockSignals(False)

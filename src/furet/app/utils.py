@@ -55,8 +55,9 @@ def buildDatePicker(date: date = None) -> QtWidgets.QDateEdit:
 def formatDate(value: date):
     return value.strftime("%d %B %Y")
 
-def addFormRow(form: QtWidgets.QFormLayout, label: str, widget: QtWidgets.QWidget, tooltip = ""):
+def addFormRow(form: QtWidgets.QFormLayout, label: str, widget: QtWidgets.QWidget, tooltip = None):
     labelWidget = QtWidgets.QLabel(f"{label} :")
-    labelWidget.setToolTip(tooltip)
-    widget.setToolTip(tooltip)
+    if tooltip is not None:
+        labelWidget.setToolTip(tooltip)
+        widget.setToolTip(tooltip)
     form.addRow(labelWidget, widget)

@@ -9,6 +9,7 @@ class CheckableComboBox(QtWidgets.QComboBox):
         item.setText("")
         item.setEnabled(False)
         item.setSelectable(False)
+        self.view().pressed.connect(self.handleItemPressed)
         self.model().appendRow(item)
 
         self.model().dataChanged.connect(self.updateText)
@@ -66,3 +67,20 @@ class CheckableComboBox(QtWidgets.QComboBox):
     def setPlaceholderText(self, placeholderText):
         super().setPlaceholderText(placeholderText)
         self.updateText()
+
+    def handleItemPressed(self, index):
+        item = self.model().itemFromIndex(index)
+        if item.checkState() == QtCore.Qt.Checked:
+            item.setCheckState(QtCore.Qt.Unchecked)
+        else:
+            item.setCheckState(QtCore.Qt.Checked)
+
+    def unselectAllItems(self):
+        for i in range(1, self.model().rowCount()):
+            self.model().item(i).setCheckState(QtCore.Qt.Unchecked)
+    
+    def length(self):
+        return self.model().rowCount() - 1
+
+    def isChecked(self, index):
+        return self.model().item(index + 1).checkState() == QtCore.Qt.Checked

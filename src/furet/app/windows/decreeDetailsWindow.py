@@ -37,7 +37,6 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._decreeNumber = QtWidgets.QLineEdit(decree.number)
         addFormRow(decreeForm, "N° de l'arrêté", self._decreeNumber)
 
-        self._docType = QtWidgets.QComboBox()
         self._docType = buildComboBox(repository.getDocumentTypes(), decree.docType)
         addFormRow(decreeForm, "Type de document", self._docType)
 
@@ -60,11 +59,17 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._publicationDate.setDisabled(True)
         addFormRow(decreeForm, "Date de publication", self._publicationDate)
         
-        label = ElidedLabel(decree.link)
-        label.setMinimumWidth(0)
-        label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
-        label.setOpenExternalLinks(True)
-        addFormRow(decreeForm, "Lien", label)
+        linkWidget = QtWidgets.QWidget()
+        labelLayout = QtWidgets.QHBoxLayout(linkWidget)
+        self._link = QtWidgets.QLineEdit(self._decree.link if self._decree.link is not None else "")
+        linkButton = QtWidgets.QPushButton("Ouvrir")
+        labelLayout.addWidget(self._link, stretch=1)
+        labelLayout.addWidget(linkButton)
+
+        def openLink():
+            QtGui.QDesktopServices.openUrl(self._link.text())
+        linkButton.clicked.connect(openLink)
+        addFormRow(decreeForm, "Lien", linkWidget)
 
         self._raaNumber = QtWidgets.QLineEdit(decree.raaNumber)
         addFormRow(decreeForm, "Numéro RAA", self._raaNumber)
@@ -83,18 +88,34 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         pagesLayout.setContentsMargins(0, 0, 0, 0)
 
         # ASPAS specific
-        decreeForm = addSection("Information supplémentaires")
+        decreeForm = addSection("Informations supplémentaires")
 
-        self._campaign = buildComboBox(
-            repository.getCampaigns(), decree.campaign)
+        self._missing = QtWidgets.QCheckBox("", )
+        self._missing.setChecked(decree.treated)
+        addFormRow(decreeForm, "À compléter", self._missing)
+        
+        self._campaign = buildMultiComboBox(repository.getCampaigns(), decree.campaigns)
         addFormRow(decreeForm, "Campagne", self._campaign)
 
-        self._topic = buildMultiComboBox(repository.getTopics(), decree.topic)
-        addFormRow(decreeForm, "Sujet", self._topic)
+        topicWidget = QtWidgets.QWidget()
+        topicLayout = QtWidgets.QHBoxLayout(topicWidget)
+        topicLayout.setContentsMargins(0,0,0,0)
+        self._topic = buildMultiComboBox(repository.getTopics(), decree.topics)
+        self._topic.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        topicLayout.addWidget(self._topic)
+
+        self._unselectTopic = QtWidgets.QPushButton('X')
+        self._unselectTopic.setFixedSize(20,20)
+        self._unselectTopic.setContentsMargins(0,0,0,0)
+        self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
+        self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
+        topicLayout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignLeft)
+        addFormRow(decreeForm, "Sujet", topicWidget)
 
         self._treated = QtWidgets.QCheckBox("", )
         self._treated.setChecked(decree.treated)
         addFormRow(decreeForm, "Traité", self._treated)
+        
 
         commentSep = QtWidgets.QLabel("Commentaire")
         self._rootLayout.addWidget(commentSep)
@@ -121,12 +142,13 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
             signingDate=self._signingDate.date().toPython(),
             department=self._department.currentData(),
             raaNumber=self._raaNumber.text(),
-            link=self._decree.link,
+            link=self._link.text(),
             startPage=int(self._pagesStart.text()),
             endPage=int(self._pagesEnd.text()),
-            campaign=self._campaign.currentData(),
-            topic=self._topic.currentData(),
+            campaigns=self._campaign.currentData(),
+            topics=self._topic.currentData(),
             treated=self._treated.isChecked(),
+            missingData=self._missing.isChecked(),
             comment=self._comment.toPlainText(),
         )
 
@@ -139,3 +161,6 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
 
     def decree(self):
         return self._decree
+
+    def onClickUnselectTopic(self):
+        self._topic.unselectAllItems()

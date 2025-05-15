@@ -1,7 +1,7 @@
 import os
 import sys
-from PySide6.QtWidgets import QApplication, QStyleFactory
 from PySide6 import QtGui
+from PySide6.QtWidgets import QApplication, QStyleFactory
 from furet import settings
 import locale
 
@@ -25,4 +25,5 @@ def main():
             app.setStyle("kvantum")
     window = DecreeTableWindow()
     window.showMaximized()
+    app.setWindowIcon(QtGui.QIcon("asset/furet-logo.ico"))
     return app.exec()

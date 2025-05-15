@@ -1,83 +1,99 @@
-import datetime
-from furet.types.department import *
-from furet.types.decree import Decree, DecreeTopic, Campaign, DocumentType
 import os
-import csv
-from datetime import datetime
+from furet import settings
+from furet.types.department import *
+from furet.types.decree import *
+from PySide6 import QtCore
 
-#gérer les id
-# gérer la modif d'un arrete: add arrete to file (enregistrer l'id et pas tout l'objet campagne)
+from . import campaigns, decrees, departments, docTypes, topics
 
-basePath = "./database/"
-format = '%d/%m/%Y'
-allDecreeList = []
-campaignList = []
-topicList = []
-departmentList = []
-docTypeList = []
+
 def setup():
-    #load config data
-    loadCampaignsFromFile(basePath + '/config/campaign.csv', campaignList)
-    loadDepartmentsFromFile(basePath + '/config/departments.csv', departmentList)
-    loadTopicsFromFile(basePath + '/config/decreeTopics.csv', topicList)
-    loadDocTypesFromFile(basePath + '/config/documentType.csv', docTypeList)
-    # print(campaignList)
-    # get all csvfiles from os
-    # print(len(allDecreeList))
+    settings.setDefaultValue("repository.csv-root", os.path.join(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation), 'database'))
+    os.makedirs(os.path.join(settings.value("repository.csv-root"), 'config'), exist_ok=True)
+    os.makedirs(os.path.join(settings.value("repository.csv-root"), 'prefectures'), exist_ok=True)
+    topics.loadAllTopics()
+    departments.loadAllDepartments()
+    docTypes.loadAllDocTypes()
+    campaigns.loadAllCampaigns()
+    decrees.loadAllDecrees()
 
-def readAllArretesFromFiles():
-   #Separate function from setup because setup must be called before processing (information required for processing is retrieved during setup) and processing adds new decrees!
-    for root, dirs, files in os.walk(basePath + '/prefectures/'):
-        for filename in files:
-            if filename.endswith(".csv"):
-                filepath = os.path.join(root, filename)
-                #mod_time = os.path.getmtime(filepath)  # timestamp de modification
-                loadArretesFromFile(filepath,allDecreeList)
 
+# DECREES
 def getDecrees() -> list[Decree]:
-    return allDecreeList
+    return decrees.getDecrees()
 
 
 def getDecreeById(id: int) -> Decree:
-    return _findByField(getDecrees(), id)
+    return _findByField(decrees.getDecrees(), id)
 
 def updateDecree(id: int, decree: Decree):
-    pass
+    return decrees.updateDecree(id, decree)
 
+def addDecree(decree: Decree):
+    return decrees.addDecree(decree)
 
+def addDecrees(decreesList: list[Decree]):
+    return decrees.addDecrees(decreesList)
 
+# DEPARTMENTS
 
 def getDepartments() -> list[Department]:
-    return departmentList
+    return departments.getDepartments()
 
 
 def getDepartmentById(id: int) -> Department:
     return _findByField(getDepartments(), id)
 
+# DOCTYPES
 
 def getDocumentTypes() -> list[DocumentType]:
-    return docTypeList
+    return docTypes.getDocTypes()
 
 
 def getDocumentTypeById(id: int) -> DocumentType:
     return _findByField(getDocumentTypes(), id)
 
+# CAMPAIGNS
 
 def getCampaigns() -> list[Campaign]:
-    return campaignList
+    return campaigns.getCampaigns()
 
 
 def getCampaignById(id: int) -> Campaign:
-    return _findByField(getCampaigns(), id)
+    return _findByField(campaigns.getCampaigns(), id)
+
 
 def getCampaignIdByLabel(label: str) -> Campaign:
-    return _findByField(getCampaigns(), label)
+    return _findByField(campaigns.getCampaigns(), label)
+
+
+def updateCampaign(id: int, campaign: Campaign):
+    return campaigns.updateCampaign(id, campaign)
+
+
+def addCampaign(campaign: Campaign):
+    return campaigns.addCampaign(campaign)
+
+def getCampaignFromTopic(topic: DecreeTopic) -> list[Campaign]:
+    return campaigns.getCampaignFromTopic(topic)
+
+
+# TOPICS
 
 def getTopics() -> list[DecreeTopic]:
-    return topicList
+    return topics.getTopics()
+
 
 def getTopicById(id: int) -> DecreeTopic:
     return _findByField(getTopics(), id)
+
+
+def updateTopic(id: int, topic: DecreeTopic):
+    return topics.updateTopic(id, topic)
+
+
+def addTopic(topic: DecreeTopic):
+    return topics.addTopic(topic)
 
 
 def _findByField(collection, value, field: str = "id"):
@@ -86,191 +102,8 @@ def _findByField(collection, value, field: str = "id"):
             return d
     return None
 
-
-def addArreteToFile(arrete :Decree):
-    #get the year and month
-    fullPath = getFileName(arrete)
-    headers = ['id', 'Département', "Type de document", "Numéro de l'arrêté", "Titre de l'arrêté", 
-               "Date de signature de l'arrêté", "Numéro du RAA", "Date de publication du RAA", 'URL du RAA', 
-               "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
-    row = arrete.toCsvLine()
-    file_exists = os.path.isfile(fullPath) #bool
-
-    directory = os.path.dirname(fullPath)
-    os.makedirs(directory, exist_ok=True)
-
-    with open(fullPath, 'a', encoding='utf-8', newline='') as file:
-        writerCsv = csv.writer(file)
-        # if the file is freshly created, we need to insert the column names at the beginning
-        if not file_exists:
-            writerCsv.writerow(headers) 
-        # insert the line with the arrete
-        writerCsv.writerow(row)  
-
-def updateDecree(id: int, decree: Decree):
-    #update decree data in csv file
-    fileContent = []
-
-    # 1. get the file name
-    fullPath = getFileName(decree)
-    #2. read file and it content
-    with open(fullPath, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        # On recupere le header separément du reste des lignes sinon ca pose probleme pour le cast
-        header = next(reader)
-
-        for row in reader:
-            if int(row[0]) == id:
-                fileContent.append(decree.toCsvLine())
-            else:
-                fileContent.append(row)
-
-    #3. re-write the file content (updated)
-    with open(fullPath, 'w', encoding='utf-8', newline='') as file: #w clears all the file content
-        writerCsv = csv.writer(file)
-        #write the header
-        writerCsv.writerow(header)
-        writerCsv.writerows(fileContent)
-
-def loadArretesFromFile(path :str, listArretes : list[Decree]) -> list[Decree]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try: 
-                aa = Decree(
-                    id = int(row[0]), department = getDepartmentById(int(row[1])), docType = getDocumentTypeById(int(row[2])), 
-                    number = row[3], title = row[4], signingDate = datetime.strptime(row[5], format).date(), raaNumber = row[6], 
-                    publicationDate = datetime.strptime(row[7], format).date(), link = row[8], startPage = int(row[9]), 
-                    endPage = int(row[10]), campaign = getCampaignById(int(row[11])), 
-                    topic = list(map(getTopicById, map(int, row[12].split("-")))), 
-                    treated = bool(int(row[13])), comment = row[14]
-                )
-                listArretes.append(aa)
-
-            except Exception as e:
-                print(f"Erreur de parsing arrêtés, ligne ignorée : {row}")
-                print(f"Erreur : {e}")
-    return listArretes
-
-def loadCampaignsFromFile(path :str, listCampaigns : list[Campaign]) -> list[Campaign]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try: 
-                cc = Campaign(id = int(row[0]), label = row[1])
-                listCampaigns.append(cc)
-
-            except Exception as e:
-                print(f"Erreur de parsing campagnes, ligne ignorée : {row}")
-                print(f"Erreur : {e}")
-    return listCampaigns
-
-def loadDepartmentsFromFile(path :str, listDepartments : list[Department]) -> list[Department]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try: 
-                dd = Department(id = int(row[0]), number= row[1], label = row[2])
-                listDepartments.append(dd)
-
-            except Exception as e:
-                print(f"Erreur de parsing départements, ligne ignorée : {row}")
-                print(f"Erreur : {e}")
-    return listDepartments
-
-def loadTopicsFromFile(path :str, listTopics : list[DecreeTopic]) -> list[DecreeTopic]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try: 
-                tt = DecreeTopic(id = int(row[0]), label = row[1])
-                listTopics.append(tt)
-
-            except Exception as e:
-                print(f"Erreur de parsing sujets, ligne ignorée : {row}")
-                print(f"Erreur : {e}")
-    return listTopics
-
-def loadDocTypesFromFile(path :str, listDocTypes : list[DocumentType]) -> list[DocumentType]:
-    with open(path, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        # Separate header from the other data of the csv
-        header = next(reader)
-        for row in reader:
-            try: 
-                tt = DocumentType(id = int(row[0]), label = row[1])
-                listDocTypes.append(tt)
-
-            except Exception as e:
-                print(f"Erreur de parsing types de docs, ligne ignorée : {row}")
-                print(f"Erreur : {e}")
-    return listDocTypes
-
-def addCampaign(label: str):
-    fullPath = basePath + 'config/campaign.csv'
-    try: 
-        nId = updateIdFile('campaign')
-
-        with open(fullPath, 'a', encoding='utf-8', newline='') as file:
-            writerCsv = csv.writer(file)
-            writerCsv.writerow([nId, label])  
-
-    except Exception as e:
-        print(f"Erreur de modification de fichier")
-        print(f"Erreur : {e}")
-
-def addTopic(label: str):
-    fullPath = basePath + 'config/decreeTopics.csv'
-    nId = updateIdFile('topic')
-
-    try: 
-        with open(fullPath, 'a', encoding='utf-8', newline='') as file:
-            writerCsv = csv.writer(file)
-            writerCsv.writerow([nId, label])  
-
-    except Exception as e:
-        print(f"Erreur de modification de fichier")
-        print(f"Erreur : {e}")
-
-def updateIdFile(attr : str) -> int:
-    #update decree data in csv file
-    fullPath = basePath + 'config/lastId.csv'
-    fileContent = []
-    
-    #2. read file and its content
-    with open(fullPath, encoding='utf-8') as file:
-        reader = csv.reader(file, delimiter=',')
-        header = next(reader)
-        for row in reader:
-            if row[0] == attr:
-                nextId = int(row[1]) + 1
-                fileContent.append([attr, nextId])
-            else:
-                fileContent.append(row)
-
-    #3. re-write the file content (updated)
-    with open(fullPath, 'w', encoding='utf-8', newline='') as file: #w clears all the file content
-        writerCsv = csv.writer(file)
-        writerCsv.writerow(header)
-        writerCsv.writerows(fileContent)
-    
-    return nextId
-
-
-def getFileName(arrete : Decree) -> str:
-    dYear = arrete.publicationDate.year
-    dMonth = arrete.publicationDate.month
-    filename = str(arrete.department.number) + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
-    
-    fullPath = basePath + "prefectures/" + str(arrete.department.number) + '/' + filename
-    return fullPath
+def getDecreesWithEmptyLink() -> list[Decree]:
+    return [
+        decree for decree in getDecrees()
+        if decree.link == ""
+    ]

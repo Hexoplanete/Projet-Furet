@@ -94,7 +94,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._dateAfterValue = None if not self._dateAfterToggle.isChecked() else self._dateAfter.date().toPython()
         self._dateBeforeValue = None if not self._dateBeforeToggle.isChecked() else self._dateBefore.date().toPython()
         self._stateValues = self._state.currentData()
-        self._campaignValues = self._state.currentData()
+        self._campaignValues = self._campaign.currentData()
 
 
     def data(self, index, /, role = ...):

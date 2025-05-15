@@ -43,12 +43,17 @@ class Processing:
             response = requests.get(url, stream=True, headers=self.headers)
             response.raise_for_status()
             
-            fileName = os.path.join(outputPath)
+            # If outputPath is a directory, append the filename from the URL
+            if os.path.isdir(outputPath):
+                fileName = os.path.join(outputPath, os.path.basename(url))
+            else:
+                fileName = outputPath
             if not fileName.endswith('.pdf'):
                 fileName += ".pdf"
             with open(fileName, 'wb') as file:
                 for chunk in response.iter_content(chunk_size=1024):
-                    file.write(chunk)
+                    if chunk:  # filter out keep-alive new chunks
+                        file.write(chunk)
             print(f"Downloaded: {fileName}")
         except requests.RequestException as e:
             print(f"Failed to download {url}: {e}")

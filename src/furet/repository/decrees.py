@@ -15,7 +15,7 @@ def getBasePath():
 def loadAllDecrees():
    # Separate function from setup because setup must be called before processing (information required for processing is retrieved during setup) and processing adds new decrees!
     basePath = getBasePath()
-    for root, dirs, files in os.walk(basePath + '/prefectures/'):
+    for root, dirs, files in os.walk(basePath):
         for filename in files:
             if filename.endswith(".csv"):
                 filepath = os.path.join(root, filename)
@@ -127,10 +127,8 @@ def saveDecreesToFile(decreeFile: str):
 def getFileName(arrete: Decree) -> str:
     dYear = arrete.publicationDate.year
     dMonth = arrete.publicationDate.month
-    filename = arrete.department.number + "_" + \
-        str(dYear) + "_" + str(dMonth) + "_RAA.csv"
+    filename = arrete.department.number + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
 
     basePath = getBasePath()
-    fullPath = basePath + "/prefectures/" + \
-        arrete.department.number + '/' + filename
+    fullPath = os.path.join(basePath, arrete.department.number + '/' + filename)
     return fullPath

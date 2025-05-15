@@ -83,7 +83,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def onClickParamButton(self):
         if self._paramWindow == None or not(self._paramWindow.isVisible()):
-            self._paramWindow = SettingsWindow()
+            self._paramWindow = SettingsWindow(self)
             self._paramWindow.show()
         else:
             self._paramWindow.activateWindow()
@@ -117,3 +117,9 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def onClickDocButton(self):
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")
+
+    def updateTopicsComboBox(self):
+        self._filters.updateTopicsComboBox()
+
+    def updateCampaignsComboBox(self):
+        self._filters.updateCampaignsComboBox()

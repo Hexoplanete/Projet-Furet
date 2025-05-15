@@ -38,6 +38,9 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
             if index.column() == 6:
                 field = self._fields[index.column()]
                 return QtGui.QColor("green") if getattr(self._data[index.row()], field.name) else QtGui.QColor("red")
+            if index.column() == 7:
+                field = self._fields[index.column()]
+                return QtGui.QColor("green") if not getattr(self._data[index.row()], field.name) else QtGui.QColor("red")
 
     def rowCount(self, /, parent=...):
         return len(self._data)

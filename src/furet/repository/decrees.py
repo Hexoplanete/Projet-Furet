@@ -15,7 +15,7 @@ def getBasePath():
 def loadAllDecrees():
    # Separate function from setup because setup must be called before processing (information required for processing is retrieved during setup) and processing adds new decrees!
     basePath = getBasePath()
-    for root, dirs, files in os.walk(basePath + '/prefectures/'):
+    for root, dirs, files in os.walk(basePath):
         for filename in files:
             if filename.endswith(".csv"):
                 filepath = os.path.join(root, filename)
@@ -33,7 +33,7 @@ def loadDecreeFromFiles(decreeFile: str):
             decrees: list[Decree] = []
             for row in reader:
                 try:
-                    decrees.append[Decree(
+                    decrees.append(Decree(
                         id=int(row[0]),
 
                         raaNumber=row[6],
@@ -41,20 +41,21 @@ def loadDecreeFromFiles(decreeFile: str):
                         link=row[8],
                         startPage=int(row[9]), endPage=int(row[10]),
                         publicationDate=datetime.strptime(
-                            row[7], format).date(),
+                            row[7], "%d/%m/%Y").date(),
 
                         docType=repository.getDocumentTypeById(int(row[2])),
                         number=row[3],
                         title=row[4],
-                        signingDate=datetime.strptime(row[5], format).date(),
+                        signingDate=datetime.strptime(row[5], "%d/%m/%Y").date(),
 
                         campaigns=list(
                             map(repository.getCampaignById, map(int, row[11].split("-")))),
                         topics=list(map(repository.getTopicById,
                                     map(int, row[12].split("-")))),
                         treated=bool(int(row[13])),
-                        comment=row[14]
-                    )]
+                        missingData=row[14],
+                        comment=row[15],
+                    ))
                     maxId = max(maxId, decrees[-1].id)
 
 
@@ -76,31 +77,45 @@ def getDecrees():
     return l
 
 
-def addDecree(decree: Decree):
+def _addDecree(decree: Decree):
     global maxId
     maxId = maxId+1
     decree.id = maxId
     decreeFile = getFileName(decree)
+    if not decreeFile in decreesPerFile:
+        decreesPerFile[decreeFile] = []
     decreesPerFile[decreeFile].append(decree)
-    saveDecreesToFile(decreeFile)
+def addDecree(decree: Decree):
+    _addDecree(decree)
+    saveDecreesToFile(getFileName(decree))
+
+def addDecrees(decrees: list[Decree]):
+    files = set()
+    for d in decrees:
+        files.add(getFileName(d))
+        _addDecree(d)
+    for f in files:
+        saveDecreesToFile(f)
 
 
 def updateDecree(id: int, decree: Decree):
     decree.id = id
     decreeFile = getFileName(decree)
+    if not decreeFile in decreesPerFile:
+        decreesPerFile[decreeFile] = []
     for i in range(len(decreesPerFile[decreeFile])):
         if decreesPerFile[decreeFile][i].id == decree.id:
-            decreesPerFile[decreeFile][i].id = decree
-    saveDecreesToFile(decree)
+            decreesPerFile[decreeFile][i] = decree
+    saveDecreesToFile(decreeFile)
 
 
 def saveDecreesToFile(decreeFile: str):
     headers = ['id', 'Département', "Type de document", "Numéro de l'arrêté", "Titre de l'arrêté",
                "Date de signature de l'arrêté", "Numéro du RAA", "Date de publication du RAA", 'URL du RAA',
-               "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire']
+               "Page début", "Page fin", "Campagne Aspas concernée", "Sujet", "Statut de traitement", 'Commentaire', "Données Manquantes"]
 
     try:
-        os.makedirs(decreeFile, exist_ok=True)
+        os.makedirs(os.path.dirname(decreeFile), exist_ok=True)
         with open(decreeFile, 'w', encoding='utf-8', newline='') as file:
             writerCsv = csv.writer(file)
             writerCsv.writerow(headers)
@@ -114,10 +129,8 @@ def saveDecreesToFile(decreeFile: str):
 def getFileName(arrete: Decree) -> str:
     dYear = arrete.publicationDate.year
     dMonth = arrete.publicationDate.month
-    filename = arrete.department.number + "_" + \
-        str(dYear) + "_" + str(dMonth) + "_RAA.csv"
+    filename = arrete.department.number + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
 
     basePath = getBasePath()
-    fullPath = basePath + "/prefectures/" + \
-        arrete.department.number + '/' + filename
+    fullPath = os.path.join(basePath, arrete.department.number + '/' + filename)
     return fullPath

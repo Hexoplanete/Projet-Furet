@@ -32,6 +32,9 @@ def updateDecree(id: int, decree: Decree):
 def addDecree(decree: Decree):
     return decrees.addDecree(decree)
 
+def addDecrees(decreesList: list[Decree]):
+    return decrees.addDecrees(decreesList)
+
 # DEPARTMENTS
 
 def getDepartments() -> list[Department]:
@@ -71,6 +74,9 @@ def updateCampaign(id: int, campaign: Campaign):
 def addCampaign(campaign: Campaign):
     return campaigns.addCampaign(campaign)
 
+def getCampaignFromTopic(topic: DecreeTopic) -> list[Campaign]:
+    return campaigns.getCampaignFromTopic(topic)
+
 
 # TOPICS
 
@@ -95,3 +101,9 @@ def _findByField(collection, value, field: str = "id"):
         if getattr(d, field) == value:
             return d
     return None
+
+def getDecreesWithEmptyLink() -> list[Decree]:
+    return [
+        decree for decree in getDecrees()
+        if decree.link == ""
+    ]

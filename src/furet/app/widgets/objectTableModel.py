@@ -60,25 +60,6 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
         fieldRight = self._fields[indexRight.column()]
         return getattr(self._data[indexLeft.row()], fieldLeft.name) < getattr(self._data[indexRight.row()], fieldRight.name)
 
-class ObjectFilterProxy(Generic[T], QtCore.QSortFilterProxyModel):
-
-    def __init__(self, filterer: Callable[[int, QtCore.QModelIndex | QtCore.QPersistentModelIndex], bool], parent=None):
-        super().__init__(parent)
-        self._filterer = filterer
-
-    def setSourceModel(self, model: ObjectTableModel[T]):
-        super().setSourceModel(model)
-
-    def sourceModel(self) -> ObjectTableModel[T]:
-        return super().sourceModel()
-
-    def filterAcceptsRow(self, source_row, source_parent, /):
-        return self._filterer(self.sourceModel().itemAt(source_row))
-    
-    def lessThan(self, source_left, source_right, /):
-        return self.sourceModel().lessThan(source_left, source_right)
-
-
 class singleRowEditableModel(QtCore.QAbstractTableModel):
     def __init__(self, data: list[T], columnName):
         super().__init__()

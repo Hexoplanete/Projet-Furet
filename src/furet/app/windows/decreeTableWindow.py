@@ -24,7 +24,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: formatDate(v)),                         # 0
             TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: formatDate(v + relativedelta(months=2))), # 1
             TableColumn[Department]("department", lambda: "Département"),                                                         # 2
-            TableColumn[Campaign]("campaigns", lambda: "Campagnes", lambda v: ", ".join(map(str, v))),                                                              # 3
+            TableColumn[list[Campaign]]("campaigns", lambda: "Campagnes", lambda v: ", ".join(map(str, v))),                      # 3
             TableColumn[list[DecreeTopic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),                         # 4
             TableColumn[str]("title", lambda: "Titre"),                                                                           # 5
             TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),                               # 6
@@ -55,12 +55,11 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         
         self._topBar.addLayout(self._buttonLayer)
 
-        self._filters = DecreeFilterWidget()
-        self._filters.setModel(self._decrees)
+        self._filters = DecreeFilterWidget(self.onClickResearchButton)
         self._topBar.addWidget(self._filters)
 
         self._table = QtWidgets.QTableView()
-        self._table.setModel(self._filters.proxyModel())
+        self._table.setModel(self._decrees)
         self._layout.addWidget(self._table, 1)
         self._table.doubleClicked.connect(self.onDblClickTableRow)
 
@@ -88,9 +87,12 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         else:
             self._paramWindow.activateWindow()
 
+    def onClickResearchButton(self):
+        self._decrees.resetData(repository.getDecrees(self._filters.filters()))
+
+
     def onDblClickTableRow(self, index: QtCore.QModelIndex):
-        source_index = self._filters.proxyModel().mapToSource(index)
-        decree = self._decrees.itemAt(source_index.row())
+        decree = self._decrees.itemAt(index.row())
         def onDecreeSaved():
             self._decrees.resetData(repository.getDecrees())
 

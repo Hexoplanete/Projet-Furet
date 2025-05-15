@@ -132,5 +132,6 @@ def getFileName(arrete: Decree) -> str:
     filename = arrete.department.number + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
 
     basePath = getBasePath()
-    fullPath = os.path.join(basePath, arrete.department.number + '/' + filename)
+    fullPath = os.path.join(basePath, arrete.department.number)
+    fullPath = os.path.join(fullPath, filename)
     return fullPath

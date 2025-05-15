@@ -19,11 +19,17 @@ Ce projet à été réalisé dans le cadre du projet SMART à l'INSA de Lyon par
 
 
 
+
+## Commandes testées pour build executable
+
+#### Commande qui semble fonctionner pour enlever erreurs liées à  fr_core_news_sm et ocrmy pdf (mais reste au moins erreurs crawler.regions )
 <!-- uv run pyinstaller --onefile -n furet --add-data "libs/fr_core_news_sm/fr_core_news_sm-3.8.0/;fr_core_news_sm" --collect-data ocrmypdf src/furet/__main__.py -->
 
-<!-- Build Executable : uv run pyinstaller --onefile -n furet --add-data "src/furet/crawler/regions/;crawler-regions" --add-data "libs/fr_core_news_sm/fr_core_news_sm-3.8.0/;fr_core_news_sm"  --additional-hooks-dir=hooks src/ --collect-data ocrmypdf src/furet/__main__.py
 
-Build Executable : uv run pyinstaller --onefile -n furet --add-data "src/furet/crawler/regions/;crawler-regions" --add-data "src/furet/crawler/;crawler"  --add-data "libs/fr_core_news_sm/fr_core_news_sm-3.8.0/;fr_core_news_sm"  --hidden-import=furet.crawler.regions --collect-data ocrmypdf src/furet/__main__.py -->
+#### Tests non concluants pour crawler.regions
 
+ <!-- uv run pyinstaller --onefile -n furet --add-data "src/furet/crawler/regions/;crawler-regions" --add-data "libs/fr_core_news_sm/fr_core_news_sm-3.8.0/;fr_core_news_sm"  --additional-hooks-dir=hooks src/ --collect-data ocrmypdf src/furet/__main__.py
+
+ uv run pyinstaller --onefile -n furet --add-data "src/furet/crawler/regions/;crawler-regions" --add-data "src/furet/crawler/;crawler"  --add-data "libs/fr_core_news_sm/fr_core_news_sm-3.8.0/;fr_core_news_sm"  --hidden-import=furet.crawler.regions --collect-data ocrmypdf src/furet/__main__.py --> 
 
 <!-- uv run pyinstaller --onefile -n furet --add-data "libs/fr_core_news_sm/fr_core_news_sm-3.8.0/;fr_core_news_sm" --add-data "src/furet/crawler/regions/;crawler-regions"  --collect-data ocrmypdf --additional-hooks-dir=hook src/furet/__main__.py -->

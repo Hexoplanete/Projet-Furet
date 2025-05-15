@@ -2,8 +2,8 @@ from furet.processing.getKeyWords import getKeyWords
 from furet.processing.correspondenceNameNumberDepartment import departementsLabelToCode
 from furet.processing.ocr import mainOcr
 from furet.processing.separation import mainSeparation
-from furet.traitement.getCharacteristics import extractDocumentCharacterisics
-from furet.repository import getTopics, getDepartmentById, addArreteToFile, getDocumentTypeById, getCampaignFromTopic
+from furet.processing.getCharacteristics import extractDocumentCharacterisics
+from furet import repository
 from furet.types.raa import RAA
 from furet.types.decree import *
 from furet import settings
@@ -83,7 +83,7 @@ class Processing:
             raaDepartementLabel = el["department"]
 
             departementNumber = int(departementsLabelToCode[raaDepartementLabel])
-            departement = getDepartmentById(departementNumber)
+            departement = repository.getDepartmentById(departementNumber)
 
             # Creates a RAA object containing information retrieved by the crawler
             raa = RAA(
@@ -195,7 +195,7 @@ class Processing:
                     objectDecree.number = characteristics["Number"]
 
                     if characteristics["Type"] is not None:
-                        objectDecree.docType = getDocumentTypeById(characteristics["Type"])
+                        objectDecree.docType = repository.getDocumentTypeById(characteristics["Type"])
                 
 
                 objectDecree.campaigns = self.getCampaignFromDecree(objectDecree) 
@@ -208,7 +208,7 @@ class Processing:
             """
             Returns a dictionary that associates each topic name with its id
             """
-            listeDecreeTopics = getTopics()
+            listeDecreeTopics = repository.getTopics()
             return {topic.label: topic.id for topic in listeDecreeTopics}
     
     def isArreteProbablyFalsePositive(self, listeDecreeTopic):

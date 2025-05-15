@@ -14,7 +14,7 @@ def cleanType(docType):
     """Standardizes the document type"""
 
     docType = docType.lower()
-    if re.search('arrêté|arreté|arrête|arrete|ap|am', docType):#Consider all representations of the word "decree"
+    if re.search('arrêté|arreté|arrête|arrete|ap|am', docType): #Consider all representations of the word "decree"
         if re.search('municipal|am', docType):
             cleanType = 3
         elif re.search('préfectoral|prefectoral|ap', docType):
@@ -32,7 +32,7 @@ def cleanType(docType):
 # EXTRACTION FUNCTIONS ---------------------------------------------------------------------------------------
 
 def extractPageCharacteristics(pageText, pageIndex):
-    """Extracts clean data (number, title and type) from the text of a document"""
+    """Extracts clean data (number, title and type) from the text of a document (use the footnote)"""
 
     regexp = f"- ((?:\\d|-)+) - ((\\S+) (?:.|\\n)+)" #This regexp extracts raw information from the decree footnote
     compiledRegexp = re.compile(regexp)

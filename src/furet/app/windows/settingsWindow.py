@@ -82,7 +82,8 @@ class SettingsWindow(QtWidgets.QDialog):
         newTopicCampaignButtons = QtWidgets.QHBoxLayout()
 
         def onClickNewCampaign():
-            newCampaign = Campaign(id = max([t.id for t in repository.getCampaigns()]) + 1, label = "", topicList = [])
+            topicList = [repository.getTopicById(i.row() + 1) for i in self.viewTopic.selectedIndexes()]
+            newCampaign = Campaign(id = max([t.id for t in repository.getCampaigns()]) + 1, label = "", topicList = topicList)
             repository.getCampaigns().append(newCampaign)
 
             row = len(repository.getCampaigns()) - 1
@@ -95,6 +96,10 @@ class SettingsWindow(QtWidgets.QDialog):
             self.viewCampaign.edit(index)
 
         self.newCampaignButton = QtWidgets.QPushButton("Ajouter une Campagne")
+        self.newCampaignButton.setToolTip(
+            "Avant de cliquer sur ce bouton pour ajouter une nouvelle campagne, veuillez sélectionner au préalable les sujets\n" \
+            "associés à la nouvelle campagne dans le tableau des sujets ci-dessus." \
+            "\nPour changer les sujets attribués à une campagne, veuillez les changer directement dans le fichier CSV des campagnes.")
         self.newCampaignButton.clicked.connect(onClickNewCampaign)
         newTopicCampaignButtons.addWidget(self.newCampaignButton)
 

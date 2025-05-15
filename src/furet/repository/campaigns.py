@@ -35,7 +35,7 @@ def loadAllCampaigns():
                     campaigns.append(Campaign(
                         id=int(row[0]),
                         label=row[1],
-                        topicList=list(map(repository.getTopicById, map(int, row[2].split("-")))) if len(row) == 3 else []
+                        topicList=list(map(repository.getTopicById, map(int, row[2].split("-")))) if len(row) == 3 and row[2] else []
                     ))
                     maxId = max(maxId, campaigns[-1].id)
     except Exception as e:

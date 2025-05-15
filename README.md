@@ -11,7 +11,6 @@ Référez vous à la [section d'Installation](https://github.com/Hexoplanete/Pro
 
 Pour le développement, rendez vous dans [section développeur](https://github.com/Hexoplanete/Projet-Furet/wiki/Home-d%C3%A9velopeur) du wiki.
 
-uv run pyinstaller --onefile -n furet --add-data "libs/fr_core_news_sm/fr_core_news_sm-3.8.0/;fr_core_news_sm" --collect-data ocrmypdf src/furet/__main__.py
 
 
 ## Contexte
@@ -20,6 +19,7 @@ Ce projet à été réalisé dans le cadre du projet SMART à l'INSA de Lyon par
 
 
 
+<!-- uv run pyinstaller --onefile -n furet --add-data "libs/fr_core_news_sm/fr_core_news_sm-3.8.0/;fr_core_news_sm" --collect-data ocrmypdf src/furet/__main__.py -->
 
 <!-- Build Executable : uv run pyinstaller --onefile -n furet --add-data "src/furet/crawler/regions/;crawler-regions" --add-data "libs/fr_core_news_sm/fr_core_news_sm-3.8.0/;fr_core_news_sm"  --additional-hooks-dir=hooks src/ --collect-data ocrmypdf src/furet/__main__.py
 

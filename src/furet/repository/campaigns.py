@@ -1,3 +1,4 @@
+from furet.repository import utils
 from furet.types.decree import *
 import os
 import csv
@@ -35,7 +36,7 @@ def loadAllCampaigns():
                     campaigns.append(Campaign(
                         id=int(row[0]),
                         label=row[1],
-                        topicList=list(map(repository.getTopicById, map(int, row[2].split("-"))))
+                        topicList=list(map(repository.getTopicById, utils.splitIdList(row[2])))
                     ))
                     maxId = max(maxId, campaigns[-1].id)
     except Exception as e:

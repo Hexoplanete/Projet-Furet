@@ -17,7 +17,7 @@ class SaoneEtLoire(Spider):
         self.department = "SaoneEtLoire"
         self.currentMostRecentRAA = self.mostRecentRAA
 
-    def findPagesAndLinks(self, html):
+    def findPages(self, html):
         """
         Find the number of pages available in the HTML content.
 
@@ -34,18 +34,23 @@ class SaoneEtLoire(Spider):
             soup = BeautifulSoup(html, 'html.parser')
             i += 1
 
-            if not html or not soup.find(class_="fr-card__title"):
+            if not html or not soup.find(class_="fr-card__content"):
                 break
 
-            html = self.fetchPage(url)
-            if not html:
-                break
-
-            links = self.extractLinks(html, links)
+            divs = soup.find_all('div', class_="fr-card__content")
+            for div in divs:
+                dateStr = div.find('p', class_='fr-card__detail').text.split()[-1]
+                date = datetime.strptime(dateStr, "%d/%m/%Y")
+                if date >= self.mostRecentRAA:
+                    links.append("https://www.saone-et-loire.gouv.fr" + div.find('a', class_='fr-card__link')['href']) # Extract the link from the row
+                if date.year < self.mostRecentRAA.year: # Check if the year is less than the most recent RAA year for the optimization. We can stop the loop here earlier.
+                    break
+            
             if len(links) == 0:
                 break
-            finalLinks.extend(links)
-            
+            for link in links:
+                finalLinks.append(link)
+
         return finalLinks
         
     def extractLinks(self, html, links):
@@ -56,43 +61,20 @@ class SaoneEtLoire(Spider):
         :return: List of extracted links.
         """
         soup = BeautifulSoup(html, 'html.parser')
-        rows = soup.find_all('div', class_="fr-card__content")
-        for row in rows:
+        aList = soup.find_all('a', href=True)
+        for a in aList:
             try:
-                dateStr = row.find('p', class_='fr-card__detail').text.split()[-1] # Extract the date from the link text
-                date = datetime.strptime(dateStr, "%d/%m/%Y")
-
-                if date > self.mostRecentRAA:           # If the date is more recent than the most recent RAA, add it to the list
-                    link = row.find('a', class_='fr-card__link')['href'] # Extract the link from the row
-                    links.append({"link": 'https://www.saone-et-loire.gouv.fr' + link, "datePublication": dateStr, "region": self.region, "department": self.department}) # Add the link to the list for JSON output
-                    if date > self.currentMostRecentRAA:
-                        self.currentMostRecentRAA = date
-
+                if a['href'].startswith('/contenu/telechargement/'):
+                    dateStr = a.find('span', class_='fr-link__detail').text.split()[-1]
+                    date = datetime.strptime(dateStr, "%d/%m/%Y")
+                    if date >= self.mostRecentRAA:
+                        link = a['href']
+                        links.append({"link": 'https://www.saone-et-loire.gouv.fr' + link, "datePublication": dateStr, "region": self.region, "department": self.department})
             except (ValueError, IndexError) as e:
-                print(f"Error parsing row: {row}, Error: {e}")
+                print(f"Error parsing row: {a}, Error: {e}")
                 continue
-
         return links
-        
-    def crawl(self):
-        """
-        Crawl the website to find and download the most recent RAA links.
-        SaoneEtLoire department's specific implementation is necessary to handle pagination and link extraction.
-        """
-        try:
-            links = self.findPagesAndLinks(self.fetchPage(self.baseUrl))
 
-            if self.currentMostRecentRAA > self.mostRecentRAA:  
-                self.mostRecentRAA = self.currentMostRecentRAA
-                self.setMostRecentRAADate(self.mostRecentRAA, self.region, self.department)
-
-            self.addToJsonResultFile(links)
-
-        except Exception as e:
-            print(f"Error during crawling in {self.department}: {e}")
-            return None
-        
-        return links
     
 class Doubs(Spider):
     """

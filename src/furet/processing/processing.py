@@ -2,7 +2,7 @@ from furet.processing.getKeyWords import getKeyWords
 from furet.processing.correspondenceNameNumberDepartment import departementsLabelToCode
 from furet.processing.ocr import mainOcr
 from furet.processing.separation import mainSeparation
-from furet.repository import getTopics, getDepartmentById, getCampaignFromTopic
+from furet.processing.getCharacteristics import extractDocumentCharacterisics
 from furet import repository
 from furet.types.raa import RAA
 from furet.types.decree import *
@@ -83,7 +83,7 @@ class Processing:
             raaDepartementLabel = el["department"]
 
             departementNumber = int(departementsLabelToCode[raaDepartementLabel])
-            departement = getDepartmentById(departementNumber)
+            departement = repository.getDepartmentById(departementNumber)
 
             # Creates a RAA object containing information retrieved by the crawler
             raa = RAA(
@@ -188,9 +188,20 @@ class Processing:
 
             # Saves decree information in CSV format if and only if it is of interest
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
+                
+                # Retrieving data that can be extracted from the decree, if the extraction did not work then we will leave the default value : Title, Decree Number, Document Type (In reality there are 99% decrees but there are also other types)
+                characteristics = extractDocumentCharacterisics(pathArrete)
+                if characteristics is not None:
+                    objectDecree.title = characteristics["Title"]
+                    objectDecree.number = characteristics["Number"]
+
+                    if characteristics["Type"] is not None:
+                        objectDecree.docType = repository.getDocumentTypeById(characteristics["Type"])
+
                 objectDecree.campaigns = self.getCampaignFromDecree(objectDecree) 
-            
+                
                 decrees.append(objectDecree)
+                
         repository.addDecrees(decrees)
         print("End execution of attribution keywords")
 
@@ -198,7 +209,7 @@ class Processing:
             """
             Returns a dictionary that associates each topic name with its id
             """
-            listeDecreeTopics = getTopics()
+            listeDecreeTopics = repository.getTopics()
             return {topic.label: topic.id for topic in listeDecreeTopics}
     
     def isArreteProbablyFalsePositive(self, listeDecreeTopic):
@@ -227,7 +238,7 @@ class Processing:
         campaignsDecree = set()
 
         for currentDecreeTopic in decree.topics :
-            listeCampaignCurrentTopic = getCampaignFromTopic(currentDecreeTopic)
+            listeCampaignCurrentTopic = repository.getCampaignFromTopic(currentDecreeTopic)
             campaignsDecree.update(listeCampaignCurrentTopic)
 
         return list(campaignsDecree)

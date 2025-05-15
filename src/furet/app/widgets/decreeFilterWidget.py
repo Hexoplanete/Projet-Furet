@@ -155,7 +155,8 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         i = 0
         for t in repository.getTopics():
             self._topic.addItem(str(t), userData = t)
-            self._topic.setSelectedIndex(i, isChecked[i])
+            if i < len(isChecked): # Case when adding new topic
+                self._topic.setSelectedIndex(i, isChecked[i])
             i += 1
         self._topic.blockSignals(False)
 

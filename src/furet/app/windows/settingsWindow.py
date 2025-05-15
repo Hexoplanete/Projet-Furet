@@ -78,6 +78,44 @@ class SettingsWindow(QtWidgets.QDialog):
         topicCampaign.addWidget(self.viewTopic)
 
         self._rootLayout.addLayout(topicCampaign)
+        
+        newTopicCampaignButtons = QtWidgets.QHBoxLayout()
+
+        def onClickNewCampaign():
+            newCampaign = Campaign(id = max([t.id for t in repository.getCampaigns()]) + 1, label = "", topicList = [])
+            repository.getCampaigns().append(newCampaign)
+
+            row = len(repository.getCampaigns()) - 1
+            self.modelCampaign.beginInsertRows(QtCore.QModelIndex(), row, row)
+            self.modelCampaign.endInsertRows()
+
+            index = self.modelCampaign.index(row, 0)
+            self.viewCampaign.scrollTo(index)
+            self.viewCampaign.setCurrentIndex(index)
+            self.viewCampaign.edit(index)
+
+        self.newCampaignButton = QtWidgets.QPushButton("Ajouter une Campagne")
+        self.newCampaignButton.clicked.connect(onClickNewCampaign)
+        newTopicCampaignButtons.addWidget(self.newCampaignButton)
+
+        def onClickNewTopic():
+            new_topic = DecreeTopic(id = max([t.id for t in repository.getTopics()]) + 1, label = "")
+            repository.getTopics().append(new_topic)
+
+            row = len(repository.getTopics()) - 1
+            self.modelTopic.beginInsertRows(QtCore.QModelIndex(), row, row)
+            self.modelTopic.endInsertRows()
+
+            index = self.modelTopic.index(row, 0)
+            self.viewTopic.scrollTo(index)
+            self.viewTopic.setCurrentIndex(index)
+            self.viewTopic.edit(index)
+
+        self.newTopicButton = QtWidgets.QPushButton("Ajouter un Sujet")
+        self.newTopicButton.clicked.connect(onClickNewTopic)
+        newTopicCampaignButtons.addWidget(self.newTopicButton)
+        
+        self._rootLayout.addLayout(newTopicCampaignButtons)
 
         form = addSection("Stockage")
         self.csvRoot = FilePickerWidget(settings.value("repository.csv-root"), pickMode=PickMode.Folder, onDataChange=lambda p: settings.setValue("repository.csv-root", p))

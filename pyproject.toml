@@ -14,7 +14,7 @@ authors = [
     {name = "Thomas LEVRARD" },
 ]
 
-license = "CC0"
+license = "CC0-1.0"
 license-files = ["LICEN[CS]E*"]
 
 requires-python = ">=3.9, <3.13"

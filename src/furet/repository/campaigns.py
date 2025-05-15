@@ -60,7 +60,7 @@ def updateCampaign(id: int, campaign: Campaign):
     campaign.id = id
     for i in range(len(campaigns)):
         if campaigns[i].id == campaign.id:
-            campaigns[i].id = campaign
+            campaigns[i] = campaign
     saveCampaignsToFile()
 
 

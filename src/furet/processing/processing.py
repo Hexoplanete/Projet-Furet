@@ -2,8 +2,8 @@ from furet.processing.getKeyWords import getKeyWords
 from furet.processing.correspondenceNameNumberDepartment import departementsLabelToCode
 from furet.processing.ocr import mainOcr
 from furet.processing.separation import mainSeparation
-from furet.repository import getTopics, getDepartmentById, getCampaignFromTopic
-from furet import repository
+from furet.traitement.getCharacteristics import extractDocumentCharacterisics
+from furet.repository import getTopics, getDepartmentById, addArreteToFile, getDocumentTypeById, getCampaignFromTopic
 from furet.types.raa import RAA
 from furet.types.decree import *
 from furet import settings
@@ -188,6 +188,16 @@ class Processing:
 
             # Saves decree information in CSV format if and only if it is of interest
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
+                
+                characteristics = extractDocumentCharacterisics(pathArrete)
+                if characteristics is not None:
+                    objectDecree.title = characteristics["Title"]
+                    objectDecree.number = characteristics["Number"]
+
+                    if characteristics["Type"] is not None:
+                        objectDecree.docType = getDocumentTypeById(characteristics["Type"])
+                
+
                 objectDecree.campaigns = self.getCampaignFromDecree(objectDecree) 
             
                 decrees.append(objectDecree)

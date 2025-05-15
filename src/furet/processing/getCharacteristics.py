@@ -16,22 +16,16 @@ def cleanType(docType):
     docType = docType.lower()
     if re.search('arrêté|arreté|arrête|arrete|ap|am', docType):#Consider all representations of the word "decree"
         if re.search('municipal|am', docType):
-            cleanType = 2
+            cleanType = 3
         elif re.search('préfectoral|prefectoral|ap', docType):
-            cleanType = 1
+            cleanType = 2
         else:
-            cleanType = None
+            cleanType = 1
 
     elif re.search('consultation', docType) and re.search('publique', docType):
-        cleanType = 3
-    elif re.search('décision|decision', docType):
         cleanType = 4
-    elif re.search('recepisse|récépissé', docType):
-        cleanType = 5
-    elif re.search('liste', docType):
-        cleanType = 6
     else:
-        cleanType = None
+        cleanType = 1
 
     return cleanType
 

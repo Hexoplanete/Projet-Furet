@@ -1,5 +1,5 @@
 import re
-from furet.traitement.getPdfText import *
+from furet.processing.getPdfText import extractText
 
 # CLEANING FUNCTIONS ---------------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ def extractPageCharacteristics(pageText, pageIndex):
 def extractDocumentCharacterisics(documentPath):
     """Converts a document to text and extracts its key data (number, title and type)"""
 
-    textPages = extractPages(documentPath)
+    textPages = extractText(documentPath)
 
     extractedData = None
     characteristics = None

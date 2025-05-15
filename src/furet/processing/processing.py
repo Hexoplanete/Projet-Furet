@@ -189,6 +189,7 @@ class Processing:
             # Saves decree information in CSV format if and only if it is of interest
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
                 
+                # Retrieving data that can be extracted from the decree, if the extraction did not work then we will leave the default value : Title, Decree Number, Document Type (In reality there are 99% decrees but there are also other types)
                 characteristics = extractDocumentCharacterisics(pathArrete)
                 if characteristics is not None:
                     objectDecree.title = characteristics["Title"]
@@ -196,11 +197,11 @@ class Processing:
 
                     if characteristics["Type"] is not None:
                         objectDecree.docType = repository.getDocumentTypeById(characteristics["Type"])
-                
 
                 objectDecree.campaigns = self.getCampaignFromDecree(objectDecree) 
-            
+                
                 decrees.append(objectDecree)
+                
         repository.addDecrees(decrees)
         print("End execution of attribution keywords")
 

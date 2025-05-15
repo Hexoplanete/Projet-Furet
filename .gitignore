@@ -8,3 +8,5 @@ database/debug/**
 database/pdfDirectory/**
 dist/
 build/
+
+src/furet/processing/database/**

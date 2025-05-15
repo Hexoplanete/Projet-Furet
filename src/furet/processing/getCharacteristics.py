@@ -1,5 +1,5 @@
 import re
-from furet.processing.getPdfText import extractText
+from furet.processing.getPdfText import extractTextList
 
 # CLEANING FUNCTIONS ---------------------------------------------------------------------------------------
 
@@ -51,16 +51,15 @@ def extractPageCharacteristics(pageText, pageIndex):
     else: #If no footnote, finding the data is too difficult (would require AI)
         return None
 
-
 def extractDocumentCharacterisics(documentPath):
     """Converts a document to text and extracts its key data (number, title and type)"""
 
-    textPages = extractText(documentPath)
+    textPages = extractTextList(documentPath)
 
     extractedData = None
     characteristics = None
 
-    #We try to extract information on the first page, then we repeat on other pages to correct potential errors.
+    # We try to extract information on the first page, then we repeat on other pages to correct potential errors.
     for pageIndex, pageText in enumerate(textPages):
 
         extractedData = extractPageCharacteristics(pageText, pageIndex)

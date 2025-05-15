@@ -57,7 +57,7 @@ def mainSeparation(inputPath, outputDir, raa = None):
                 arreteId = 1 # Deleted after merge
                 #arreteId = updateIdFile("decree")
 
-                documentType = repository.getDocumentTypeById(1)
+                documentType = repository.getDocumentTypeById(1) # By default, we only put prefectural decree
 
                 campaign = repository.getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
                 departement = repository.getDepartmentById(1) # The department will be redefined after the keywords (here not determined)

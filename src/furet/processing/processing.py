@@ -237,7 +237,7 @@ class Processing:
         campaignsDecree = set()
 
         for currentDecreeTopic in decree.topics :
-            listeCampaignCurrentTopic = getCampaignFromTopic(currentDecreeTopic)
+            listeCampaignCurrentTopic = repository.getCampaignFromTopic(currentDecreeTopic)
             campaignsDecree.update(listeCampaignCurrentTopic)
 
         return list(campaignsDecree)

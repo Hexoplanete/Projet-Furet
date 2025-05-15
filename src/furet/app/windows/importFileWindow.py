@@ -87,7 +87,7 @@ class ImportFileWindow(QtWidgets.QDialog):
         traitement = Processing(pdfDirectory_path=paramPdfStorageDirectory_path, outputProcessingSteps_path=paramOutputProcessingSteps_path)
         listeFichiers = self._filePicker.getPaths()
         self._progressBar.show()
-        self._progressBar.setRange(0, len(self._threads))
+        self._progressBar.setRange(0, len(listeFichiers))
         self._progressBar.setFormat("%v/%m")  # Display as fraction (current/total)
         self._progressBar.setValue(0)
         self._rootLayout.insertWidget(0, self._progressBar)

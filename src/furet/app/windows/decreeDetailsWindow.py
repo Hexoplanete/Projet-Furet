@@ -50,17 +50,15 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
 
         # RAA
         decreeForm = addSection("Recueil")
-        self._department = buildComboBox(
-            repository.getDepartments(), decree.department)
-        self._department.setDisabled(True)
+        self._department = buildComboBox(repository.getDepartments(), decree.department)
         addFormRow(decreeForm, "Département", self._department)
 
         self._publicationDate = buildDatePicker(decree.publicationDate)
-        self._publicationDate.setDisabled(True)
         addFormRow(decreeForm, "Date de publication", self._publicationDate)
         
         linkWidget = QtWidgets.QWidget()
         labelLayout = QtWidgets.QHBoxLayout(linkWidget)
+        labelLayout.setContentsMargins(0,0,0,0)
         self._link = QtWidgets.QLineEdit(self._decree.link if self._decree.link is not None else "")
         linkButton = QtWidgets.QPushButton("Ouvrir")
         labelLayout.addWidget(self._link, stretch=1)
@@ -84,6 +82,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         pagesLayout.addWidget(self._pagesStart)
         pagesLayout.addWidget(pagesSep)
         pagesLayout.addWidget(self._pagesEnd)
+        pagesLayout.addStretch(1)
         addFormRow(decreeForm, "Pages", pagesRange)
         pagesLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -101,7 +100,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         topicLayout = QtWidgets.QHBoxLayout(topicWidget)
         topicLayout.setContentsMargins(0,0,0,0)
         self._topic = buildMultiComboBox(repository.getTopics(), decree.topics)
-        self._topic.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self._topic.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
         topicLayout.addWidget(self._topic)
 
         self._unselectTopic = QtWidgets.QPushButton('X')
@@ -109,7 +108,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._unselectTopic.setContentsMargins(0,0,0,0)
         self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
         self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
-        topicLayout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignLeft)
+        topicLayout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignmentFlag.AlignLeft)
         addFormRow(decreeForm, "Sujet", topicWidget)
 
         self._treated = QtWidgets.QCheckBox("", )
@@ -125,6 +124,8 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         # Buttons
         self._buttonLayout = QtWidgets.QHBoxLayout()
         self._returnButton = QtWidgets.QPushButton("Retour")
+        self._returnButton.setDefault(True)
+        self._returnButton.setAutoDefault(True)
         self._returnButton.clicked.connect(self.onClickRetourButton)
         self._buttonLayout.addWidget(self._returnButton)
         self._saveAndQuitButton = QtWidgets.QPushButton("Sauvegarder et Quitter")
@@ -133,7 +134,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._rootLayout.addLayout(self._buttonLayout)
 
     def saveDecree(self):
-        self._decree = Decree(
+        decree = Decree(
             id=self._decree.id,
             number=self._decreeNumber.text(),
             title=self._decreeTitle.text(),
@@ -151,6 +152,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
             missingData=self._missing.isChecked(),
             comment=self._comment.toPlainText(),
         )
+        repository.updateDecree(self._decree.id, decree)
 
     def onClickRetourButton(self):
         self.reject()
@@ -158,9 +160,6 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
     def onClickSaveQuitButton(self):
         self.saveDecree()
         self.accept()
-
-    def decree(self):
-        return self._decree
 
     def onClickUnselectTopic(self):
         self._topic.unselectAllItems()

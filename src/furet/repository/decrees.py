@@ -101,10 +101,12 @@ def addDecrees(decrees: list[Decree]):
 def updateDecree(id: int, decree: Decree):
     decree.id = id
     decreeFile = getFileName(decree)
+    if not decreeFile in decreesPerFile:
+        decreesPerFile[decreeFile] = []
     for i in range(len(decreesPerFile[decreeFile])):
         if decreesPerFile[decreeFile][i].id == decree.id:
             decreesPerFile[decreeFile][i] = decree
-    saveDecreesToFile(decree)
+    saveDecreesToFile(decreeFile)
 
 
 def saveDecreesToFile(decreeFile: str):

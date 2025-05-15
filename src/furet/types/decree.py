@@ -58,7 +58,7 @@ class Decree:
 
     # Decree
     department:Optional[Department] = None
-    link: Optional[str] = None
+    link: Optional[str] = ""
     publicationDate: Optional[date] = None 
     comment: str = "0"
     docType: Optional[DocumentType] = None

@@ -60,9 +60,11 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         addFormRow(decreeForm, "Date de publication", self._publicationDate)
         
         linkWidget = QtWidgets.QWidget()
-        labelLayout = QtWidgets.QHBoxLayout(labelLayout)
+        labelLayout = QtWidgets.QHBoxLayout(linkWidget)
         self._link = QtWidgets.QLineEdit(self._decree.link if self._decree.link is not None else "")
         linkButton = QtWidgets.QPushButton("Ouvrir")
+        labelLayout.addWidget(self._link, stretch=1)
+        labelLayout.addWidget(linkButton)
 
         def openLink():
             QtGui.QDesktopServices.openUrl(self._link.text())
@@ -146,7 +148,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
             campaigns=self._campaign.currentData(),
             topics=self._topic.currentData(),
             treated=self._treated.isChecked(),
-            missing=self._missing.isChecked(),
+            missingData=self._missing.isChecked(),
             comment=self._comment.toPlainText(),
         )
 

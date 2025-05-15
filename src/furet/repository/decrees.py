@@ -1,3 +1,4 @@
+from furet.repository import utils
 from furet.types.decree import *
 import datetime
 import os
@@ -48,10 +49,8 @@ def loadDecreeFromFiles(decreeFile: str):
                         title=row[4],
                         signingDate=datetime.strptime(row[5], "%d/%m/%Y").date(),
 
-                        campaigns=list(
-                            map(repository.getCampaignById, map(int, row[11].split("-")))),
-                        topics=list(map(repository.getTopicById,
-                                    map(int, row[12].split("-")))),
+                        campaigns=list(map(repository.getCampaignById, utils.splitIdList(row[11]))),
+                        topics=list(map(repository.getTopicById, utils.splitIdList(row[12]))),
                         treated=bool(int(row[13])),
                         missingData=row[14],
                         comment=row[15],
@@ -132,5 +131,6 @@ def getFileName(arrete: Decree) -> str:
     filename = arrete.department.number + "_" + str(dYear) + "_" + str(dMonth) + "_RAA.csv"
 
     basePath = getBasePath()
-    fullPath = os.path.join(basePath, arrete.department.number + '/' + filename)
+    fullPath = os.path.join(basePath, arrete.department.number)
+    fullPath = os.path.join(fullPath, filename)
     return fullPath

@@ -84,7 +84,7 @@ class SettingsWindow(QtWidgets.QDialog):
         def onClickNewCampaign():
             topicList = [repository.getTopicById(i.row() + 1) for i in self.viewTopic.selectedIndexes()]
             newCampaign = Campaign(id = max([t.id for t in repository.getCampaigns()]) + 1, label = "", topicList = topicList)
-            repository.getCampaigns().append(newCampaign)
+            repository.addCampaign(newCampaign)
 
             row = len(repository.getCampaigns()) - 1
             self.modelCampaign.beginInsertRows(QtCore.QModelIndex(), row, row)
@@ -105,7 +105,7 @@ class SettingsWindow(QtWidgets.QDialog):
 
         def onClickNewTopic():
             new_topic = DecreeTopic(id = max([t.id for t in repository.getTopics()]) + 1, label = "")
-            repository.getTopics().append(new_topic)
+            repository.addTopic(new_topic)
 
             row = len(repository.getTopics()) - 1
             self.modelTopic.beginInsertRows(QtCore.QModelIndex(), row, row)

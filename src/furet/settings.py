@@ -18,12 +18,12 @@ def setDefaultValue(key: str, defaultValue: Any, valueType: type = None):
     settings.sync()
 
 
-def setValue(key: str, value: Any) -> object:
+def setValue(key: str, value: Any):
     key = parseKey(key)
     settings = QSettings()
     settings.setValue(key, value)
     settings.sync()
 
-def value(key: str) -> object:
+def value(key: str) -> Any:
     key = parseKey(key)
     return QSettings().value(key, type=_keyTypes[key])

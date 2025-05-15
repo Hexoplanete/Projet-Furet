@@ -52,7 +52,7 @@ def loadDecreeFromFiles(decreeFile: str):
                         campaigns=list(map(repository.getCampaignById, utils.splitIdList(row[11]))),
                         topics=list(map(repository.getTopicById, utils.splitIdList(row[12]))),
                         treated=bool(int(row[13])),
-                        missingData=row[14],
+                        missingData=bool(int(row[14])),
                         comment=row[15],
                     ))
                     maxId = max(maxId, decrees[-1].id)

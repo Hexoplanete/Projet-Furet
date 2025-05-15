@@ -75,6 +75,5 @@ class Decree:
         return [
             self.id, self.department.id, self.docType.id, self.number, self.title, self.signingDate.strftime("%d/%m/%Y"), 
             self.raaNumber, self.publicationDate.strftime("%d/%m/%Y"), self.link, self.startPage, self.endPage, 
-            "-".join(map(lambda t: str(t.id), self.campaigns)), "-".join(map(lambda t: str(t.id), self.topics)), int(self.treated), self.comment,
-            self.missingData
+            "-".join(map(lambda t: str(t.id), self.campaigns)), "-".join(map(lambda t: str(t.id), self.topics)), int(self.treated), int(self.missingData), self.comment,
         ]

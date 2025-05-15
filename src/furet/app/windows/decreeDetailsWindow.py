@@ -91,7 +91,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         decreeForm = addSection("Informations supplémentaires")
 
         self._missing = QtWidgets.QCheckBox("", )
-        self._missing.setChecked(decree.treated)
+        self._missing.setChecked(decree.missingData)
         addFormRow(decreeForm, "À compléter", self._missing)
         
         self._campaign = buildMultiComboBox(repository.getCampaigns(), decree.campaigns)

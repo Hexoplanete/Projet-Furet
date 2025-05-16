@@ -71,8 +71,8 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self._table.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self._table.setSortingEnabled(False) # YA UN BUG AVEC TRUE
-        # self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
+        self._table.setSortingEnabled(True) # YA UN BUG AVEC TRUE
+        self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
 
         self._paramWindow: SettingsWindow = None
         self._importFileWindow: ImportFileWindow = None

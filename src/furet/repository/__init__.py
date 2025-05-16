@@ -19,8 +19,8 @@ def setup():
 
 
 # DECREES
-def getDecrees() -> list[Decree]:
-    return decrees.getDecrees()
+def getDecrees(filters: Optional[decrees.DecreeFilters] = None) -> list[Decree]:
+    return decrees.getDecrees(filters)
 
 
 def getDecreeById(id: int) -> Decree:

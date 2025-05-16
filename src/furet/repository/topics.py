@@ -83,7 +83,10 @@ def loadAllTopics():
     return topics
 
 def getTopics():
-    return topics
+    l = topics.copy()
+    l.sort(key=lambda t: t.label.lower())
+    return l
+
 
 
 def addTopic(topic: DecreeTopic):

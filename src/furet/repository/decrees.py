@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from furet.repository import utils
 from furet.types.decree import *
 import datetime
@@ -57,7 +58,6 @@ def loadDecreeFromFiles(decreeFile: str):
                     ))
                     maxId = max(maxId, decrees[-1].id)
 
-
                 except Exception as e:
                     print(f"Erreur de parsing arrêtés, ligne ignorée : {row}")
                     print(f"Erreur : {e}")
@@ -69,10 +69,44 @@ def loadDecreeFromFiles(decreeFile: str):
             print(f"Erreur : {e}")
 
 
-def getDecrees():
+@dataclass
+class DecreeFilters:
+    after: Optional[date] = None
+    before: Optional[date] = None
+    departments: list[int] = field(default_factory=list)
+    campaigns: list[int] = field(default_factory=list)
+    topics: list[int] = field(default_factory=list)
+    name: str = ""
+    treated: Optional[bool] = None
+
+    def fitFilters(self, decree: Decree) -> bool:
+        if self.after is not None and decree.publicationDate < self.after: return False
+        if self.before is not None and decree.publicationDate > self.before: return False
+        if len(self.departments) > 0 and not decree.department.id in self.departments: return False
+        if len(self.campaigns) > 0:
+            for c in decree.campaigns:
+                if c.id in self.campaigns:
+                    break
+            else:
+                return False
+            
+        if len(self.topics) > 0:
+            dTopics = set(map(lambda t: t.id, decree.topics))
+            for id in self.topics:
+                if id not in dTopics:
+                    return False
+        if len(self.name) != 0 and self.name.lower() not in decree.title.lower(): return False
+        if self.treated is not None and decree.treated != self.treated: return False
+        return True
+
+
+def getDecrees(filters: Optional[DecreeFilters] = None):
     l = []
     for ds in decreesPerFile.values():
-        l += ds
+        if filters is None:
+            l += ds
+        else:
+            l += filter(filters.fitFilters, ds)
     return l
 
 
@@ -98,13 +132,22 @@ def addDecrees(decrees: list[Decree]):
 
 
 def updateDecree(id: int, decree: Decree):
+    oldDecreeFile = getFileName(repository.getDecreeById(id))
     decree.id = id
     decreeFile = getFileName(decree)
+    
     if not decreeFile in decreesPerFile:
         decreesPerFile[decreeFile] = []
-    for i in range(len(decreesPerFile[decreeFile])):
-        if decreesPerFile[decreeFile][i].id == decree.id:
-            decreesPerFile[decreeFile][i] = decree
+    
+    if oldDecreeFile != decreeFile:
+        decreesPerFile[oldDecreeFile].remove(decree)
+        decreesPerFile[decreeFile].append(decree)
+        saveDecreesToFile(oldDecreeFile)
+        saveDecreesToFile(decreeFile)
+        return
+
+    i = decreesPerFile[decreeFile].index(decree)
+    decreesPerFile[decreeFile][i] = decree
     saveDecreesToFile(decreeFile)
 
 

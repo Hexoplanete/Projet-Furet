@@ -46,8 +46,9 @@ def loadAllCampaigns():
     return campaigns
 
 def getCampaigns():
-    return campaigns
-
+    l = campaigns.copy()
+    l.sort(key=lambda c: c.label.lower())
+    return l
 
 def addCampaign(campaign: Campaign):
     global maxId

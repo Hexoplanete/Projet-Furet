@@ -118,7 +118,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
 
         commentSep = QtWidgets.QLabel("Commentaire")
         self._rootLayout.addWidget(commentSep)
-        self._comment = QtWidgets.QTextEdit(self._decree.comment)
+        self._comment = QtWidgets.QTextEdit(plainText=self._decree.comment)
         self._rootLayout.addWidget(self._comment)
 
         # Buttons

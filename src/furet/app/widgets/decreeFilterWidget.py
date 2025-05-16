@@ -1,27 +1,27 @@
+from typing import Callable
 from PySide6 import QtWidgets, QtCore
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from furet.app.utils import buildComboBox, buildDatePicker, buildMultiComboBox, formatDate
+from furet.app.utils import buildDatePicker, buildMultiComboBox, formatDate
 from furet.types.decree import *
-from furet.app.widgets.objectTableModel import ObjectFilterProxy, ObjectTableModel
 from furet import repository, settings
 
 class DecreeFilterWidget(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, onResearch: Callable[[], None]):
         super().__init__()
+
+        self._onResearch = onResearch
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(0,0,0,0)
-
-        self._proxy = ObjectFilterProxy[Decree](filterer=self.filterDecrees)
         
         self._addDateFilter()
         
-        self._department = buildComboBox(repository.getDepartments(), None, ("Tous les départements", None))
+        self._department = buildMultiComboBox(repository.getDepartments(), [], "Tous les départements")
         self._layout.addWidget(self._department)
 
 
-        self._campaign = buildComboBox(repository.getCampaigns(), None, ("Toutes les campagnes", None))
+        self._campaign = buildMultiComboBox(repository.getCampaigns(), [], "Toutes les campagnes")
         self._layout.addWidget(self._campaign)
 
         self._topic = buildMultiComboBox(repository.getTopics(), [], "Tous les sujets")
@@ -32,7 +32,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._unselectTopic.setContentsMargins(0,0,0,0)
         self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
         self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
-        self._layout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignLeft)
+        self._layout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignmentFlag.AlignLeft)
 
         self._name = QtWidgets.QLineEdit(placeholderText="Tous les titres")
         self._layout.addWidget(self._name)
@@ -42,8 +42,6 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._researchButton = QtWidgets.QPushButton('Rechercher')
         self._researchButton.clicked.connect(self.onClickResearchButton)
         self._layout.addWidget(self._researchButton)
-
-        self.syncFilters()
 
     def _addDateFilter(self):
         self._datePopup = QtWidgets.QWidget()
@@ -86,51 +84,20 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self.syncDateFilterLabel()
         self._layout.addWidget(self._state)
 
-    def syncFilters(self):
-        self._departementValue = self._department.currentData()
-        self._topicValue = self._topic.currentData()
-        self._nameValue = self._name.text()
-        self._dateAfterValue = None if not self._dateAfterToggle.isChecked() else self._dateAfter.date().toPython()
-        self._dateBeforeValue = None if not self._dateBeforeToggle.isChecked() else self._dateBefore.date().toPython()
-        self._stateValues = self._state.currentData()
-        self._campaignValues = self._campaign.currentData()
 
-
-    def data(self, index, /, role = ...):
-        if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return getattr(self._data[index.row()], self._fields[index.column()])
-
-    def rowCount(self, /, parent = ...):
-        return len(self._data)
-    
-    def setModel(self, model: ObjectTableModel[Decree]):
-        self._model = model
-        self._proxy.setSourceModel(model)
-
-    def proxyModel(self) -> ObjectFilterProxy[Decree]:
-        return self._proxy
-    
     def onClickResearchButton(self):
-        self.syncFilters()
-        self._proxy.invalidateFilter()
-        return
-    
-    def filterDecrees(self, decree: Decree):
-        if self._departementValue is not None and decree.department.id != self._departementValue.id: return False
-        if self._stateValues is not None and decree.treated != self._stateValues: return False
-        if self._stateValues is not None and decree.treated != self._stateValues: return False
-        # if self._campaignValues is not None and self._campaignValues not in decree.campaigns: return False
-        if self._nameValue != "" and decree.title.lower().find(self._nameValue.lower()) == -1: return False
-        if self._dateAfterValue is not None and decree.publicationDate < self._dateAfterValue: return False
-        if self._dateBeforeValue is not None and decree.publicationDate > self._dateBeforeValue: return False
-        if len(self._topicValue) > 0:
-            for id in self._topicValue:
-                if id not in decree.topics: return False
-        
-        if len(self._topicValue) > 0:
-            if id not in decree.topics: return False
-    
-        return True
+        self._onResearch()
+
+    def filters(self) -> repository.decrees.DecreeFilters:
+        return repository.decrees.DecreeFilters(
+            after=None if not self._dateAfterToggle.isChecked() else self._dateAfter.date().toPython(),
+            before=None if not self._dateBeforeToggle.isChecked() else self._dateBefore.date().toPython(),
+            departments=list(map(lambda v: v.id, self._department.currentData())),
+            campaigns=list(map(lambda v: v.id, self._campaign.currentData())),
+            topics=list(map(lambda v: v.id, self._topic.currentData())),
+            name=self._name.text(),
+            treated=self._state.currentData(),
+        )
 
     def syncDateFilterLabel(self):
         if not self._dateBeforeToggle.isChecked() and not self._dateAfterToggle.isChecked():

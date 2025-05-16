@@ -42,9 +42,7 @@ def loadDecreeFromFiles(decreeFile: str):
                         department=repository.getDepartmentById(int(row[1])),
                         link=row[8],
                         startPage=int(row[9]), endPage=int(row[10]),
-                        publicationDate=datetime.strptime(
-                            row[7], "%d/%m/%Y").date(),
-
+                        publicationDate=datetime.strptime(row[7], "%d/%m/%Y").date(),
                         docType=repository.getDocumentTypeById(int(row[2])),
                         number=row[3],
                         title=row[4],

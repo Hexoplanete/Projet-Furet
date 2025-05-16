@@ -13,7 +13,10 @@ def setup():
     settings.setDefaultValue("app.filter-expired", True)
     locale.setlocale(locale.LC_TIME,'')
 
+window = None
+
 def main():
+    global window
     os.environ["QT_SCALE_FACTOR"] = str(settings.value("app.scale"))
     
     app = QApplication(sys.argv)

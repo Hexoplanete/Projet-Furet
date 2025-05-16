@@ -9,7 +9,7 @@ from datetime import datetime
 import os
 
 def mainSeparation(inputPath, outputDir, raa = None):
-        now = datetime.now()
+        now = datetime.now().date()
         currentTime = now.strftime("%H-%M-%S")
 
         # listeOutputPath = []     # List which will contain the different paths to the pdf of the decrees   

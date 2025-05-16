@@ -94,7 +94,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
     def onDblClickTableRow(self, index: QtCore.QModelIndex):
         decree = self._decrees.itemAt(index.row())
         def onDecreeSaved():
-            self._decrees.resetData(repository.getDecrees())
+            self._decrees.resetData(repository.getDecrees(self._filters.filters()))
 
         if decree.id not in self._decreeDetailWindows or not(self._decreeDetailWindows[decree.id].isVisible()):
             self._decreeDetailWindows[decree.id] = DecreeDetailsWindow(decree)
@@ -105,7 +105,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def onClickImportButton(self):
         def onImportDone():
-            self._decrees.resetData(repository.getDecrees())
+            self._decrees.resetData(repository.getDecrees(self._filters.filters()))
 
         if self._importFileWindow == None or not(self._importFileWindow.isVisible()):
             self._importFileWindow = ImportFileWindow()
@@ -122,3 +122,6 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def updateCampaignsComboBox(self):
         self._filters.updateCampaignsComboBox()
+
+    def syncTable(self):
+        self._decrees.resetData(repository.getDecrees(self._filters.filters()))

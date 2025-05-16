@@ -1,7 +1,7 @@
 import ocrmypdf
 
 import os
-from datetime import datetime
+from datetime import datetime, date
 
 def createSearchable_pdf(inputPath_pdf: str, outputPath_pdf: str):
     """Apply OCR to the pdf "inputPath_pdf" to generate a PDF with text "outputPath_pdf" """
@@ -20,7 +20,7 @@ def processFile(inputPath_pdf, outputPath_pdf):
 
     print(f"\nInput PDF path: {inputPath_pdf}")
     
-    now = datetime.now()
+    now = datetime.now().date()
     currentTime = now.strftime("%H-%M-%S")
     
     print("Generating OCR PDF...")

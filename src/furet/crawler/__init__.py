@@ -5,6 +5,7 @@ from furet import settings
 import os
 from furet.processing.processing import Processing
 from PySide6 import QtCore
+from furet import app
 
 
 def setup():
@@ -43,3 +44,5 @@ def setup():
         processing_thread = threading.Thread(target=processing.startProcessing)
         processing_thread.start()
         processing_thread.join()
+
+        app.window.syncTable()

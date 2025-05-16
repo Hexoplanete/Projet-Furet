@@ -84,7 +84,7 @@ class Processing:
         for el in listeDictRAA:
 
             raaUrl = el["link"]
-            raaDatePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
+            raaDatePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y").date()
             raaDepartementLabel = el["department"]
 
             departementNumber = int(departementsLabelToCode[raaDepartementLabel])

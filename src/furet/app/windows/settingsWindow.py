@@ -47,6 +47,8 @@ class SettingsWindow(QtWidgets.QDialog):
         topicCampaignSection = addSection("Sujet et Campagne")
 
         topicCampaign = QtWidgets.QHBoxLayout()
+        campaign = QtWidgets.QVBoxLayout()
+        topic = QtWidgets.QVBoxLayout()
         
         def onCampaignChanged(topLeft, bottomRight, roles):
             for row in range(topLeft.row(), bottomRight.row() + 1):
@@ -74,12 +76,10 @@ class SettingsWindow(QtWidgets.QDialog):
         self.viewTopic.verticalHeader().setVisible(False)
         self.viewTopic.horizontalHeader().setStretchLastSection(True)
 
-        topicCampaign.addWidget(self.viewCampaign)
-        topicCampaign.addWidget(self.viewTopic)
-
-        self._rootLayout.addLayout(topicCampaign)
+        campaign.addWidget(self.viewCampaign)
+        topic.addWidget(self.viewTopic)
         
-        newTopicCampaignButtons = QtWidgets.QHBoxLayout()
+        newCampaign = QtWidgets.QHBoxLayout()
 
         def onClickNewCampaign():
             topicList = [repository.getTopicById(i.row() + 1) for i in self.viewTopic.selectedIndexes()]
@@ -94,6 +94,11 @@ class SettingsWindow(QtWidgets.QDialog):
             self.viewCampaign.scrollTo(index)
             self.viewCampaign.setCurrentIndex(index)
             self.viewCampaign.edit(index)
+        
+        self.newCampaignEdit = QtWidgets.QLineEdit()
+        self.newCampaignEdit.setPlaceholderText("Campagne")
+        newCampaign.addWidget(self.newCampaignEdit)
+
 
         self.newCampaignButton = QtWidgets.QPushButton("Ajouter une Campagne")
         self.newCampaignButton.setToolTip(
@@ -101,7 +106,10 @@ class SettingsWindow(QtWidgets.QDialog):
             "associés à la nouvelle campagne dans le tableau des sujets ci-dessus." \
             "\nPour changer les sujets attribués à une campagne, veuillez les changer directement dans le fichier CSV des campagnes.")
         self.newCampaignButton.clicked.connect(onClickNewCampaign)
-        newTopicCampaignButtons.addWidget(self.newCampaignButton)
+        newCampaign.addWidget(self.newCampaignButton)
+        campaign.addLayout(newCampaign)
+        
+        newTopic = QtWidgets.QHBoxLayout()
 
         def onClickNewTopic():
             new_topic = DecreeTopic(id = max([t.id for t in repository.getTopics()]) + 1, label = "")
@@ -115,12 +123,28 @@ class SettingsWindow(QtWidgets.QDialog):
             self.viewTopic.scrollTo(index)
             self.viewTopic.setCurrentIndex(index)
             self.viewTopic.edit(index)
+        
+        self.newTopicEdit = QtWidgets.QLineEdit()
+        self.newTopicEdit.setPlaceholderText("Sujet")
+        newTopic.addWidget(self.newTopicEdit)
 
         self.newTopicButton = QtWidgets.QPushButton("Ajouter un Sujet")
         self.newTopicButton.clicked.connect(onClickNewTopic)
-        newTopicCampaignButtons.addWidget(self.newTopicButton)
-        
-        self._rootLayout.addLayout(newTopicCampaignButtons)
+        newTopic.addWidget(self.newTopicButton)
+        topic.addLayout(newTopic)
+
+        topicCampaign.addLayout(campaign)
+        topicCampaign.addLayout(topic)
+
+        self._rootLayout.addLayout(topicCampaign)
+
+        def onCheckBoxStateChanged():
+            self.isCampaignTopicLabel
+
+        self.isCampaignTopicLabel = QtWidgets.QCheckBox("Est un sujet de campagne")
+        self.isCampaignTopicLabel.setEnabled(False)
+        self.isCampaignTopicLabel.stateChanged.connect(onCheckBoxStateChanged)
+        self._rootLayout.addWidget(self.isCampaignTopicLabel)
 
         form = addSection("Stockage")
         self.csvRoot = FilePickerWidget(settings.value("repository.csv-root"), pickMode=PickMode.Folder, onDataChange=lambda p: settings.setValue("repository.csv-root", p))

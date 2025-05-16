@@ -100,7 +100,7 @@ class DecreeFilters:
         return True
 
 
-def getDecrees(filters: Optional[DecreeFilters]):
+def getDecrees(filters: Optional[DecreeFilters] = None):
     l = []
     for ds in decreesPerFile.values():
         if filters is None:
@@ -132,13 +132,22 @@ def addDecrees(decrees: list[Decree]):
 
 
 def updateDecree(id: int, decree: Decree):
+    oldDecreeFile = getFileName(repository.getDecreeById(id))
     decree.id = id
     decreeFile = getFileName(decree)
+    
     if not decreeFile in decreesPerFile:
         decreesPerFile[decreeFile] = []
-    for i in range(len(decreesPerFile[decreeFile])):
-        if decreesPerFile[decreeFile][i].id == decree.id:
-            decreesPerFile[decreeFile][i] = decree
+    
+    if oldDecreeFile != decreeFile:
+        decreesPerFile[oldDecreeFile].remove(decree)
+        decreesPerFile[decreeFile].append(decree)
+        saveDecreesToFile(oldDecreeFile)
+        saveDecreesToFile(decreeFile)
+        return
+
+    i = decreesPerFile[decreeFile].index(decree)
+    decreesPerFile[decreeFile][i] = decree
     saveDecreesToFile(decreeFile)
 
 

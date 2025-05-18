@@ -1,21 +1,20 @@
 from furet.types.decree import *
 import os
-import csv
 from furet import settings
+from furet.repository import utils
 
 topics: list[DecreeTopic] = []
 maxId: int = 0
-headers = ['id', 'label']
 
 def getFilePath(): 
-    return os.path.join(settings.value("repository.csv-root"), 'config/topic.csv')
+    return os.path.join(settings.value("repository.csv-root"), 'topics.csv')
 
 def loadAllTopics():
     global topics, maxId
     path = getFilePath()
 
     if not os.path.isfile(path):
-        topics += [
+        topics = [
             DecreeTopic(id=1, label='chasse'),
             DecreeTopic(id=2, label='cynégétique'),
             DecreeTopic(id=3, label='gibier'),
@@ -61,26 +60,12 @@ def loadAllTopics():
             DecreeTopic(id=43, label='geai'),
             DecreeTopic(id=44, label='étourneau'),
         ]
-        maxId = max(maxId, topics[-1].id)
-
         saveTopicsToFile()
-        return
-    
-    topics.clear()
-    try:
-        with open(path, encoding='utf-8') as file:
-            reader = csv.reader(file, delimiter=',')
+    else:
+        topics = utils.loadFromCsv(path, DecreeTopic)
 
-            header = next(reader)
+    maxId = max(maxId, topics[-1].id)
 
-            for row in reader:
-                topics.append(DecreeTopic(id=int(row[0]),label=row[1],))
-
-    except Exception as e:
-        if type(e) is not StopIteration:
-            print(f"Erreur fichier non trouvé {path}")
-            print(f"Erreur : {e}")
-    return topics
 
 def getTopics():
     l = topics.copy()
@@ -106,13 +91,4 @@ def updateTopic(id: int, topic: DecreeTopic):
 
 
 def saveTopicsToFile():
-    try:
-        with open(getFilePath(), 'w', encoding='utf-8', newline='') as file:
-            writerCsv = csv.writer(file)
-            writerCsv.writerow(headers)
-            for d in topics:
-                writerCsv.writerow(d.toCsvLine())
-
-    except Exception as e:
-        print(f"Erreur de modification de fichier")
-        print(f"Erreur : {e}")
+    utils.saveToCsv(getFilePath(), topics, DecreeTopic)

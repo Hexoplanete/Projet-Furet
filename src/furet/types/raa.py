@@ -1,4 +1,4 @@
-from furet.types.base import dbclass
+from furet.types.dbclass import dbclass
 from furet.types.department import Department
 from datetime import date
 

@@ -1,15 +1,13 @@
+from furet.repository import utils
 from furet.types.decree import *
 import os
-import csv
 from furet import settings
 
 departments: list[Department] = []
 
-headers = ['id', 'number', 'label']
-
 
 def getFilePath():
-    return os.path.join(settings.value("repository.csv-root"), 'config/department.csv')
+    return os.path.join(settings.value("repository.csv-root"), 'departments.csv')
 
 
 def loadAllDepartments():
@@ -17,7 +15,8 @@ def loadAllDepartments():
     path = getFilePath()
 
     if not os.path.isfile(path):
-        departments += [
+        departments = [
+            Department(id=0, number='00', label='Non défini'),
             Department(id=1, number='01', label='Ain'),
             Department(id=2, number='02', label='Aisne'),
             Department(id=3, number='03', label='Allier'),
@@ -121,23 +120,8 @@ def loadAllDepartments():
             Department(id=976, number='976', label='Mayotte'),
         ]
         saveDepartmentsToFile()
-        return
-
-    departments.clear()
-    try:
-        with open(path, encoding='utf-8') as file:
-            reader = csv.reader(file, delimiter=',')
-
-            header = next(reader)
-
-            for row in reader:
-                departments.append(Department(id=int(row[0]), number=row[1], label=row[2]))
-
-    except Exception as e:
-        if type(e) is not StopIteration:
-            print(f"Erreur fichier non trouvé {path}")
-            print(f"Erreur : {e}")
-    return departments
+    else:
+        departments = utils.loadFromCsv(path, Department)
 
 
 def getDepartments():
@@ -145,13 +129,4 @@ def getDepartments():
 
 
 def saveDepartmentsToFile():
-    try:
-        with open(getFilePath(), 'w', encoding='utf-8', newline='') as file:
-            writerCsv = csv.writer(file)
-            writerCsv.writerow(headers)
-            for d in departments:
-                writerCsv.writerow(d.toCsvLine())
-
-    except Exception as e:
-        print(f"Erreur de modification de fichier")
-        print(f"Erreur : {e}")
+    utils.saveToCsv(getFilePath(), departments, Department)

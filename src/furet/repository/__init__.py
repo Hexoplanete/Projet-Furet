@@ -4,13 +4,18 @@ from furet.types.department import *
 from furet.types.decree import *
 from PySide6 import QtCore
 
-from . import campaigns, decrees, departments, docTypes, topics
+from . import campaigns, decrees, departments, docTypes, topics, utils
 
 
 def setup():
     settings.setDefaultValue("repository.csv-root", os.path.join(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation), 'database'))
-    os.makedirs(os.path.join(settings.value("repository.csv-root"), 'config'), exist_ok=True)
-    os.makedirs(os.path.join(settings.value("repository.csv-root"), 'prefectures'), exist_ok=True)
+
+    utils.addSerializer(Campaign, lambda c: utils.serialize(c.id), lambda s, t: getCampaignById(utils.deserialize(s, int)))
+    utils.addSerializer(Decree, lambda c: utils.serialize(c.id), lambda s, t: getDecreeById(utils.deserialize(s, int)))
+    utils.addSerializer(Department, lambda c: utils.serialize(c.id), lambda s, t: getDepartmentById(utils.deserialize(s, int)))
+    utils.addSerializer(DocumentType, lambda c: utils.serialize(c.id), lambda s, t: getDocumentTypeById(utils.deserialize(s, int)))
+    utils.addSerializer(DecreeTopic, lambda c: utils.serialize(c.id), lambda s, t: getTopicById(utils.deserialize(s, int)))
+
     topics.loadAllTopics()
     departments.loadAllDepartments()
     docTypes.loadAllDocTypes()
@@ -19,7 +24,7 @@ def setup():
 
 
 # DECREES
-def getDecrees(filters: Optional[decrees.DecreeFilters] = None) -> list[Decree]:
+def getDecrees(filters: decrees.DecreeFilters | None = None) -> list[Decree]:
     return decrees.getDecrees(filters)
 
 

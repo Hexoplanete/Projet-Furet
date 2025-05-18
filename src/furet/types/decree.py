@@ -1,33 +1,32 @@
+from dataclasses import dataclass, field
 from datetime import date
-from typing import Optional
 
-from furet.types.base import dbclass
+from furet.types.dbclass import dbclass
 from furet.types.department import Department
 
+
 @dbclass
+@dataclass(eq=False)
 class DocumentType:
     id: int
     label: str
 
     def __str__(self):
         return self.label
-    
-    def toCsvLine(self):
-        return [self.id, self.label]
+
 
 @dbclass
+@dataclass(eq=False)
 class DecreeTopic:
     id: int
     label: str
-    #nb Occurences de chaque topic dans un arrêté :int ?
 
     def __str__(self):
         return self.label
-    
-    def toCsvLine(self):
-        return [self.id, self.label]
+
 
 @dbclass
+@dataclass(eq=False)
 class Campaign:
     id: int
     label: str
@@ -35,45 +34,35 @@ class Campaign:
 
     def __str__(self):
         return self.label
-    
-    def toCsvLine(self):
-        topList = "-".join(map(lambda t: str(t.id),self.topicList))
-        return [self.id, self.label, topList]
+
 
 @dbclass
+@dataclass(eq=False)
 class Decree:
     id: int
 
     # raa: RAA Obligatoire
     startPage: int
     endPage: int
-    
 
     # Decree Obligatoire
     treated: bool
-    #text_content : str
+    # text_content : str
 
     # RAA facultatif
-    raaNumber: str = "0"
+    raaNumber: str = ""
 
     # Decree
-    department:Optional[Department] = None
-    link: Optional[str] = ""
-    publicationDate: Optional[date] = None 
-    comment: str = "0"
-    docType: Optional[DocumentType] = None
-    number: Optional[str] = "0"
-    title: Optional[str] = None
-    signingDate: Optional[date] = None
+    department: Department | None = None
+    link: str = ""
+    publicationDate: date | None = None
+    comment: str = ""
+    docType: DocumentType | None = None
+    number: str = ""
+    title: str = ""
+    signingDate: date | None = None
 
-    campaigns: list[Campaign] = None
-    topics: list[DecreeTopic] = None
-    
+    campaigns: list[Campaign] = field(default_factory=list)
+    topics: list[DecreeTopic] = field(default_factory=list)
+
     missingData: bool = True
-
-    def toCsvLine(self):
-        return [
-            self.id, self.department.id, self.docType.id, self.number, self.title, self.signingDate.strftime("%d/%m/%Y"), 
-            self.raaNumber, self.publicationDate.strftime("%d/%m/%Y"), self.link, self.startPage, self.endPage, 
-            "-".join(map(lambda t: str(t.id), self.campaigns)), "-".join(map(lambda t: str(t.id), self.topics)), int(self.treated), int(self.missingData), self.comment,
-        ]

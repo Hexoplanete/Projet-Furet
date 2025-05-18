@@ -21,9 +21,9 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self._content)
 
         self._columns = [
-            TableColumn[date]("publicationDate", lambda: "Date de publication", lambda v: formatDate(v)),                         # 0
-            TableColumn[date]("publicationDate", lambda: "Date d'expiration", lambda v: formatDate(v + relativedelta(months=2))), # 1
-            TableColumn[Department]("department", lambda: "Département"),                                                         # 2
+            TableColumn[date | None]("publicationDate", lambda: "Date de publication", lambda v: "Non définie" if v is None else formatDate(v)), # 0
+            TableColumn[date | None]("publicationDate", lambda: "Date d'expiration", lambda v: "Non définie" if v is None else formatDate(v + relativedelta(months=2))), # 1
+            TableColumn[Department | None]("department", lambda: "Département", lambda v : "Non défini" if v is None else str(v)), # 2
             TableColumn[list[Campaign]]("campaigns", lambda: "Campagnes", lambda v: ", ".join(map(str, v))),                      # 3
             TableColumn[list[DecreeTopic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),                         # 4
             TableColumn[str]("title", lambda: "Titre"),                                                                           # 5
@@ -81,7 +81,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         QtWidgets.QApplication.quit()
 
     def onClickParamButton(self):
-        if self._paramWindow == None or not(self._paramWindow.isVisible()):
+        if self._paramWindow is None or not(self._paramWindow.isVisible()):
             self._paramWindow = SettingsWindow(self)
             self._paramWindow.show()
         else:
@@ -107,7 +107,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         def onImportDone():
             self._decrees.resetData(repository.getDecrees())
 
-        if self._importFileWindow == None or not(self._importFileWindow.isVisible()):
+        if self._importFileWindow is None or not(self._importFileWindow.isVisible()):
             self._importFileWindow = ImportFileWindow()
             self._importFileWindow.show()
             self._importFileWindow.accepted.connect(onImportDone)

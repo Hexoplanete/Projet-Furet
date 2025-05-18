@@ -20,7 +20,7 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
     def headerData(self, section, orientation, /, role = ...):
         if orientation == QtCore.Qt.Orientation.Horizontal and role == QtCore.Qt.ItemDataRole.DisplayRole:
             field = self._fields[section]
-            return field.name if field.formatHeader is None else self._fields[section].formatHeader()
+            return field.name if field.formatHeader is None else field.formatHeader()
         
         # if orientation == QtCore.Qt.Orientation.Vertical and role == QtCore.Qt.ItemDataRole.DisplayRole:
         #     return self.rowCount() - section
@@ -34,7 +34,7 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             field = self._fields[index.column()]
             return field.format(getattr(self._data[index.row()], field.name))
-        elif role == QtCore.Qt.ForegroundRole:
+        elif role == QtCore.Qt.ItemDataRole.ForegroundRole:
             if index.column() == 6:
                 field = self._fields[index.column()]
                 return QtGui.QColor("green") if getattr(self._data[index.row()], field.name) else QtGui.QColor("red")
@@ -60,44 +60,44 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
         fieldRight = self._fields[indexRight.column()]
         return getattr(self._data[indexLeft.row()], fieldLeft.name) < getattr(self._data[indexRight.row()], fieldRight.name)
 
-class singleRowEditableModel(QtCore.QAbstractTableModel):
+class SingleRowEditableModel[T](QtCore.QAbstractTableModel):
     def __init__(self, data: list[T], columnName):
         super().__init__()
         self.topics = data
         self._columnName = columnName
 
-    def rowCount(self, parent=QtCore.QModelIndex()):
+    def rowCount(self, /, parent=...):
         return len(self.topics)
 
-    def columnCount(self, parent=QtCore.QModelIndex()):
+    def columnCount(self, /, parent=...):
         return 1
 
-    def data(self, index, role=QtCore.Qt.DisplayRole):
+    def data(self, index, /, role=...):
         if not index.isValid():
             return None
 
         topic = self.topics[index.row()]
-        if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
+        if role in (QtCore.Qt.ItemDataRole.DisplayRole, QtCore.Qt.ItemDataRole.EditRole):
             return topic.label
 
         return None
 
-    def setData(self, index, value, role=QtCore.Qt.EditRole):
+    def setData(self, index, value, /, role=...):
         if not index.isValid():
             return False
 
-        if role == QtCore.Qt.EditRole:
+        if role == QtCore.Qt.ItemDataRole.EditRole:
             self.topics[index.row()].label = value
-            self.dataChanged.emit(index, index, [QtCore.Qt.DisplayRole, QtCore.Qt.EditRole])
+            self.dataChanged.emit(index, index, [QtCore.Qt.ItemDataRole.DisplayRole, QtCore.Qt.ItemDataRole.EditRole])
             return True
 
         return False
 
     def flags(self, index):
-        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable
+        return QtCore.Qt.ItemFlag.ItemIsEnabled | QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEditable
 
-    def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
-        if role == QtCore.Qt.DisplayRole and orientation == QtCore.Qt.Horizontal:
+    def headerData(self, section, orientation, /, role=...):
+        if role == QtCore.Qt.ItemDataRole.DisplayRole and orientation == QtCore.Qt.Orientation.Horizontal:
             return self._columnName
         return super().headerData(section, orientation, role)
     

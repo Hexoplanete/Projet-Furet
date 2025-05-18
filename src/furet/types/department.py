@@ -1,8 +1,10 @@
 
-from furet.types.base import dbclass
+from dataclasses import dataclass
+from furet.types.dbclass import dbclass
 
 
 @dbclass(sort="number")
+@dataclass(eq=False)
 class Department:
     id: int
     number: str
@@ -10,6 +12,3 @@ class Department:
 
     def __str__(self):
         return f"{self.number} - {self.label}"
-    
-    def toCsvLine(self):
-        return [self.id, self.number, self.label]

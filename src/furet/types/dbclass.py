@@ -1,21 +1,17 @@
-from dataclasses import dataclass
-from typing import Self
-
-
 def dbclass(cls=None, /, *, id: str = "id", sort: str = "id"):
     
     def wrap(cls):
-        def eq(self, other: Self):
+        def eq(self, other):
             return getattr(self, id) == getattr(other, id)
-        def ne(self, other: Self):
+        def ne(self, other):
             return getattr(self, id) != getattr(other, id)
-        def lt(self, other: Self):
+        def lt(self, other):
             return getattr(self, sort) < getattr(other, sort)
-        def le(self, other: Self):
+        def le(self, other):
             return getattr(self, sort) <= getattr(other, sort)
-        def gt(self, other: Self):
+        def gt(self, other):
             return getattr(self, sort) > getattr(other, sort)
-        def ge(self, other: Self):
+        def ge(self, other):
             return getattr(self, sort) >= getattr(other, sort)
         cls.__eq__ = eq
         cls.__ne__ = ne
@@ -23,7 +19,8 @@ def dbclass(cls=None, /, *, id: str = "id", sort: str = "id"):
         cls.__le__ = le
         cls.__gt__ = gt
         cls.__ge__ = ge
-        return dataclass(cls, eq=False)
+
+        return cls
 
     # See if we're being called as @dbclass or @dbclass().
     if cls is None:

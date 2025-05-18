@@ -3,17 +3,20 @@ from typing import Any
 from PySide6 import QtWidgets, QtCore
 
 from furet.app.widgets.checkableComboBox import CheckableComboBox
+from furet.app.widgets.optionalDateEdit import OptionalDateEdit
 from furet.app.widgets.selectAllComboBox import SelectAllComboBox
 
 from typing import TypeVar
 
+from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
+
 T = TypeVar('T')
 
-def buildComboBox(options: list[T], choice: T, none: tuple[str, Any] = None) -> QtWidgets.QComboBox:
+def buildComboBox(options: list[T], choice: T | None, none: tuple[str, Any] | None = None) -> QtWidgets.QComboBox:
     box = SelectAllComboBox()
     if none is not None:
         box.addItem(none[0], none[1])
-        if choice == None: 
+        if choice is None: 
             box.setCurrentIndex(0)
     for o in options:
         box.addItem(str(o), o)
@@ -45,8 +48,8 @@ def buildMultiComboBox(options: list[T], choices: list[T], none: str = None) -> 
     return box
 
 
-def buildDatePicker(date: date = None) -> QtWidgets.QDateEdit:
-    picker = QtWidgets.QDateEdit(date=date)
+def buildDatePicker(date: date | None) -> OptionalDateEdit:
+    picker = OptionalDateEdit(date) # type: ignore
     picker.setCalendarPopup(True)
     picker.setDisplayFormat("dd MMMM yyyy")
     return picker
@@ -54,6 +57,15 @@ def buildDatePicker(date: date = None) -> QtWidgets.QDateEdit:
 
 def formatDate(value: date):
     return value.strftime("%d %B %Y")
+
+def addFormSection(layout: QtWidgets.QBoxLayout, label: str):
+    if layout.count() > 0:
+        layout.addSpacing(20)
+    sep = TextSeparatorWidget(label)
+    sep = layout.addWidget(sep)
+    decreeForm = QtWidgets.QFormLayout()
+    layout.addLayout(decreeForm)
+    return decreeForm
 
 def addFormRow(form: QtWidgets.QFormLayout, label: str, widget: QtWidgets.QWidget, tooltip = None):
     labelWidget = QtWidgets.QLabel(f"{label} :")

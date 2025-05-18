@@ -1,5 +1,6 @@
+from typing import Any, Callable
 from dateutil.relativedelta import relativedelta
-
+from furet.app.widgets.optionalDateEdit import NONE_DATE
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import repository
@@ -11,42 +12,51 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
     
     def __init__(self, decree: Decree):
         super().__init__()
+
         self._decree = decree
         self.setWindowTitle(f"Détails de l'arrêté n°{decree.number}")
-
+        self.setStyleSheet('*[missingValue="true"] { background-color: rgba(255, 0, 0, 0.2) }')
         self._rootLayout = QtWidgets.QVBoxLayout(self)
 
         # Decree
         decreeForm = addFormSection(self._rootLayout, "Arrêté")
         self._decreeTitle = QtWidgets.QLineEdit(decree.title)
         addFormRow(decreeForm, "Titre", self._decreeTitle)
+        self.installMissingBackground(self._decreeTitle, "text", lambda v: len(v) == 0)
 
         self._decreeNumber = QtWidgets.QLineEdit(decree.number)
         addFormRow(decreeForm, "N° de l'arrêté", self._decreeNumber)
+        self.installMissingBackground(self._decreeNumber, "text", lambda v: len(v) == 0)
 
         self._docType = buildComboBox(repository.getDocumentTypes(), decree.docType, ("Non défini", None))
         addFormRow(decreeForm, "Type de document", self._docType)
+        self.installMissingBackground(self._docType, "currentIndex", lambda v: v == 0)
 
         self._signingDate = buildDatePicker(decree.signingDate)
         addFormRow(decreeForm, "Date de signature", self._signingDate)
+        self.installMissingBackground(self._signingDate, "date", lambda v: v is None or v == NONE_DATE)
         
         self._expireDate = buildDatePicker(None if decree.publicationDate is None else decree.publicationDate + relativedelta(months=2))
         self._expireDate.setReadOnly(True)
+        self._signingDate.dateChanged.connect(lambda v: self._expireDate.setDate(None if v == NONE_DATE or v is None else v.toPython() + relativedelta(months=2))) # type: ignore
         addFormRow(decreeForm, "Date d'expiration", self._expireDate)
 
         # RAA
         decreeForm = addFormSection(self._rootLayout, "Recueil")
         self._department = buildComboBox(repository.getDepartments(), decree.department, ("Non défini", None))
         addFormRow(decreeForm, "Département", self._department)
+        self.installMissingBackground(self._department, "currentIndex", lambda v: v == 0)
 
         self._publicationDate = buildDatePicker(decree.publicationDate)
         addFormRow(decreeForm, "Date de publication", self._publicationDate)
+        self.installMissingBackground(self._publicationDate, "date", lambda v: v is None or v == NONE_DATE)
         
         linkWidget = QtWidgets.QWidget()
         labelLayout = QtWidgets.QHBoxLayout(linkWidget)
         labelLayout.setContentsMargins(0,0,0,0)
         self._link = QtWidgets.QLineEdit(self._decree.link if self._decree.link is not None else "")
-        linkButton = QtWidgets.QPushButton("Ouvrir")
+        linkButton = QtWidgets.QPushButton()
+        linkButton.setIcon(self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_MediaPlay))
         labelLayout.addWidget(self._link, stretch=1)
         labelLayout.addWidget(linkButton)
 
@@ -54,9 +64,11 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
             QtGui.QDesktopServices.openUrl(self._link.text())
         linkButton.clicked.connect(openLink)
         addFormRow(decreeForm, "Lien", linkWidget)
+        self.installMissingBackground(self._link, "text", lambda v: len(v) == 0)
 
         self._raaNumber = QtWidgets.QLineEdit(decree.raaNumber)
         addFormRow(decreeForm, "Numéro RAA", self._raaNumber)
+        self.installMissingBackground(self._raaNumber, "text", lambda v: len(v) == 0)
 
         pagesRange = QtWidgets.QWidget()
         pagesLayout = QtWidgets.QHBoxLayout(pagesRange)
@@ -118,6 +130,16 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._saveAndQuitButton.clicked.connect(self.onClickSaveQuitButton)
         self._buttonLayout.addWidget(self._saveAndQuitButton)
         self._rootLayout.addLayout(self._buttonLayout)
+        
+    def installMissingBackground(self, widget: QtWidgets.QWidget, fieldName: str, isMissing: Callable[[Any], bool]):
+        signal: QtCore.SignalInstance = getattr(widget, f"{fieldName}Changed")
+        def updateProp(value: Any):
+            widget.setProperty("missingValue", isMissing(value))
+            self.style().unpolish(widget)
+            self.style().polish(widget)
+        signal.connect(updateProp)
+        field = getattr(widget, fieldName)
+        updateProp(field())
 
     def saveDecree(self):
         publicationDate, signingDate = self._publicationDate.date(), self._signingDate.date()

@@ -16,7 +16,6 @@ def loadAllDepartments():
 
     if not os.path.isfile(path):
         departments = [
-            Department(id=0, number='00', label='Non défini'),
             Department(id=1, number='01', label='Ain'),
             Department(id=2, number='02', label='Aisne'),
             Department(id=3, number='03', label='Allier'),

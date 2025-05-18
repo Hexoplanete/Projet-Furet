@@ -124,9 +124,9 @@ def saveDecreesToFile(decreeFile: str):
 
 
 def getFileName(decree: Decree) -> str:
-    filename = f"{decree.department.number}_{decree.publicationDate.strftime("%Y-%m")}_RAA.csv"
+    if decree.department is None or decree.publicationDate is None:
+        filename = "incomplete.csv"
+    else:
+        filename = os.path.join(decree.department.number, f"{decree.department.number}_{decree.publicationDate.strftime(" % Y-%m")}_RAA.csv")
 
-    basePath = getBasePath()
-    fullPath = os.path.join(basePath, decree.department.number)
-    fullPath = os.path.join(fullPath, filename)
-    return fullPath
+    return os.path.join(getBasePath(), filename)

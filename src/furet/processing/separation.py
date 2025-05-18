@@ -8,7 +8,9 @@ import re
 from datetime import datetime
 import os
 
-def mainSeparation(inputPath, outputDir, raa = None):
+from furet.types.raa import RAA
+
+def mainSeparation(inputPath, outputDir, raa: RAA | None = None):
         now = datetime.now()
         currentTime = now.strftime("%H-%M-%S")
 
@@ -53,17 +55,10 @@ def mainSeparation(inputPath, outputDir, raa = None):
                 #decreeTextContent = extractText(inputPath, start_page=start-1, end_page=end-1)
 
                 # Creation of the Decree object
-
-                arreteId = 1 # Deleted after merge
-                #arreteId = updateIdFile("decree")
-
                 documentType = repository.getDocumentTypeById(1) # By default, we only put prefectural decree
-
-                campaign = repository.getCampaignById(1) # The campaign will be redefined after the keywords (here not determined)
-                departement = repository.getDepartmentById(1) # The department will be redefined after the keywords (here not determined)
                 if raa is not None:           
                         decree = Decree(
-                                id=arreteId,
+                                id=0,
                                 department=raa.department,
                                 raaNumber=raa.number,                   # We don't know raaNumber at this time (it's in extract characteristics)
                                 link=raa.link,
@@ -74,24 +69,24 @@ def mainSeparation(inputPath, outputDir, raa = None):
                                 comment="0",
                                 publicationDate=raa.publicationDate,
                                 docType = documentType,
-                                signingDate = date(1900, 1, 1),       # We don't know raaNumber at this time (it's in extract characteristics)
-                                campaigns = [campaign],
+                                signingDate = None,       # We don't know raaNumber at this time (it's in extract characteristics)
+                                campaigns = [],
                                 #text_content = decreeTextContent
                         )
                 else:
                         decree = Decree(
-                                id=arreteId,
-                                department=departement,
+                                id=0,
+                                department=None,
                                 raaNumber="0",                   # We don't know raaNumber at this time (it's in extract characteristics)
                                 startPage=start, 
                                 endPage=end,
-                                publicationDate=date(1900, 1, 1), # We don't know publicationDate at this time (it's in extract characteristics)
+                                publicationDate=None, # We don't know publicationDate at this time (it's in extract characteristics)
                                 treated=False,
                                 missingData=True,
                                 comment="0",
                                 docType = documentType,
-                                signingDate = date(1900, 1, 1),       # We don't know signingDate at this time (it's in extract characteristics)
-                                campaigns = [campaign],
+                                signingDate = None,       # We don't know signingDate at this time (it's in extract characteristics)
+                                campaigns = [],
                                 #text_content = decreeTextContent
                         )
 

@@ -16,7 +16,6 @@ def loadAllDocTypes():
 
     if not os.path.isfile(path):
         docTypes = [
-            DocumentType(id=0, label='Non défini'),
             DocumentType(id=1, label='Arrêté préfectoral'),
             DocumentType(id=2, label='Arrêté municipal'),
             DocumentType(id=3, label='Consultation publique'),

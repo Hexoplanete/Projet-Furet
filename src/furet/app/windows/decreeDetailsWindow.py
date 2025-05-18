@@ -1,12 +1,9 @@
-from typing import Any
 from dateutil.relativedelta import relativedelta
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import repository
-from furet.app.utils import addFormRow, buildComboBox, buildDatePicker, buildMultiComboBox
-from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
-from furet.app.widgets.elidedLabel import ElidedLabel
+from furet.app.utils import addFormRow, buildComboBox, buildDatePicker, buildMultiComboBox, addFormSection
 from furet.types.decree import Decree
 
 
@@ -19,38 +16,27 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
 
         self._rootLayout = QtWidgets.QVBoxLayout(self)
 
-        def addSection(label: str):
-            if self._rootLayout.count() > 0:
-                self._rootLayout.addSpacing(20)
-            sep = TextSeparatorWidget(label)
-            sep = self._rootLayout.addWidget(sep)
-            decreeForm = QtWidgets.QFormLayout()
-            self._rootLayout.addLayout(decreeForm)
-            return decreeForm
-
         # Decree
-        decreeForm = addSection("Arrêté")
-
+        decreeForm = addFormSection(self._rootLayout, "Arrêté")
         self._decreeTitle = QtWidgets.QLineEdit(decree.title)
         addFormRow(decreeForm, "Titre", self._decreeTitle)
 
         self._decreeNumber = QtWidgets.QLineEdit(decree.number)
         addFormRow(decreeForm, "N° de l'arrêté", self._decreeNumber)
 
-        self._docType = buildComboBox(repository.getDocumentTypes(), decree.docType)
+        self._docType = buildComboBox(repository.getDocumentTypes(), decree.docType, ("Non défini", None))
         addFormRow(decreeForm, "Type de document", self._docType)
-
 
         self._signingDate = buildDatePicker(decree.signingDate)
         addFormRow(decreeForm, "Date de signature", self._signingDate)
         
-        self._expireDate = buildDatePicker(decree.publicationDate + relativedelta(months=2))
-        self._expireDate.setDisabled(True)
+        self._expireDate = buildDatePicker(None if decree.publicationDate is None else decree.publicationDate + relativedelta(months=2))
+        self._expireDate.setReadOnly(True)
         addFormRow(decreeForm, "Date d'expiration", self._expireDate)
 
         # RAA
-        decreeForm = addSection("Recueil")
-        self._department = buildComboBox(repository.getDepartments(), decree.department)
+        decreeForm = addFormSection(self._rootLayout, "Recueil")
+        self._department = buildComboBox(repository.getDepartments(), decree.department, ("Non défini", None))
         addFormRow(decreeForm, "Département", self._department)
 
         self._publicationDate = buildDatePicker(decree.publicationDate)
@@ -74,11 +60,9 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
 
         pagesRange = QtWidgets.QWidget()
         pagesLayout = QtWidgets.QHBoxLayout(pagesRange)
-        self._pagesStart = QtWidgets.QLineEdit(str(decree.startPage))
-        self._pagesStart.setValidator(QtGui.QIntValidator())
+        self._pagesStart = QtWidgets.QSpinBox(minimum=1, maximum=9999, value=decree.startPage)
         pagesSep = QtWidgets.QLabel("à")
-        self._pagesEnd = QtWidgets.QLineEdit(str(decree.endPage))
-        self._pagesEnd.setValidator(QtGui.QIntValidator())
+        self._pagesEnd = QtWidgets.QSpinBox(minimum=1, maximum=9999, value=decree.endPage)
         pagesLayout.addWidget(self._pagesStart)
         pagesLayout.addWidget(pagesSep)
         pagesLayout.addWidget(self._pagesEnd)
@@ -87,7 +71,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         pagesLayout.setContentsMargins(0, 0, 0, 0)
 
         # ASPAS specific
-        decreeForm = addSection("Informations supplémentaires")
+        decreeForm = addFormSection(self._rootLayout, "Informations supplémentaires")
 
         self._missing = QtWidgets.QCheckBox("", )
         self._missing.setChecked(decree.missingData)
@@ -99,13 +83,15 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         topicWidget = QtWidgets.QWidget()
         topicLayout = QtWidgets.QHBoxLayout(topicWidget)
         topicLayout.setContentsMargins(0,0,0,0)
+        topicLayout.setSpacing(0)
+
         self._topic = buildMultiComboBox(repository.getTopics(), decree.topics)
         self._topic.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
         topicLayout.addWidget(self._topic)
 
-        self._unselectTopic = QtWidgets.QPushButton('X')
-        self._unselectTopic.setFixedSize(20,20)
-        self._unselectTopic.setContentsMargins(0,0,0,0)
+        self._unselectTopic = QtWidgets.QPushButton()
+        self._unselectTopic.setIcon(self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_TrashIcon))
+        self._unselectTopic.setContentsMargins(0, 0, 0, 0)
         self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
         self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
         topicLayout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignmentFlag.AlignLeft)
@@ -134,18 +120,19 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._rootLayout.addLayout(self._buttonLayout)
 
     def saveDecree(self):
+        publicationDate, signingDate = self._publicationDate.date(), self._signingDate.date()
         decree = Decree(
             id=self._decree.id,
             number=self._decreeNumber.text(),
             title=self._decreeTitle.text(),
             docType=self._docType.currentData(),
-            publicationDate=self._publicationDate.date().toPython(),
-            signingDate=self._signingDate.date().toPython(),
+            publicationDate=None if publicationDate is None else publicationDate.toPython(), # type: ignore
+            signingDate=None if signingDate is None else signingDate.toPython(), # type: ignore
             department=self._department.currentData(),
             raaNumber=self._raaNumber.text(),
             link=self._link.text(),
-            startPage=int(self._pagesStart.text()),
-            endPage=int(self._pagesEnd.text()),
+            startPage=self._pagesStart.value(),
+            endPage=self._pagesEnd.value(),
             campaigns=self._campaign.currentData(),
             topics=self._topic.currentData(),
             treated=self._treated.isChecked(),

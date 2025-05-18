@@ -23,8 +23,8 @@ def buildComboBox(options: list[T], choice: T | None, none: tuple[str, Any] | No
     
     if choice is not None:
         for i, o in enumerate(options):
-            if o.id == choice.id:
-                box.setCurrentIndex(i)
+            if o == choice:
+                box.setCurrentIndex(i if none is None else (i+1))
 
     completer = QtWidgets.QCompleter([str(o) for o in options], box)
     completer.setFilterMode(QtCore.Qt.MatchFlag.MatchContains)
@@ -43,7 +43,7 @@ def buildMultiComboBox(options: list[T], choices: list[T], none: str = None) -> 
     
     for i, o in enumerate(options):
         for j, c in enumerate(choices):
-            if o.id == c.id:
+            if o == c:
                 box.setSelectedIndex(i, True)
     return box
 

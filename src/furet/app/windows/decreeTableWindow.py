@@ -1,15 +1,38 @@
+from typing import Any, Generic, TypeVar
 from PySide6 import QtWidgets, QtCore, QtGui
 from furet import repository
 from furet.app.utils import formatDate
 from furet.types.decree import *
 from dateutil.relativedelta import relativedelta
 
-from furet.app.widgets.objectTableModel import ObjectTableModel, TableColumn
+from furet.app.widgets.objectTableModel import ObjectTableModel, FieldColumn, ComputedColumn
 from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
 from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
 from furet.app.windows.settingsWindow import SettingsWindow
 from furet.app.windows.importFileWindow import ImportFileWindow
 from furet.types.department import Department
+
+T = TypeVar('T')
+class DecreeFieldColumn(FieldColumn[T, Decree], Generic[T]):
+    def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):
+        if role == QtCore.Qt.ItemDataRole.BackgroundRole:
+            if item.isIncomplete():
+                return QtGui.QColor(255,0,0,a=50)
+        return super().data(item, role=role)
+
+class DecreeBoolColumn(FieldColumn[bool, Decree]):
+    def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):
+        if role == QtCore.Qt.ItemDataRole.BackgroundRole:
+            if item.isIncomplete() or not getattr(item, self.name):
+                return QtGui.QColor(255,0,0,a=50)
+        return super().data(item, role=role)
+
+class DecreeComputedBoolColumn(ComputedColumn[bool, Decree]):
+    def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole) -> Any:
+        if role == QtCore.Qt.ItemDataRole.BackgroundRole:
+            if item.isIncomplete() or self.value(item):
+                return QtGui.QColor(255,0,0,a=50)
+        return super().data(item, role=role)
 
 
 class DecreeTableWindow(QtWidgets.QMainWindow):
@@ -21,15 +44,15 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self._content)
 
         self._columns = [
-            TableColumn[date | None]("publicationDate", lambda: "Date de publication", lambda v: "Non définie" if v is None else formatDate(v)), # 0
-            TableColumn[date | None]("publicationDate", lambda: "Date d'expiration", lambda v: "Non définie" if v is None else formatDate(v + relativedelta(months=2))), # 1
-            TableColumn[Department | None]("department", lambda: "Département", lambda v : "Non défini" if v is None else str(v)), # 2
-            TableColumn[list[Campaign]]("campaigns", lambda: "Campagnes", lambda v: ", ".join(map(str, v))),                      # 3
-            TableColumn[list[DecreeTopic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),                         # 4
-            TableColumn[str]("title", lambda: "Titre"),                                                                           # 5
-            TableColumn[bool]("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),                               # 6
-            TableColumn[bool]("missingData", lambda: "À compléter", lambda v: "Oui" if v else "Non"),                             # 7
-            TableColumn[str]("comment", lambda: "Commentaire"),                                                                   # 8
+            DecreeFieldColumn[date | None]("publicationDate", lambda: "Date de publication", lambda v: "Non définie" if v is None else formatDate(v)),
+            DecreeFieldColumn[date | None]("publicationDate", lambda: "Date d'expiration", lambda v: "Non définie" if v is None else formatDate(v + relativedelta(months=2))),
+            DecreeFieldColumn[Department | None]("department", lambda: "Département", lambda v : "Non défini" if v is None else str(v)),
+            DecreeFieldColumn[list[Campaign]]("campaigns", lambda: "Campagnes", lambda v: ", ".join(map(str, v))),
+            DecreeFieldColumn[list[DecreeTopic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),
+            DecreeFieldColumn[str]("title", lambda: "Titre"),
+            DecreeBoolColumn("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
+            DecreeComputedBoolColumn(lambda v: v.isIncomplete(), lambda: "À compléter", lambda v: "Oui" if v else "Non"),
+            DecreeFieldColumn[str]("comment", lambda: "Commentaire"),
         ]
         self._decrees = ObjectTableModel(repository.getDecrees(), self._columns)
 

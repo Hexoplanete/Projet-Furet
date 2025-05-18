@@ -49,7 +49,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._dateAfter = buildDatePicker(None)
         addFormRow(self._datePopupLayout, "Publié après le", self._dateAfter)
         self._dateBefore = buildDatePicker(None)
-        addFormRow(self._datePopupLayout, "Publié après le", self._dateBefore)
+        addFormRow(self._datePopupLayout, "Publié avant le", self._dateBefore)
 
         if settings.value("app.filter-expired"):
             self._dateAfter.setDate(date.today() - relativedelta(months=2)) # type: ignore

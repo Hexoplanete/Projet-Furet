@@ -40,11 +40,11 @@ class DecreeFilters:
     treated: bool | None = None
 
     def fitFilters(self, decree: Decree) -> bool:
-        if self.after is not None and decree.publicationDate < self.after:
+        if self.after is not None and (decree.publicationDate is None or decree.publicationDate < self.after):
             return False
-        if self.before is not None and decree.publicationDate > self.before:
+        if self.before is not None and (decree.publicationDate is None or decree.publicationDate > self.before):
             return False
-        if len(self.departments) > 0 and not decree.department.id in self.departments:
+        if len(self.departments) > 0  and (decree.department is None or not decree.department.id in self.departments):
             return False
         if len(self.campaigns) > 0:
             for c in decree.campaigns:

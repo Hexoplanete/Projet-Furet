@@ -13,7 +13,7 @@ _deserializers: dict[_TypeAnnotation, Callable[[str, _TypeAnnotation], Any]] = {
 T = TypeVar("T")
 
 
-def addSerializer[T](valueType: _TypeAnnotation, serializer: Callable[[T], str], deserializer: Callable[[str, _TypeAnnotation], T]):
+def addSerializer(valueType: _TypeAnnotation, serializer: Callable[[T], str], deserializer: Callable[[str, _TypeAnnotation], T]):
     _serializers[valueType] = serializer
     _deserializers[valueType] = deserializer
 

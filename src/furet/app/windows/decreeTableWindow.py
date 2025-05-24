@@ -75,7 +75,6 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
 
     def closeEvent(self, event):
-        super().closeEvent(event)
         QtWidgets.QApplication.quit()
 
     def onClickParamButton(self):

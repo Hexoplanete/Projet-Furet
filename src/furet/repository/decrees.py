@@ -127,6 +127,6 @@ def getFileName(decree: Decree) -> str:
     if decree.department is None or decree.publicationDate is None:
         filename = "incomplete.csv"
     else:
-        filename = os.path.join(decree.department.number, f"{decree.department.number}_{decree.publicationDate.strftime(" % Y-%m")}_RAA.csv")
+        filename = os.path.join(decree.department.number, f"{decree.department.number}_{decree.publicationDate.strftime("%Y-%m")}_RAA.csv")
 
     return os.path.join(getBasePath(), filename)

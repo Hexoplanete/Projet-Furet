@@ -1,6 +1,6 @@
 from PySide6 import QtWidgets, QtCore
 
-class SelectAllComboBox(QtWidgets.QComboBox):
+class SelectAllTextComboBox(QtWidgets.QComboBox):
     def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
         self.setEditable(True)

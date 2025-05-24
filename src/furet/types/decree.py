@@ -65,4 +65,5 @@ class Decree:
     campaigns: list[Campaign] = field(default_factory=list)
     topics: list[DecreeTopic] = field(default_factory=list)
 
-    missingData: bool = True
+    def isIncomplete(self):
+        return len(self.title) == 0 or len(self.number) == 0 or len(self.raaNumber) == 0 or self.department is None or len(self.link) == 0 or self.publicationDate is None or self.signingDate is None or self.docType is None

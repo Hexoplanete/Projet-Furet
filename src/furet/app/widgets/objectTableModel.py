@@ -1,46 +1,67 @@
 from dataclasses import dataclass
-from PySide6 import QtCore, QtGui
+from PySide6 import QtCore
 
-from typing import Callable, TypeVar, Generic
+from typing import Any, Callable, TypeVar, Generic
 
 T = TypeVar('T')
+TV = TypeVar('TV')
 
+class AbstractTableColumn(Generic[T]):
+    def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any: ...
+    def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any: ...
+    def lessThan(self, left: T, right: T, /) -> bool: ...
+        
 @dataclass
-class TableColumn(Generic[T]):
+class FieldColumn(AbstractTableColumn, Generic[T, TV]):
     name: str
     formatHeader: Callable[[], str] | None = None
     format: Callable[[T], str] = lambda v: str(v)
 
+    def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
+            return self.name if self.formatHeader is None else self.formatHeader()
+
+    def data(self, item: TV, /, role: QtCore.Qt.ItemDataRole) -> Any:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
+            return self.format(getattr(item, self.name))
+    
+    def lessThan(self, left: TV, right: TV) -> bool:
+        return getattr(left, self.name) < getattr(right, self.name)
+
+@dataclass
+class ComputedColumn(AbstractTableColumn, Generic[T, TV]):
+    value: Callable[[TV], T]
+    formatHeader: Callable[[], str] | None
+    format: Callable[[T], str] = lambda v: str(v)
+
+    def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
+            return self.formatHeader
+
+    def data(self, item: TV, /, role: QtCore.Qt.ItemDataRole) -> Any:
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
+            return self.format(self.value(item))
+    
+    def lessThan(self, left: TV, right: TV) -> bool:
+        return self.value(left) < self.value(right) # type: ignore
+
 class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
-    def __init__(self, data: list[T], fields: list[TableColumn]):
+    def __init__(self, data: list[T], fields: list[AbstractTableColumn]):
         super().__init__()
         self._data = data
         self._fields = fields
         
     def headerData(self, section, orientation, /, role = ...):
         if orientation == QtCore.Qt.Orientation.Horizontal and role == QtCore.Qt.ItemDataRole.DisplayRole:
-            field = self._fields[section]
-            return field.name if field.formatHeader is None else field.formatHeader()
-        
-        # if orientation == QtCore.Qt.Orientation.Vertical and role == QtCore.Qt.ItemDataRole.DisplayRole:
-        #     return self.rowCount() - section
+            return self._fields[section].headerData(role) # type: ignore
 
     def resetData(self, data: list[T]):
         self.beginResetModel()
         self._data = data
         self.endResetModel()
     
-    def data(self, index, /, role=...):
-        if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            field = self._fields[index.column()]
-            return field.format(getattr(self._data[index.row()], field.name))
-        elif role == QtCore.Qt.ItemDataRole.ForegroundRole:
-            if index.column() == 6:
-                field = self._fields[index.column()]
-                return QtGui.QColor("green") if getattr(self._data[index.row()], field.name) else QtGui.QColor("red")
-            if index.column() == 7:
-                field = self._fields[index.column()]
-                return QtGui.QColor("green") if not getattr(self._data[index.row()], field.name) else QtGui.QColor("red")
+    def data(self, index, /, role=...) -> Any:
+        return self._fields[index.column()].data(self._data[index.row()], role) # type: ignore
 
     def rowCount(self, /, parent=...):
         return len(self._data)
@@ -56,9 +77,7 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
         return self._data[index]
 
     def lessThan(self, indexLeft: QtCore.QModelIndex | QtCore.QPersistentModelIndex, indexRight: QtCore.QModelIndex | QtCore.QPersistentModelIndex, /):
-        fieldLeft = self._fields[indexLeft.column()]
-        fieldRight = self._fields[indexRight.column()]
-        return getattr(self._data[indexLeft.row()], fieldLeft.name) < getattr(self._data[indexRight.row()], fieldRight.name)
+        return self._fields[indexLeft.column()].lessThan(self._data[indexLeft.row()], self._data[indexRight.row()])
 
 class SingleRowEditableModel[T](QtCore.QAbstractTableModel):
     def __init__(self, data: list[T], columnName):

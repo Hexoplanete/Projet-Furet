@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore
 
 from furet.app.widgets.checkableComboBox import CheckableComboBox
 from furet.app.widgets.optionalDateEdit import OptionalDateEdit
-from furet.app.widgets.selectAllComboBox import SelectAllComboBox
+from furet.app.widgets.selectAllTextComboBox import SelectAllTextComboBox
 
 from typing import TypeVar
 
@@ -13,7 +13,7 @@ from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
 T = TypeVar('T')
 
 def buildComboBox(options: list[T], choice: T | None, none: tuple[str, Any] | None = None) -> QtWidgets.QComboBox:
-    box = SelectAllComboBox()
+    box = SelectAllTextComboBox()
     if none is not None:
         box.addItem(none[0], none[1])
         if choice is None: 

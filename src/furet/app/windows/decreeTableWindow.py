@@ -2,6 +2,7 @@ from typing import Any, Generic, TypeVar
 from PySide6 import QtWidgets, QtCore, QtGui
 from furet import repository
 from furet.app.utils import formatDate
+from furet.app.windows import windowManager
 from furet.types.decree import *
 from dateutil.relativedelta import relativedelta
 
@@ -96,19 +97,11 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._table.setSortingEnabled(True)
         self._table.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
 
-        self._paramWindow: SettingsWindow = None
-        self._importFileWindow: ImportFileWindow = None
-        self._decreeDetailWindows: dict[int, DecreeDetailsWindow] = {}
-
     def closeEvent(self, event):
         QtWidgets.QApplication.quit()
 
     def onClickParamButton(self):
-        if self._paramWindow is None or not(self._paramWindow.isVisible()):
-            self._paramWindow = SettingsWindow(self)
-            self._paramWindow.show()
-        else:
-            self._paramWindow.activateWindow()
+        windowManager.showWindow(SettingsWindow)
 
     def onClickResearchButton(self):
         self._decrees.resetData(repository.getDecrees(self._filters.filters()))
@@ -116,27 +109,18 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def onDblClickTableRow(self, index: QtCore.QModelIndex):
         decree = self._decrees.itemAt(index.row())
-        def onDecreeSaved():
-            self._decrees.resetData(repository.getDecrees())
-
-        if decree.id not in self._decreeDetailWindows or not(self._decreeDetailWindows[decree.id].isVisible()):
-            self._decreeDetailWindows[decree.id] = DecreeDetailsWindow(decree)
-            self._decreeDetailWindows[decree.id].show()
-            self._decreeDetailWindows[decree.id].accepted.connect(onDecreeSaved)
-        else:
-            self._decreeDetailWindows[decree.id].activateWindow()
+        window, created = windowManager.showWindow(DecreeDetailsWindow, (decree,))
+        if created:
+            def onDecreeSaved():
+                self._decrees.resetData(repository.getDecrees())
+            window.accepted.connect(onDecreeSaved)
 
     def onClickImportButton(self):
-        def onImportDone():
-            self._decrees.resetData(repository.getDecrees())
-
-        if self._importFileWindow is None or not(self._importFileWindow.isVisible()):
-            self._importFileWindow = ImportFileWindow()
-            self._importFileWindow.show()
-            self._importFileWindow.accepted.connect(onImportDone)
-        else:
-            self._importFileWindow.activateWindow()
-
+        window, created = windowManager.showWindow(ImportFileWindow)
+        if created:
+            def onImportDone():
+                self._decrees.resetData(repository.getDecrees())
+            window.accepted.connect(onImportDone)
     def onClickDocButton(self):
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")
 

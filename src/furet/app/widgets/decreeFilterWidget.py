@@ -79,8 +79,8 @@ class DecreeFilterWidget(QtWidgets.QWidget):
     def onClickResearchButton(self):
         self._onResearch()
 
-    def filters(self) -> repository.decrees.DecreeFilters:
-        return repository.decrees.DecreeFilters(
+    def filters(self) -> repository.DecreeFilters:
+        return repository.DecreeFilters(
             after=None if self._dateAfter.date() is None else self._dateAfter.date().toPython(), # type: ignore
             before=None if self._dateBefore.date() is None else self._dateBefore.date().toPython(), # type: ignore
             departments=list(map(lambda v: v.id, self._department.currentData())),

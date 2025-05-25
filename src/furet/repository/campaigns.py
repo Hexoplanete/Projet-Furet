@@ -37,7 +37,7 @@ def getCampaigns():
     return l
 
 
-def getCampaignFromTopic(topic: DecreeTopic) -> list[Campaign]:
+def getCampaignFromTopic(topic: Topic) -> list[Campaign]:
     listCampaigns = []
     for c in campaigns:
         if topic in c.topicList:

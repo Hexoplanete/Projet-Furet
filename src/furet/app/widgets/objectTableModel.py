@@ -9,7 +9,7 @@ TV = TypeVar('TV')
 class AbstractTableColumn(Generic[T]):
     def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any: ...
     def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any: ...
-    def lessThan(self, left: T, right: T, /) -> bool: ...
+    def compareKey(self, item: T) -> Any: ...
         
 @dataclass
 class FieldColumn(AbstractTableColumn, Generic[T, TV]):
@@ -24,9 +24,7 @@ class FieldColumn(AbstractTableColumn, Generic[T, TV]):
     def data(self, item: TV, /, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             return self.format(getattr(item, self.name))
-    
-    def lessThan(self, left: TV, right: TV) -> bool:
-        return getattr(left, self.name) < getattr(right, self.name)
+
 
 @dataclass
 class ComputedColumn(AbstractTableColumn, Generic[T, TV]):
@@ -41,9 +39,7 @@ class ComputedColumn(AbstractTableColumn, Generic[T, TV]):
     def data(self, item: TV, /, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             return self.format(self.value(item))
-    
-    def lessThan(self, left: TV, right: TV) -> bool:
-        return self.value(left) < self.value(right) # type: ignore
+
 
 class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
     def __init__(self, data: list[T], fields: list[AbstractTableColumn]):
@@ -75,9 +71,11 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
 
     def itemAt(self, index: int):
         return self._data[index]
-
-    def lessThan(self, indexLeft: QtCore.QModelIndex | QtCore.QPersistentModelIndex, indexRight: QtCore.QModelIndex | QtCore.QPersistentModelIndex, /):
-        return self._fields[indexLeft.column()].lessThan(self._data[indexLeft.row()], self._data[indexRight.row()])
+    
+    def sort(self, column, /, order = ...):
+        self.beginResetModel()
+        self._data.sort(key=lambda v: self._fields[column].data(v, QtCore.Qt.ItemDataRole.DisplayRole), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
+        self.endResetModel()
 
 class SingleRowEditableModel[T](QtCore.QAbstractTableModel):
     def __init__(self, data: list[T], columnName):

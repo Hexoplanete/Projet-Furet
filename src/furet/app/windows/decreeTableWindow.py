@@ -49,10 +49,10 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             DecreeFieldColumn[date | None]("publicationDate", lambda: "Date d'expiration", lambda v: "Non définie" if v is None else formatDate(v + relativedelta(months=2))),
             DecreeFieldColumn[Department | None]("department", lambda: "Département", lambda v : "Non défini" if v is None else str(v)),
             DecreeFieldColumn[list[Campaign]]("campaigns", lambda: "Campagnes", lambda v: ", ".join(map(str, v))),
-            DecreeFieldColumn[list[DecreeTopic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),
+            DecreeFieldColumn[list[Topic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),
             DecreeFieldColumn[str]("title", lambda: "Titre"),
             DecreeBoolColumn("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
-            DecreeComputedBoolColumn(lambda v: v.isIncomplete(), lambda: "À compléter", lambda v: "Oui" if v else "Non"),
+            DecreeComputedBoolColumn(lambda v: v.isIncomplete(), lambda: "À compléter", lambda v: "Oui" if v else "Non"), # TODO label not visible
             DecreeFieldColumn[str]("comment", lambda: "Commentaire"),
         ]
         self._decrees = ObjectTableModel(repository.getDecrees(), self._columns)

@@ -8,9 +8,9 @@ import re
 from datetime import datetime
 import os
 
-from furet.types.raa import RAA
+from furet.types.processinngraa import ProcessingRAA
 
-def mainSeparation(inputPath, outputDir, raa: RAA | None = None):
+def mainSeparation(inputPath, outputDir, raa: ProcessingRAA | None = None):
         now = datetime.now()
         currentTime = now.strftime("%H-%M-%S")
 

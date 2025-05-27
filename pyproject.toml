@@ -36,9 +36,8 @@ homepage = "https://github.com/Hexoplanete/Projet-Furet"
 repository = "https://github.com/Hexoplanete/Projet-Furet"
 documentation = "https://github.com/Hexoplanete/Projet-Furet/wiki"
 
-[project.gui-scripts]
+[project.scripts]
 furet = "furet.__main__:main"
-
 
 [build-system]
 requires = ["hatchling"]

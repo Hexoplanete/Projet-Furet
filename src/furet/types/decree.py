@@ -29,7 +29,7 @@ class Topic(TableObject):
 class Campaign(TableObject):
     id: int
     label: str
-    topicList: list[Topic]
+    topics: list[Topic]
 
     def __str__(self):
         return self.label

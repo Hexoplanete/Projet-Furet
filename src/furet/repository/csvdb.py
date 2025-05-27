@@ -59,12 +59,17 @@ def tableDefinition(cls: type[T] | T) -> TableDefinition:
     return config
 
 
-def insert(object: TableObject) -> None:
-    assignId(object)
-    path = getFilePath(object)
-    objects = loadFromCsv(type(object), path)
-    objects.append(object)
-    saveToCsv(objects, path)
+def insert(objects: T | list[T]) -> None:
+    objectsList: list[T] = objects if type(objects) is list else [objects] # type: ignore
+    objectsPerFile: dict[str, list[T]] = {}
+    for object in objectsList:
+        path = getFilePath(object)
+        if path not in objectsPerFile:
+            objectsPerFile[path] = loadFromCsv(type(object), path)
+        assignId(object)
+        objectsPerFile[path].append(object)
+    for path, objects in objectsPerFile.items():
+        saveToCsv(objects, path)
 
 
 def update(object: TableObject) -> None:

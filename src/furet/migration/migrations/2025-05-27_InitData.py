@@ -1,21 +1,17 @@
-from furet.repository import utils
+from furet.migration import Migration
+from furet import repository
+from furet.repository import csvdb
 from furet.types.decree import *
-import os
-from furet import settings
 
-departments: list[Department] = []
+class InitData(Migration):
 
-
-def getFilePath():
-    return os.path.join(settings.value("repository.csv-root"), 'departments.csv')
-
-
-def loadAllDepartments():
-    global departments
-    path = getFilePath()
-
-    if not os.path.isfile(path):
-        departments = [
+    def up(self):
+        csvdb.insert([
+            DocumentType(id=1, label='Arrêté préfectoral'),
+            DocumentType(id=2, label='Arrêté municipal'),
+            DocumentType(id=3, label='Consultation publique'),
+        ])
+        csvdb.insert([
             Department(id=1, number='01', label='Ain'),
             Department(id=2, number='02', label='Aisne'),
             Department(id=3, number='03', label='Allier'),
@@ -117,15 +113,57 @@ def loadAllDepartments():
             Department(id=973, number='973', label='Guyane'),
             Department(id=974, number='974', label='La Réunion'),
             Department(id=976, number='976', label='Mayotte'),
-        ]
-        saveDepartmentsToFile()
-    else:
-        departments = utils.loadFromCsv(path, Department)
-
-
-def getDepartments():
-    return departments
-
-
-def saveDepartmentsToFile():
-    utils.saveToCsv(getFilePath(), departments, Department)
+        ])
+        csvdb.insert([
+            Topic(id=1, label='chasse'),
+            Topic(id=2, label='cynégétique'),
+            Topic(id=3, label='gibier'),
+            Topic(id=4, label='vénerie'),
+            Topic(id=5, label='armes'),
+            Topic(id=6, label='tir'),
+            Topic(id=7, label='munition'),
+            Topic(id=8, label='CDCFS'),
+            Topic(id=9, label='SDGC'),
+            Topic(id=10, label='blaireau'),
+            Topic(id=11, label='déterrage'),
+            Topic(id=12, label='tuberculose bovine'),
+            Topic(id=13, label='loup'),
+            Topic(id=14, label='ours'),
+            Topic(id=15, label='lynx'),
+            Topic(id=16, label='chacal'),
+            Topic(id=17, label='prédation'),
+            Topic(id=18, label='prédateur'),
+            Topic(id=19, label='tirs de défense'),
+            Topic(id=20, label='tir de prélèvement'),
+            Topic(id=21, label='effarouchement'),
+            Topic(id=22, label='espèce animale protégée'),
+            Topic(id=23, label='louveterie'),
+            Topic(id=24, label='louvetier'),
+            Topic(id=25, label='piège'),
+            Topic(id=26, label='piégeage'),
+            Topic(id=27, label='destruction'),
+            Topic(id=28, label='battue'),
+            Topic(id=29, label='ESOD'),
+            Topic(id=30, label="espèce susceptible d'occasionner des dégâts"),
+            Topic(id=31, label='sanglier'),
+            Topic(id=32, label='lapin'),
+            Topic(id=33, label='pigeon'),
+            Topic(id=34, label='renard'),
+            Topic(id=35, label='corvidés'),
+            Topic(id=36, label='fouine'),
+            Topic(id=37, label='martre'),
+            Topic(id=38, label='belette'),
+            Topic(id=39, label='putois'),
+            Topic(id=40, label='corbeau freux'),
+            Topic(id=41, label='corneille noire'),
+            Topic(id=42, label='pie bavarde'),
+            Topic(id=43, label='geai'),
+            Topic(id=44, label='étourneau'),
+        ])
+        csvdb.insert([
+            Campaign(id=1, label='Chasse', topics=list(map(repository.getTopicById, [1, 2, 3, 4, 5, 6, 7, 8, 9]))),
+            Campaign(id=2, label="Espèces protégées - grands prédateurs", topics=list(map(repository.getTopicById, [13, 14, 15, 16, 17, 18, 19, 20, 21, 22]))),
+            Campaign(id=3, label='Blaireau', topics=list(map(repository.getTopicById, [10, 11, 12, 4]))),
+            Campaign(id=4, label='ESOD', topics=list(map(repository.getTopicById, [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]))),
+            Campaign(id=5, label='CDCFS', topics=list(map(repository.getTopicById, [8]))),
+        ])

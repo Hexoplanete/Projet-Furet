@@ -114,7 +114,7 @@ def addCampaign(campaign: Campaign):
 def getCampaignFromTopic(topic: Topic) -> list[Campaign]:
     listCampaigns = []
     for c in getCampaigns():
-        if topic in c.topicList:
+        if topic in c.topics:
             listCampaigns.append(c)
     return listCampaigns
 

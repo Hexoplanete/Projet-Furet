@@ -12,15 +12,15 @@ class TableDefinition:
     id: str
     fields: dict[str, type]
 
+
 _tables: dict[type, TableDefinition] = {}
 _path: str
+_loadedFiles: dict[str, tuple[date, list]] = {}
 
 
 class TableObject:
     def __init_subclass__(cls, *, name: str | None = None, id: str = "id", fields: dict[str, type] | None = None) -> None:
         addTable(cls, TableDefinition(name or cls.__name__.lower(), id, fields))
-    
-    # TODO add comparaisons
 
     def __eq__(self, value: object) -> bool:
         return type(value) == type(self) and getId(self) == getId(value)
@@ -39,8 +39,9 @@ T = TypeVar("T", bound=TableObject)
 
 
 def connect(path: str):
-    global _path
+    global _path, _loadedFiles
     _path = path
+    _loadedFiles = {}
 
 
 def addTable(cls: type[T], table: TableDefinition) -> None:
@@ -123,6 +124,7 @@ def getFilePath(object: TableObject) -> str:
     basePath = tableDefinition(object).name
     subPath = object.fileSubPath()
     return os.path.join(_path, f"{basePath}.csv" if subPath is None else os.path.join(basePath, subPath))
+
 
 def getTablePath(table: type[T]) -> str:
     basePath = tableDefinition(table).name
@@ -209,6 +211,10 @@ def loadFromCsv(table: type[T], path: str) -> list[T]:
     if not os.path.isfile(path):
         return []
     try:
+        mTime = datetime.fromtimestamp(os.path.getmtime(path))
+        if path in _loadedFiles and _loadedFiles[path][0] == mTime:
+            return _loadedFiles[path][1]
+
         objects: list[T] = []
         with open(path, 'r', encoding='utf-8', newline='') as file:
             reader = csv.reader(file, delimiter=CSV_SEP)
@@ -216,12 +222,12 @@ def loadFromCsv(table: type[T], path: str) -> list[T]:
             header = next(reader)
             for row in reader:
                 try:
-                    objects.append(
-                        table(**{h: deserialize(c, fields[h]) for h, c in zip(header, row)}))
+                    objects.append(table(**{h: deserialize(c, fields[h]) for h, c in zip(header, row)}))
                 except Exception as e:
                     print(f"[ERROR] Could not deserialize line {row}: {e}")
                     print(f"[INFO] Skipping line {row}")
 
+        _loadedFiles[path] = (mTime, objects)
         return objects
     except OSError as e:
         print(f"[ERROR] Could not read the file {path}: {e}")

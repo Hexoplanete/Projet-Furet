@@ -14,21 +14,22 @@ from furet.app.windows.importFileWindow import ImportFileWindow
 from furet.types.department import Department
 
 T = TypeVar('T')
-class DecreeFieldColumn(FieldColumn[T, Decree], Generic[T]):
+class DecreeFieldColumn(FieldColumn[Decree, T], Generic[T]):
     def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
             if item.isIncomplete():
                 return QtGui.QColor(255,0,0,a=50)
         return super().data(item, role=role)
 
-class DecreeBoolColumn(FieldColumn[bool, Decree]):
+
+class DecreeBoolColumn(FieldColumn[Decree, bool]):
     def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
             if item.isIncomplete() or not getattr(item, self.name):
                 return QtGui.QColor(255,0,0,a=50)
         return super().data(item, role=role)
 
-class DecreeComputedBoolColumn(ComputedColumn[bool, Decree]):
+class DecreeComputedBoolColumn(ComputedColumn[Decree, bool]):
     def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
             if item.isIncomplete() or self.value(item):
@@ -47,7 +48,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._columns = [
             DecreeFieldColumn[date | None]("publicationDate", lambda: "Date de publication", lambda v: "Non définie" if v is None else formatDate(v)),
             DecreeFieldColumn[date | None]("publicationDate", lambda: "Date d'expiration", lambda v: "Non définie" if v is None else formatDate(v + relativedelta(months=2))),
-            DecreeFieldColumn[Department | None]("department", lambda: "Département", lambda v : "Non défini" if v is None else str(v)),
+            DecreeFieldColumn[Department | None]("department", lambda: "Département", lambda v : "Non défini" if v is None else str(v), lambda v: 0 if v is None else v.id),
             DecreeFieldColumn[list[Campaign]]("campaigns", lambda: "Campagnes", lambda v: ", ".join(map(str, v))),
             DecreeFieldColumn[list[Topic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),
             DecreeFieldColumn[str]("title", lambda: "Titre"),

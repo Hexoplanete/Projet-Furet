@@ -48,9 +48,9 @@ class DecreeFilters:
             return False
         return True
 
-
 def getDecrees(filters: DecreeFilters | None = None) -> list[Decree]:
-    return csvdb.fetch(Decree)
+    decrees = csvdb.fetch(Decree)
+    return decrees if filters is None else list(filter(lambda d: filters.fitFilters(d), decrees))
 
 
 def getDecreeById(id: int) -> Decree | None:
@@ -74,7 +74,7 @@ def addDecrees(decrees: list[Decree]):
 
 
 def getDepartments() -> list[Department]:
-    return csvdb.fetch(Department)
+    return sorted(csvdb.fetch(Department), key=lambda i: i.id)
 
 
 def getDepartmentById(id: int) -> Department | None:
@@ -85,7 +85,7 @@ def getDepartmentById(id: int) -> Department | None:
 
 
 def getDocumentTypes() -> list[DocumentType]:
-    return csvdb.fetch(DocumentType)
+    return sorted(csvdb.fetch(DocumentType), key=lambda i: i.label)
 
 
 def getDocumentTypeById(id: int) -> DocumentType | None:
@@ -95,7 +95,7 @@ def getDocumentTypeById(id: int) -> DocumentType | None:
 
 
 def getCampaigns() -> list[Campaign]:
-    return csvdb.fetch(Campaign)
+    return sorted(csvdb.fetch(Campaign), key=lambda i: i.label)
 
 
 def getCampaignById(id: int) -> Campaign | None:
@@ -122,7 +122,7 @@ def getCampaignFromTopic(topic: Topic) -> list[Campaign]:
 # TOPICS
 
 def getTopics() -> list[Topic]:
-    return csvdb.fetch(Topic)
+    return sorted(csvdb.fetch(Topic), key=lambda i:i.label)
 
 
 def getTopicById(id: int) -> Topic | None:

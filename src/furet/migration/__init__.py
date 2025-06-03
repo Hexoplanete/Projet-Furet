@@ -15,7 +15,7 @@ class Migration:
 
 
 @dataclass(eq=False)
-class AppliedMigration(TableObject, name=".migrations"):
+class AppliedMigration(TableObject, name=".migration"):
     id: int
     migration: str
 

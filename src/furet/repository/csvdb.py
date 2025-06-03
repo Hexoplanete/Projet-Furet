@@ -235,6 +235,6 @@ def loadFromCsv(table: type[T], path: str) -> list[T]:
 
 
 @dataclasses.dataclass(eq=False)
-class TableIds(TableObject, name=".ids", id="table"):
+class TableIds(TableObject, name=".id", id="table"):
     table: str
     id: int

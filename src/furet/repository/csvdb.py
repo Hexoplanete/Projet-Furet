@@ -178,7 +178,6 @@ def serialize(value: Any) -> str:
 
 
 def deserialize(value: str, valueType: _TypeAnnotation) -> Any:
-    # type: ignore
     return _deserializers.get(get_origin(valueType) or valueType, lambda v, t: valueType(v))(value, valueType)
 
 
@@ -235,6 +234,6 @@ def loadFromCsv(table: type[T], path: str) -> list[T]:
 
 
 @dataclasses.dataclass(eq=False)
-class TableIds(TableObject, name=".id", id="table"):
+class TableIds(TableObject, name=".ids", id="table"):
     table: str
     id: int

@@ -1,20 +1,20 @@
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 from PySide6 import QtWidgets, QtCore, QtGui
 from furet import repository
 from furet.app.utils import formatDate
+from furet.app.widgets.optionalDateEdit import NONE_DATE
 from furet.app.windows import windowManager
 from furet.types.decree import *
 from dateutil.relativedelta import relativedelta
 
-from furet.app.widgets.objectTableModel import ObjectTableModel, FieldColumn, ComputedColumn
+from furet.app.widgets.objectTableModel import ObjectTableModel, TableColumn
 from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
 from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
 from furet.app.windows.settingsWindow import SettingsWindow
 from furet.app.windows.importFileWindow import ImportFileWindow
-from furet.types.department import Department
 
 T = TypeVar('T')
-class DecreeFieldColumn(FieldColumn[Decree, T], Generic[T]):
+class DecreeColumn(TableColumn[Decree, T], Generic[T]):
     def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
             if item.isIncomplete():
@@ -22,17 +22,10 @@ class DecreeFieldColumn(FieldColumn[Decree, T], Generic[T]):
         return super().data(item, role=role)
 
 
-class DecreeBoolColumn(FieldColumn[Decree, bool]):
+class DecreeBoolColumn(DecreeColumn[bool]):
     def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
-            if item.isIncomplete() or not getattr(item, self.name):
-                return QtGui.QColor(255,0,0,a=50)
-        return super().data(item, role=role)
-
-class DecreeComputedBoolColumn(ComputedColumn[Decree, bool]):
-    def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole) -> Any:
-        if role == QtCore.Qt.ItemDataRole.BackgroundRole:
-            if item.isIncomplete() or self.value(item):
+            if item.isIncomplete() or not self.value(item):
                 return QtGui.QColor(255,0,0,a=50)
         return super().data(item, role=role)
 
@@ -46,15 +39,15 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self._content)
 
         self._columns = [
-            DecreeFieldColumn[date | None]("publicationDate", lambda: "Date de publication", lambda v: "Non définie" if v is None else formatDate(v)),
-            DecreeFieldColumn[date | None]("publicationDate", lambda: "Date d'expiration", lambda v: "Non définie" if v is None else formatDate(v + relativedelta(months=2))),
-            DecreeFieldColumn[Department | None]("department", lambda: "Département", lambda v : "Non défini" if v is None else str(v), lambda v: 0 if v is None else v.id),
-            DecreeFieldColumn[list[Campaign]]("campaigns", lambda: "Campagnes", lambda v: ", ".join(map(str, v))),
-            DecreeFieldColumn[list[Topic]]("topics", lambda: "Sujets", lambda v: ", ".join(map(str, v))),
-            DecreeFieldColumn[str]("title", lambda: "Titre"),
-            DecreeBoolColumn("treated", lambda: "État", lambda v: "Traité" if v else "À traiter"),
-            DecreeComputedBoolColumn(lambda v: v.isIncomplete(), lambda: "À compléter", lambda v: "Oui" if v else "Non"), # TODO label not visible
-            DecreeFieldColumn[str]("comment", lambda: "Commentaire"),
+            DecreeColumn("Date de publication", lambda v: v.raa.publicationDate, lambda v: "Non définie" if v is None else formatDate(v), lambda v: v or NONE_DATE),
+            DecreeColumn("Date d'expiration", lambda v: v.raa.publicationDate, lambda v: "Non définie" if v is None else formatDate(v + relativedelta(months=2)), lambda v: v or NONE_DATE),
+            DecreeColumn("Département", lambda v: v.raa.department, lambda v : "Non défini" if v is None else str(v), lambda v: 0 if v is None else v.id),
+            DecreeColumn("Campagnes", lambda v: v.campaigns, lambda v: ", ".join(map(str, v))),
+            DecreeColumn("Sujets", lambda v: v.topics, lambda v: ", ".join(map(str, v))),
+            DecreeColumn("Titre", lambda v: v.title),
+            DecreeBoolColumn("État", lambda v: v.treated, lambda v: "Traité" if v else "À traiter"),
+            DecreeBoolColumn("À compléter", lambda v: v.isIncomplete(), lambda v: "Oui" if v else "Non"), # TODO label not visible
+            DecreeColumn("Commentaire", lambda v: v.comment),
         ]
         self._decrees = ObjectTableModel(repository.getDecrees(), self._columns)
 

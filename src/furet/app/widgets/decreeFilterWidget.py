@@ -52,7 +52,7 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         addFormRow(self._datePopupLayout, "Publié avant le", self._dateBefore)
 
         if settings.value("app.filter-expired"):
-            self._dateAfter.setDate(date.today() - relativedelta(months=2)) # type: ignore
+            self._dateAfter.setDate(date.today() - relativedelta(months=2))  # type: ignore
 
         self._dateRangeButton = QtWidgets.QPushButton("")
         self._layout.addWidget(self._dateRangeButton)
@@ -81,8 +81,8 @@ class DecreeFilterWidget(QtWidgets.QWidget):
 
     def filters(self) -> repository.DecreeFilters:
         return repository.DecreeFilters(
-            after=None if self._dateAfter.date() is None else self._dateAfter.date().toPython(), # type: ignore
-            before=None if self._dateBefore.date() is None else self._dateBefore.date().toPython(), # type: ignore
+            after=None if self._dateAfter.date() is None else self._dateAfter.date().toPython(),  # type: ignore
+            before=None if self._dateBefore.date() is None else self._dateBefore.date().toPython(),  # type: ignore
             departments=list(map(lambda v: v.id, self._department.currentData())),
             campaigns=list(map(lambda v: v.id, self._campaign.currentData())),
             topics=list(map(lambda v: v.id, self._topic.currentData())),
@@ -95,11 +95,11 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         if dateAfter is None and dateBefore is None:
             self._dateRangeButton.setText("Toutes les dates de publication")
         elif dateAfter is not None and dateBefore is None:
-            self._dateRangeButton.setText(f"Publié après le {formatDate(dateAfter.toPython())}") # type: ignore
+            self._dateRangeButton.setText(f"Publié après le {formatDate(dateAfter.toPython())}")  # type: ignore
         elif dateAfter is None and dateBefore is not None:
-            self._dateRangeButton.setText(f"Publié avant le {formatDate(dateBefore.toPython())}") # type: ignore
+            self._dateRangeButton.setText(f"Publié avant le {formatDate(dateBefore.toPython())}")  # type: ignore
         else:
-            self._dateRangeButton.setText(f"Publié du {formatDate(dateAfter.toPython())} au {formatDate(dateBefore.toPython())}") # type: ignore
+            self._dateRangeButton.setText(f"Publié du {formatDate(dateAfter.toPython())} au {formatDate(dateBefore.toPython())}")  # type: ignore
     
     def onClickUnselectTopic(self):
         self._topic.unselectAllItems()

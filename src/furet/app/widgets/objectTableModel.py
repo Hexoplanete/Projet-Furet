@@ -6,56 +6,27 @@ from typing import Any, Callable, TypeVar, Generic
 T = TypeVar('T')
 TV = TypeVar('TV')
 
-
-class AbstractTableColumn(Generic[T]):
-    def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any: ...
-    def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any: ...
-    def valueKey(self, item: T) -> Any: ...
-
-
 @dataclass
-class FieldColumn(AbstractTableColumn[T], Generic[T, TV]):
-    name: str
-    formatHeader: Callable[[], str] | None = None
-    format: Callable[[TV], str] = lambda v: str(v)
-    _valueKey: Callable[[TV], Any] = lambda v: v
-
-    def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any:
-        if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self.name if self.formatHeader is None else self.formatHeader()
-
-    def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any:
-        if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self.format(self.value(item))
-
-    def value(self, item: T) -> TV:
-        return getattr(item, self.name)
-
-    def valueKey(self, item: T) -> Any:
-        return self._valueKey(self.value(item))
-
-
-@dataclass
-class ComputedColumn(AbstractTableColumn[T], Generic[T, TV]):
+class TableColumn(Generic[T, TV]):
+    formatHeader: Callable[[], str] | str
     value: Callable[[T], TV]
-    formatHeader: Callable[[], str] | None
     format: Callable[[TV], str] = lambda v: str(v)
-    _valueKey: Callable[[TV], Any] = lambda v: v
+    _sortKey: Callable[[TV], Any] = lambda v: v
 
     def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self.formatHeader
+            return self.formatHeader if type(self.formatHeader) is str else self.formatHeader()  # type: ignore
 
     def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             return self.format(self.value(item))
-
-    def valueKey(self, item: T) -> Any:
-        return self._valueKey(self.value(item))
+    
+    def sortKey(self, item: T):
+        return self._sortKey(self.value(item))
 
 
 class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
-    def __init__(self, data: list[T], fields: list[AbstractTableColumn]):
+    def __init__(self, data: list[T], fields: list[TableColumn]):
         super().__init__()
         self._data = data
         self._fields = fields
@@ -70,7 +41,7 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
         self.endResetModel()
 
     def data(self, index, /, role=...) -> Any:
-        return self._fields[index.column()].data(self._data[index.row()], role) # type: ignore
+        return self._fields[index.column()].data(self._data[index.row()], role)  # type: ignore
 
     def rowCount(self, /, parent=...):
         return len(self._data)
@@ -87,7 +58,7 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
 
     def sort(self, column, /, order=...):
         self.beginResetModel()
-        self._data.sort(key=lambda v: self._fields[column].valueKey(v), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
+        self._data.sort(key=lambda v: self._fields[column].sortKey(v), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
         self.endResetModel()
 
 

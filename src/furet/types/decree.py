@@ -3,7 +3,6 @@ from datetime import date
 import os
 
 from furet.repository.csvdb import TableObject
-from furet.types.department import Department
 from furet.types.raa import RAA
 
 
@@ -39,15 +38,10 @@ class Campaign(TableObject):
 class Decree(TableObject):
     id: int
 
-    # raa: RAA
+    raa: RAA
     startPage: int
     endPage: int
     
-    raaNumber: str = ""
-    department: Department | None = None
-    link: str = ""
-    publicationDate: date | None = None
-
     docType: DocumentType | None = None
     number: str = ""
     title: str = ""
@@ -59,10 +53,9 @@ class Decree(TableObject):
     comment: str = ""
 
     def isIncomplete(self):
-        return len(self.title) == 0 or len(self.number) == 0 or len(self.raaNumber) == 0 or self.department is None or len(self.link) == 0 or self.publicationDate is None or self.signingDate is None or self.docType is None
-        # return self.raa.isIncomplete() or self.docType is None or len(self.number) == 0 or len(self.title) == 0 or self.signingDate is None
+        return self.raa.isIncomplete() or self.docType is None or len(self.number) == 0 or len(self.title) == 0 or self.signingDate is None
 
     def fileSubPath(self) -> str | None:
-        if self.department is None or self.publicationDate is None:
+        if self.isIncomplete():
             return "00.csv"
-        return os.path.join(self.department.number, f"{self.department.number}_{self.publicationDate.strftime("%Y-%m")}_RAA.csv")
+        return os.path.join(self.raa.department.number, f"{self.raa.department.number}_{self.raa.publicationDate.strftime("%Y-%m")}_RAA.csv")  # type: ignore

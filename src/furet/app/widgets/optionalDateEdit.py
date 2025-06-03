@@ -24,7 +24,7 @@ class OptionalDateEdit(QtWidgets.QDateEdit):
     def setDate(self, date: QtCore.QDate | None, /) -> None:
         QtWidgets.QDateTimeEdit.setDate(self, NONE_DATE if date is None else date)
     
-    def date(self): # type: ignore
+    def date(self):  # type: ignore
         d = QtWidgets.QDateTimeEdit.date(self)
         return None if d == NONE_DATE else d
 

@@ -49,7 +49,7 @@ def buildMultiComboBox(options: list[T], choices: list[T], none: str = None) -> 
 
 
 def buildDatePicker(date: date | None) -> OptionalDateEdit:
-    picker = OptionalDateEdit(date) # type: ignore
+    picker = OptionalDateEdit(date)  # type: ignore
     picker.setCalendarPopup(True)
     picker.setDisplayFormat("dd MMMM yyyy")
     return picker

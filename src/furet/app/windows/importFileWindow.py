@@ -2,11 +2,9 @@ from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import QMetaObject
 
 import os
-from datetime import date
-from furet.app.utils import addFormRow, buildComboBox, buildDatePicker
+from furet.app.utils import addFormRow
 from furet.app.widgets.filePickerWidget import FilePickerWidget
 from furet import repository
-from furet.types.processinngraa import ProcessingRAA
 import threading
 
 class ImportFileWindow(QtWidgets.QDialog):
@@ -97,13 +95,16 @@ class ImportFileWindow(QtWidgets.QDialog):
         self._formWidget.hide()
 
         def runRAAProcessing(fichier):
-            traitement.processingRAA(fichier)
+            raa, decrees = traitement.processingRAA(fichier)
+            if raa is not None:    
+                repository.addRaa(raa)
+                repository.addDecree(decrees)
             self._progressBar.setValue(self._progressBar.value() + 1)
 
             if self._progressBar.value() == len(self._threads):
                 # Remove the progress bar after completion
                 self._rootLayout.removeWidget(self._progressBar)
-                QMetaObject.invokeMethod(self, "finalProcess", QtCore.Qt.QueuedConnection)
+                QMetaObject.invokeMethod(self, "finalProcess", QtCore.Qt.ConnectionType.QueuedConnection)
 
 
         for fichier in listeFichiers:

@@ -4,7 +4,7 @@ from furet.processing.ocr import mainOcr
 from furet.processing.separation import mainSeparation
 from furet.processing.getCharacteristics import extractDocumentCharacterisics
 from furet import repository
-from furet.types.raa import RAA
+from furet.types.processinngraa import ProcessingRAA
 from furet.types.decree import *
 from furet import settings
 
@@ -86,7 +86,7 @@ class Processing:
             departement = repository.getDepartmentById(departementNumber)
 
             # Creates a RAA object containing information retrieved by the crawler
-            raa = RAA(
+            raa = ProcessingRAA(
                 department=departement,
                 publicationDate = raaDatePublication,
                 link=raaUrl,
@@ -177,7 +177,7 @@ class Processing:
             listeDecreeTopic = []
 
             for label, id in dicKeyWords.items():
-                topic = DecreeTopic(id=dic[label], label=label)
+                topic = Topic(id=dic[label], label=label)
                 listeDecreeTopic.append(topic)
 
             objectDecree.topics = listeDecreeTopic

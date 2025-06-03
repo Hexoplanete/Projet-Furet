@@ -6,7 +6,7 @@ from datetime import date
 from furet.app.utils import addFormRow, buildComboBox, buildDatePicker
 from furet.app.widgets.filePickerWidget import FilePickerWidget
 from furet import repository
-from furet.types.raa import RAA
+from furet.types.processinngraa import ProcessingRAA
 import threading
 
 class ImportFileWindow(QtWidgets.QDialog):

@@ -1,11 +1,11 @@
 
 from dataclasses import dataclass
-from furet.types.dbclass import dbclass
+
+from furet.repository.csvdb import TableObject
 
 
-@dbclass(sort="number")
 @dataclass(eq=False)
-class Department:
+class Department(TableObject):
     id: int
     number: str
     label: str

@@ -6,60 +6,69 @@ from typing import Any, Callable, TypeVar, Generic
 T = TypeVar('T')
 TV = TypeVar('TV')
 
+
 class AbstractTableColumn(Generic[T]):
     def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any: ...
     def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any: ...
-    def lessThan(self, left: T, right: T, /) -> bool: ...
-        
+    def valueKey(self, item: T) -> Any: ...
+
+
 @dataclass
-class FieldColumn(AbstractTableColumn, Generic[T, TV]):
+class FieldColumn(AbstractTableColumn[T], Generic[T, TV]):
     name: str
     formatHeader: Callable[[], str] | None = None
-    format: Callable[[T], str] = lambda v: str(v)
+    format: Callable[[TV], str] = lambda v: str(v)
+    _valueKey: Callable[[TV], Any] = lambda v: v
 
     def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             return self.name if self.formatHeader is None else self.formatHeader()
 
-    def data(self, item: TV, /, role: QtCore.Qt.ItemDataRole) -> Any:
+    def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self.format(getattr(item, self.name))
-    
-    def lessThan(self, left: TV, right: TV) -> bool:
-        return getattr(left, self.name) < getattr(right, self.name)
+            return self.format(self.value(item))
+
+    def value(self, item: T) -> TV:
+        return getattr(item, self.name)
+
+    def valueKey(self, item: T) -> Any:
+        return self._valueKey(self.value(item))
+
 
 @dataclass
-class ComputedColumn(AbstractTableColumn, Generic[T, TV]):
-    value: Callable[[TV], T]
+class ComputedColumn(AbstractTableColumn[T], Generic[T, TV]):
+    value: Callable[[T], TV]
     formatHeader: Callable[[], str] | None
-    format: Callable[[T], str] = lambda v: str(v)
+    format: Callable[[TV], str] = lambda v: str(v)
+    _valueKey: Callable[[TV], Any] = lambda v: v
 
     def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             return self.formatHeader
 
-    def data(self, item: TV, /, role: QtCore.Qt.ItemDataRole) -> Any:
+    def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             return self.format(self.value(item))
-    
-    def lessThan(self, left: TV, right: TV) -> bool:
-        return self.value(left) < self.value(right) # type: ignore
+
+    def valueKey(self, item: T) -> Any:
+        return self._valueKey(self.value(item))
+
 
 class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
     def __init__(self, data: list[T], fields: list[AbstractTableColumn]):
         super().__init__()
         self._data = data
         self._fields = fields
-        
-    def headerData(self, section, orientation, /, role = ...):
+
+    def headerData(self, section, orientation, /, role=...):
         if orientation == QtCore.Qt.Orientation.Horizontal and role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self._fields[section].headerData(role) # type: ignore
+            return self._fields[section].headerData(role)  # type: ignore
 
     def resetData(self, data: list[T]):
         self.beginResetModel()
         self._data = data
         self.endResetModel()
-    
+
     def data(self, index, /, role=...) -> Any:
         return self._fields[index.column()].data(self._data[index.row()], role) # type: ignore
 
@@ -76,8 +85,11 @@ class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
     def itemAt(self, index: int):
         return self._data[index]
 
-    def lessThan(self, indexLeft: QtCore.QModelIndex | QtCore.QPersistentModelIndex, indexRight: QtCore.QModelIndex | QtCore.QPersistentModelIndex, /):
-        return self._fields[indexLeft.column()].lessThan(self._data[indexLeft.row()], self._data[indexRight.row()])
+    def sort(self, column, /, order=...):
+        self.beginResetModel()
+        self._data.sort(key=lambda v: self._fields[column].valueKey(v), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
+        self.endResetModel()
+
 
 class SingleRowEditableModel[T](QtCore.QAbstractTableModel):
     def __init__(self, data: list[T], columnName):
@@ -119,4 +131,3 @@ class SingleRowEditableModel[T](QtCore.QAbstractTableModel):
         if role == QtCore.Qt.ItemDataRole.DisplayRole and orientation == QtCore.Qt.Orientation.Horizontal:
             return self._columnName
         return super().headerData(section, orientation, role)
-    

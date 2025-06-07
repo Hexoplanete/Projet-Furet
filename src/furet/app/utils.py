@@ -12,6 +12,7 @@ from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
 
 T = TypeVar('T')
 
+# TODO turn into a custom widget
 def buildComboBox(options: list[T], choice: T | None, none: tuple[str, Any] | None = None) -> QtWidgets.QComboBox:
     box = SelectAllTextComboBox()
     if none is not None:

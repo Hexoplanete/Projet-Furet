@@ -5,15 +5,16 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet import repository
 from furet.app.utils import addFormRow, buildComboBox, buildDatePicker, buildMultiComboBox, addFormSection
+from furet.app.widgets.raaDetailsWidget import RaaDetailsWidget
 from furet.types.decree import Decree
 from furet.types.raa import RAA
 
 
 class DecreeDetailsWindow(QtWidgets.QDialog):
     
-    def __init__(self, decree: Decree):
+    def __init__(self, decree: Decree, noRaa: bool = False):
         super().__init__()
-
+        self._noRaa = noRaa
         self._decree = decree
         self.setWindowTitle(f"Détails de l'arrêté n°{decree.number}")
         self.setStyleSheet('*[missingValue="true"] { background-color: rgba(255, 0, 0, 0.2) }')
@@ -42,35 +43,6 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._signingDate.dateChanged.connect(lambda v: self._expireDate.setDate(None if v == NONE_DATE or v is None else v.toPython() + relativedelta(months=2)))  # type: ignore
         addFormRow(decreeForm, "Date d'expiration", self._expireDate)
 
-        # RAA
-        decreeForm = addFormSection(self._rootLayout, "Recueil")
-        self._department = buildComboBox(repository.getDepartments(), decree.raa.department, ("Non défini", None))
-        addFormRow(decreeForm, "Département", self._department)
-        self.installMissingBackground(self._department, "currentIndex", lambda v: v == 0)
-
-        self._publicationDate = buildDatePicker(decree.raa.publicationDate)
-        addFormRow(decreeForm, "Date de publication", self._publicationDate)
-        self.installMissingBackground(self._publicationDate, "date", lambda v: v is None or v == NONE_DATE)
-        
-        linkWidget = QtWidgets.QWidget()
-        labelLayout = QtWidgets.QHBoxLayout(linkWidget)
-        labelLayout.setContentsMargins(0,0,0,0)
-        self._link = QtWidgets.QLineEdit(self._decree.raa.url if self._decree.raa.url is not None else "")
-        linkButton = QtWidgets.QPushButton()
-        linkButton.setIcon(self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_MediaPlay))
-        labelLayout.addWidget(self._link, stretch=1)
-        labelLayout.addWidget(linkButton)
-
-        def openLink():
-            QtGui.QDesktopServices.openUrl(self._link.text())
-        linkButton.clicked.connect(openLink)
-        addFormRow(decreeForm, "Lien", linkWidget)
-        self.installMissingBackground(self._link, "text", lambda v: len(v) == 0)
-
-        self._raaNumber = QtWidgets.QLineEdit(decree.raa.number)
-        addFormRow(decreeForm, "Numéro RAA", self._raaNumber)
-        self.installMissingBackground(self._raaNumber, "text", lambda v: len(v) == 0)
-
         pagesRange = QtWidgets.QWidget()
         pagesLayout = QtWidgets.QHBoxLayout(pagesRange)
         self._pagesStart = QtWidgets.QSpinBox(minimum=1, maximum=9999, value=decree.startPage)
@@ -82,6 +54,13 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         pagesLayout.addStretch(1)
         addFormRow(decreeForm, "Pages", pagesRange)
         pagesLayout.setContentsMargins(0, 0, 0, 0)
+
+        # RAA
+        if not noRaa:
+            decreeForm = addFormSection(self._rootLayout, "Recueil")
+            self._raa = RaaDetailsWidget(self._decree.raa)
+            self._rootLayout.addWidget(self._raa)
+
 
         # ASPAS specific
         decreeForm = addFormSection(self._rootLayout, "Informations supplémentaires")
@@ -139,17 +118,10 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         updateProp(field())
 
     def saveDecree(self):
-        publicationDate, signingDate = self._publicationDate.date(), self._signingDate.date()
-        raa = RAA(
-            id=self._decree.raa.id,
-            fileHash=self._decree.raa.fileHash,
-            decreeCount=self._decree.raa.decreeCount,
-            number=self._decreeNumber.text(),
-            department=self._department.currentData(),
-            publicationDate=None if publicationDate is None else publicationDate.toPython(),  # type: ignore
-            url=self._link.text(),
-        )
-        repository.updateRaa(self._decree.raa.id, raa)
+        if not self._noRaa:
+            raa = self._raa.raa()
+            repository.updateRaa(self._decree.raa.id, raa)
+        signingDate = self._signingDate.date()
         decree = Decree(
             id=self._decree.id,
 

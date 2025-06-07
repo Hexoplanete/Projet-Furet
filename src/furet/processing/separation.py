@@ -58,6 +58,7 @@ def mainSeparation(inputPath, outputDir, raa: RAA) -> list[tuple[str, Decree]]:
         # Creation of the Decree object
         decree = Decree(
             id=0,
+            docType=repository.getDocumentTypeById(1),
             raa=raa,
             startPage=start,
             endPage=end,

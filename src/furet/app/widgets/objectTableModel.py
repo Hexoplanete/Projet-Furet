@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from PySide6 import QtCore
+from PySide6 import QtCore, QtWidgets
 
 from typing import Any, Callable, TypeVar, Generic
 
@@ -7,7 +7,7 @@ T = TypeVar('T')
 TV = TypeVar('TV')
 
 @dataclass
-class TableColumn(Generic[T, TV]):
+class ObjectTableColumn(Generic[T, TV]):
     formatHeader: Callable[[], str] | str
     value: Callable[[T], TV]
     format: Callable[[TV], str] = lambda v: str(v)
@@ -26,39 +26,50 @@ class TableColumn(Generic[T, TV]):
 
 
 class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
-    def __init__(self, data: list[T], fields: list[TableColumn]):
+    def __init__(self, items: list[T], columns: list[ObjectTableColumn]):
         super().__init__()
-        self._data = data
-        self._fields = fields
+        self._items = items
+        self._columns = columns
 
-    def headerData(self, section, orientation, /, role=...):
-        if orientation == QtCore.Qt.Orientation.Horizontal and role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self._fields[section].headerData(role)  # type: ignore
-
-    def resetData(self, data: list[T]):
+    def setItems(self, data: list[T]):
         self.beginResetModel()
-        self._data = data
+        self._items = data
         self.endResetModel()
-
-    def data(self, index, /, role=...) -> Any:
-        return self._fields[index.column()].data(self._data[index.row()], role)  # type: ignore
-
-    def rowCount(self, /, parent=...):
-        return len(self._data)
-
-    def columnCount(self, /, parent=...):
-        return len(self._fields)
+    
+    def items(self) -> list[T]:
+        return self._items
 
     def setItemAt(self, index: int, item: T):
-        self._data[index] = item
+        self._items[index] = item
         self.dataChanged.emit(self.index(index, 0), self.index(index, self.columnCount()-1))
 
-    def itemAt(self, index: int):
-        return self._data[index]
+    def itemAt(self, index: int) -> T:
+        return self._items[index]
+
+    def setColumns(self, columns: list[ObjectTableColumn]):
+        self.beginResetModel()
+        self._columns = columns
+        self.endResetModel()
+        
+    def columns(self) -> list[ObjectTableColumn]:
+        return self._columns
+    
+    def headerData(self, section, orientation, /, role=...):
+        if orientation == QtCore.Qt.Orientation.Horizontal and role == QtCore.Qt.ItemDataRole.DisplayRole:
+            return self._columns[section].headerData(role)  # type: ignore
+    
+    def data(self, index, /, role=...) -> Any:
+        return self._columns[index.column()].data(self._items[index.row()], role)  # type: ignore
+
+    def rowCount(self, /, parent=...):
+        return len(self._items)
+
+    def columnCount(self, /, parent=...):
+        return len(self._columns)
 
     def sort(self, column, /, order=...):
         self.beginResetModel()
-        self._data.sort(key=lambda v: self._fields[column].sortKey(v), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
+        self._items.sort(key=lambda v: self._columns[column].sortKey(v), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
         self.endResetModel()
 
 

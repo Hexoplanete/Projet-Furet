@@ -52,10 +52,11 @@ class Decree(TableObject):
     topics: list[Topic] = field(default_factory=list)
     comment: str = ""
 
-    def isIncomplete(self):
-        return self.raa.isIncomplete() or self.docType is None or len(self.number) == 0 or len(self.title) == 0 or self.signingDate is None
+    def missingValues(self, includeRaa: bool = True):
+        return (includeRaa and self.raa.missingValues()) + (self.docType is None) + (len(self.number) == 0) + (len(self.title) == 0) + (self.signingDate is None)
 
-    def fileSubPath(self) -> str | None:
-        if self.isIncomplete():
-            return "00.csv"
-        return os.path.join(self.raa.department.number, f"{self.raa.department.number}_{self.raa.publicationDate.strftime("%Y-%m")}_RAA.csv")  # type: ignore
+    # TODO find out if its necessary and make it work if raa data changes
+    # def fileSubPath(self) -> str | None:
+    #     if self.missingValues():
+    #         return "00.csv"
+    #     return os.path.join(self.raa.department.number, f"{self.raa.department.number}_{self.raa.publicationDate.strftime("%Y-%m")}_RAA.csv")  # type: ignore

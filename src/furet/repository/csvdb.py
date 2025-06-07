@@ -34,9 +34,7 @@ class TableObject:
     def fileSubPath(self) -> str | None:
         return None
 
-
 T = TypeVar("T", bound=TableObject)
-
 
 def connect(path: str):
     global _path, _loadedFiles
@@ -156,34 +154,27 @@ _deserializers: dict[_TypeAnnotation, Callable[[str, _TypeAnnotation], Any]] = {
 
 
 TS = TypeVar("TS")
-
-
-def setSerializer(valueType: type[TS] | _TypeAnnotation, serializer: Callable[[TS], str], deserializer: Callable[[str, _TypeAnnotation], TS]):
+def setSerializer(valueType: type[TS] | _TypeAnnotation, serializer: Callable[[TS], str], deserializer: Callable[[str, type[TS] | _TypeAnnotation], TS]):
     _serializers[valueType] = serializer
     _deserializers[valueType] = deserializer
 
+def serialize(value: Any) -> str:
+    return _serializers.get(type(value), str)(value)
+
+def deserialize(value: str, valueType: type[TS] | _TypeAnnotation) -> TS:
+    return _deserializers.get(get_origin(valueType) or valueType, lambda v, t: valueType(v))(value, valueType)
 
 LIST_SEP = '|'
 DATE_FMT = "%Y-%m-%d"
 setSerializer(list, lambda v: LIST_SEP.join([serialize(i) for i in v]), lambda s, t: [deserialize(i, get_args(t)[0]) for i in s.split(LIST_SEP)])
 setSerializer(set, lambda v: LIST_SEP.join([serialize(i) for i in v]), lambda s, t: set(deserialize(i, get_args(t)[0]) for i in s.split(LIST_SEP)))
 setSerializer(NoneType, lambda _: "", lambda s, t: None)
-setSerializer(UnionType, lambda v: serialize(v), lambda s, t: None if len(s) == 0 else deserialize(s, get_args(t)[0]))  # optionals
+setSerializer(UnionType, lambda v: serialize(v), lambda s, t: None if len(s) == 0 else deserialize(s, get_args(t)[0]))
 setSerializer(date, lambda v: v.strftime(DATE_FMT), lambda s, _: datetime.strptime(s, DATE_FMT).date())
 setSerializer(bool, lambda v: serialize(int(v)), lambda s, _: bool(deserialize(s, int)))
 
 
-def serialize(value: Any) -> str:
-    return _serializers.get(type(value), str)(value)
-
-
-def deserialize(value: str, valueType: _TypeAnnotation) -> Any:
-    return _deserializers.get(get_origin(valueType) or valueType, lambda v, t: valueType(v))(value, valueType)
-
-
 CSV_SEP = ','
-
-
 def saveToCsv(objects: list[T], path: str) -> None:
     try:
         if len(objects) == 0:

@@ -41,6 +41,12 @@ def alreadyImported(fileHash: str) -> bool:
             return True
     return False
 
+def getRaaByHash(fileHash: str) -> RAA | None:
+    for raa in csvdb.fetch(RAA):
+        if raa.fileHash == fileHash:
+            return raa
+    return None
+
 # DECREES
 
 
@@ -87,6 +93,8 @@ def getDecrees(filters: DecreeFilters | None = None) -> list[Decree]:
 def getDecreeById(id: int) -> Decree | None:
     return csvdb.fetchById(Decree, id)
 
+def getDecreesByRaa(raaId: int) -> list[Decree]:
+    return [d for d in csvdb.fetch(Decree) if d.raa.id == raaId]
 
 def updateDecree(id: int, decree: Decree):
     decree.id = id

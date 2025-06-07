@@ -4,31 +4,30 @@ from furet import repository
 from furet.app.utils import formatDate
 from furet.app.widgets.optionalDateEdit import NONE_DATE
 from furet.app.windows import windowManager
+from furet.app.windows.ImportRaaWindow import ImportRaaWindow
 from furet.types.decree import *
 from dateutil.relativedelta import relativedelta
 
-from furet.app.widgets.objectTableModel import ObjectTableModel, TableColumn
+from furet.app.widgets.objectTableModel import ObjectTableModel, ObjectTableColumn
 from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
 from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
 from furet.app.windows.settingsWindow import SettingsWindow
-from furet.app.windows.importFileWindow import ImportFileWindow
 
 T = TypeVar('T')
-class DecreeColumn(TableColumn[Decree, T], Generic[T]):
+class DecreeColumn(ObjectTableColumn[Decree, T], Generic[T]):
     def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
-            if item.isIncomplete():
+            if item.missingValues():
                 return QtGui.QColor(255,0,0,a=50)
         return super().data(item, role=role)
 
 
-class DecreeBoolColumn(DecreeColumn[bool]):
+class DecreeStateColumn(DecreeColumn[bool]):
     def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
-            if item.isIncomplete() or not self.value(item):
+            if item.missingValues() or not self.value(item):
                 return QtGui.QColor(255,0,0,a=50)
         return super().data(item, role=role)
-
 
 class DecreeTableWindow(QtWidgets.QMainWindow):
 
@@ -45,8 +44,8 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
             DecreeColumn("Campagnes", lambda v: v.campaigns, lambda v: ", ".join(map(str, v))),
             DecreeColumn("Sujets", lambda v: v.topics, lambda v: ", ".join(map(str, v))),
             DecreeColumn("Titre", lambda v: v.title),
-            DecreeBoolColumn("État", lambda v: v.treated, lambda v: "Traité" if v else "À traiter"),
-            DecreeBoolColumn("À compléter", lambda v: v.isIncomplete(), lambda v: "Oui" if v else "Non"), # TODO label not visible
+            DecreeStateColumn("État", lambda v: v.treated, lambda v: "Traité" if v else "À traiter"),
+            DecreeColumn("À compléter", lambda v: v.missingValues(), lambda v: f"{v} champs" if v else ""), # TODO label not visible
             DecreeColumn("Commentaire", lambda v: v.comment),
         ]
         self._decrees = ObjectTableModel(repository.getDecrees(), self._columns)
@@ -98,23 +97,24 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         windowManager.showWindow(SettingsWindow)
 
     def onClickResearchButton(self):
-        self._decrees.resetData(repository.getDecrees(self._filters.filters()))
+        self._decrees.setItems(repository.getDecrees(self._filters.filters()))
 
+    def onDecreeSaved(self):
+        print("isuet")
+        self._decrees.setItems(repository.getDecrees())
 
     def onDblClickTableRow(self, index: QtCore.QModelIndex):
         decree = self._decrees.itemAt(index.row())
-        window, created = windowManager.showWindow(DecreeDetailsWindow, (decree,))
-        if created:
-            def onDecreeSaved():
-                self._decrees.resetData(repository.getDecrees())
-            window.accepted.connect(onDecreeSaved)
+        window, created = windowManager.showWindow(DecreeDetailsWindow, decree.id, args=(decree,))
+        window.accepted.connect(self.onDecreeSaved, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
+    def onImportDone(self):
+        self._decrees.setItems(repository.getDecrees())
+    
     def onClickImportButton(self):
-        window, created = windowManager.showWindow(ImportFileWindow)
-        if created:
-            def onImportDone():
-                self._decrees.resetData(repository.getDecrees())
-            window.accepted.connect(onImportDone)
+        window, created = windowManager.showWindow(ImportRaaWindow)
+        window.accepted.connect(self.onImportDone, type=QtCore.Qt.ConnectionType.UniqueConnection)
+
     def onClickDocButton(self):
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")
 

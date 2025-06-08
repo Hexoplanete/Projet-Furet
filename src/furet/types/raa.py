@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from furet.repository.csvdb import TableObject
 from furet.types.department import Department
 from datetime import date
+from dateutil.relativedelta import relativedelta
 
 
 @dataclass(eq=False)
@@ -15,6 +16,13 @@ class RAA(TableObject):
     url: str = ""
     def __str__(self):
         return self.number
+
+    def expireDate(self):
+        return self.getExpireDate(self.publicationDate)
+
+    @classmethod
+    def getExpireDate(cls, date: date | None):
+        return None if date is None else date + relativedelta(months=2)
 
     def missingValues(self):
         return (len(self.number) == 0) + (self.department is None) + (self.publicationDate is None) + (len(self.url) == 0)

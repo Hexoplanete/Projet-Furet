@@ -1,5 +1,4 @@
 from typing import Any, Callable
-from dateutil.relativedelta import relativedelta
 from furet.app.widgets.optionalDateEdit import NONE_DATE
 from PySide6 import QtWidgets, QtCore, QtGui
 
@@ -37,11 +36,6 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self._signingDate = buildDatePicker(decree.signingDate)
         addFormRow(decreeForm, "Date de signature", self._signingDate)
         self.installMissingBackground(self._signingDate, "date", lambda v: v is None or v == NONE_DATE)
-        
-        self._expireDate = buildDatePicker(None if decree.raa.publicationDate is None else decree.raa.publicationDate + relativedelta(months=2))
-        self._expireDate.setReadOnly(True)
-        self._signingDate.dateChanged.connect(lambda v: self._expireDate.setDate(None if v == NONE_DATE or v is None else v.toPython() + relativedelta(months=2)))  # type: ignore
-        addFormRow(decreeForm, "Date d'expiration", self._expireDate)
 
         pagesRange = QtWidgets.QWidget()
         pagesLayout = QtWidgets.QHBoxLayout(pagesRange)

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from PySide6 import QtCore, QtWidgets
 
 from typing import Any, Callable, TypeVar, Generic
@@ -10,8 +10,9 @@ TV = TypeVar('TV')
 class ObjectTableColumn(Generic[T, TV]):
     formatHeader: Callable[[], str] | str
     value: Callable[[T], TV]
-    format: Callable[[TV], str] = lambda v: str(v)
-    _sortKey: Callable[[TV], Any] = lambda v: v
+    format: Callable[[TV], str] = field(default=lambda v: str(v))
+    valueKey: Callable[[TV], Any] = field(default=lambda v: v)
+    resizeMode: QtWidgets.QHeaderView.ResizeMode = QtWidgets.QHeaderView.ResizeMode.Stretch
 
     def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
@@ -22,7 +23,7 @@ class ObjectTableColumn(Generic[T, TV]):
             return self.format(self.value(item))
     
     def sortKey(self, item: T):
-        return self._sortKey(self.value(item))
+        return self.valueKey(self.value(item))
 
 
 class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):

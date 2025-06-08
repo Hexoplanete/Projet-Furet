@@ -2,7 +2,7 @@ from typing import Any, Callable
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from furet import repository
-from furet.app.utils import addFormRow, addFormSection, buildComboBox, buildDatePicker
+from furet.app.utils import addFormRow, buildComboBox, buildDatePicker
 from furet.app.widgets.optionalDateEdit import NONE_DATE
 from furet.types.raa import RAA
 
@@ -49,6 +49,11 @@ class RaaDetailsWidget(QtWidgets.QWidget):
         self._publicationDate = buildDatePicker(raa.publicationDate)
         addFormRow(self._layout, "Date de publication", self._publicationDate)
         self.installMissingBackground(self._publicationDate, "date", lambda v: v is None or v == NONE_DATE)
+
+        self._expireDate = buildDatePicker(None if raa.expireDate() is None else raa.expireDate())
+        self._expireDate.setReadOnly(True)
+        self._publicationDate.dateChanged.connect(lambda v: self._expireDate.setDate(None if v == NONE_DATE or v is None else RAA.getExpireDate(v.toPython())))  # type: ignore
+        addFormRow(self._layout, "Date d'expiration", self._expireDate)
         
         self._url = UrlEdit(raa.url)
         addFormRow(self._layout, "Lien", self._url)

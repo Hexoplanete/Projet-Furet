@@ -14,6 +14,7 @@ class ObjectTableWidget(QtWidgets.QTableView, Generic[T]):
                  ):
         super().__init__(parent, sortingEnabled=sortingEnabled)
         self.setModel(ObjectTableModel(items, columns))
+        [self.horizontalHeader().setSectionResizeMode(i, c.resizeMode) for i, c in enumerate(columns)]
         self.setEditTriggers(editTrigger)
         self.setSelectionMode(selectionMode)
         self.setSelectionBehavior(selectionBehavior)
@@ -32,6 +33,7 @@ class ObjectTableWidget(QtWidgets.QTableView, Generic[T]):
 
     def setColumns(self, columns: list[ObjectTableColumn]):
         self.model().setColumns(columns)
+        [self.horizontalHeader().setSectionResizeMode(c.resizeMode) for c in columns]
 
     def columns(self) -> list[ObjectTableColumn]:
         return self.model().columns()

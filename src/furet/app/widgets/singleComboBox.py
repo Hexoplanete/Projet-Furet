@@ -4,6 +4,7 @@ from typing import Callable, Iterable, TypeVar, Generic
 
 T = TypeVar('T')
 
+
 class SingleComboBox(QtWidgets.QComboBox, Generic[T]):
 
     selectedItemChanged = QtCore.Signal(object)
@@ -17,16 +18,17 @@ class SingleComboBox(QtWidgets.QComboBox, Generic[T]):
         self.setSelectedItem(selectedItem)
 
         self.setEditable(True)
-        self.lineEdit().installEventFilter(self)  # type: ignore
-
-        self._resetCompleter()
+        if (lineEdit := self.lineEdit()) and (completer := self.completer()):
+            lineEdit.installEventFilter(self)
+            completer.setFilterMode(QtCore.Qt.MatchFlag.MatchContains)
+            completer.setCompletionMode(QtWidgets.QCompleter.CompletionMode.UnfilteredPopupCompletion)
 
         self.currentIndexChanged.connect(lambda i: self.selectedItemChanged.emit(self.item(i)))
 
     def eventFilter(self, watched, event, /):
-        if watched == self.lineEdit():
+        if (lineEdit:= self.lineEdit()) and  watched == lineEdit:
             if event.type() == QtCore.QEvent.Type.MouseButtonRelease or event.type() == QtCore.QEvent.Type.FocusIn:
-                self.lineEdit().selectAll()  # type: ignore
+                lineEdit.selectAll()
         return super().eventFilter(watched, event)
 
     def addItem(self, item: T):  # type: ignore
@@ -56,10 +58,3 @@ class SingleComboBox(QtWidgets.QComboBox, Generic[T]):
 
     def selectedItem(self) -> T:
         return self.currentData()
-
-    def _resetCompleter(self):
-        completer = QtWidgets.QCompleter([self._label(i) for i in self.items()], self)
-        completer.setFilterMode(QtCore.Qt.MatchFlag.MatchContains)
-        completer.setCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
-        completer.setCompletionMode(QtWidgets.QCompleter.CompletionMode.UnfilteredPopupCompletion)
-        self.setCompleter(completer)

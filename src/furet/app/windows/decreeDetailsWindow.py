@@ -1,12 +1,11 @@
 from typing import Any, Callable
 from furet.app.widgets.optionalDateEdit import NONE_DATE
-from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore
 
 from furet import repository
 from furet.app.utils import addFormRow, buildComboBox, buildDatePicker, buildMultiComboBox, addFormSection
 from furet.app.widgets.raaDetailsWidget import RaaDetailsWidget
 from furet.types.decree import Decree
-from furet.types.raa import RAA
 
 
 class DecreeDetailsWindow(QtWidgets.QDialog):

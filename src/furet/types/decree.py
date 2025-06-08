@@ -4,31 +4,13 @@ import os
 
 from furet.repository.csvdb import TableObject
 from furet.types.raa import RAA
+from furet.types.campaign import Campaign, Topic
 
 
 @dataclass(eq=False)
 class DocumentType(TableObject):
     id: int
     label: str
-
-    def __str__(self):
-        return self.label
-
-
-@dataclass(eq=False)
-class Topic(TableObject):
-    id: int
-    label: str
-
-    def __str__(self):
-        return self.label
-
-
-@dataclass(eq=False)
-class Campaign(TableObject):
-    id: int
-    label: str
-    topics: list[Topic]
 
     def __str__(self):
         return self.label

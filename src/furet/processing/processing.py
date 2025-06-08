@@ -6,7 +6,9 @@ from furet.processing.ocr import mainOcr
 from furet.processing.separation import mainSeparation
 from furet.processing.getCharacteristics import extractDocumentCharacterisics
 from furet import repository
-from furet.types.decree import *
+from furet.types.decree import Decree
+from furet.types.campaign import Topic
+from furet.types.raa import RAA
 from furet import settings
 
 import subprocess

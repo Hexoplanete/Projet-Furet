@@ -4,7 +4,6 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 
 from furet.app.utils import addFormRow, buildDatePicker, buildMultiComboBox, formatDate
-from furet.types.decree import *
 from furet import repository, settings
 
 class DecreeFilterWidget(QtWidgets.QWidget):

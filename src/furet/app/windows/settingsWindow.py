@@ -4,7 +4,6 @@ from furet import settings
 from furet.app.widgets.filePickerWidget import FilePickerWidget, PickMode
 from furet import repository
 from furet.app.utils import addFormRow, addFormSection
-from furet.types.decree import *
 from furet.app.widgets.objectTableModel import SingleRowEditableModel
 
 

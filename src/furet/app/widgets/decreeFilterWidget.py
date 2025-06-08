@@ -3,8 +3,10 @@ from PySide6 import QtWidgets, QtCore
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from furet.app.utils import addFormRow, buildDatePicker, buildMultiComboBox, formatDate
+from furet.app.utils import buildMultiComboBox, formatDate
 from furet import repository, settings
+from furet.app.widgets.formWidget import FormWidget
+from furet.app.widgets.optionalDateEdit import OptionalDateEdit
 
 class DecreeFilterWidget(QtWidgets.QWidget):
     def __init__(self, onResearch: Callable[[], None]):
@@ -43,15 +45,14 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._researchButton)
 
     def _addDateFilter(self):
-        self._datePopup = QtWidgets.QWidget()
-        self._datePopupLayout = QtWidgets.QFormLayout(self._datePopup)
-        self._dateAfter = buildDatePicker(None)
-        addFormRow(self._datePopupLayout, "Publié après le", self._dateAfter)
-        self._dateBefore = buildDatePicker(None)
-        addFormRow(self._datePopupLayout, "Publié avant le", self._dateBefore)
+        self._datePopup = FormWidget()
+        self._dateAfter = OptionalDateEdit(None)
+        self._datePopup.addRow("Publié après le", self._dateAfter)
+        self._dateBefore = OptionalDateEdit(None)
+        self._datePopup.addRow("Publié avant le", self._dateBefore)
 
         if settings.value("app.filter-expired"):
-            self._dateAfter.setDate(date.today() - relativedelta(months=2))  # type: ignore
+            self._dateAfter.setQdate(date.today() - relativedelta(months=2))
 
         self._dateRangeButton = QtWidgets.QPushButton("")
         self._layout.addWidget(self._dateRangeButton)
@@ -80,8 +81,8 @@ class DecreeFilterWidget(QtWidgets.QWidget):
 
     def filters(self) -> repository.DecreeFilters:
         return repository.DecreeFilters(
-            after=None if self._dateAfter.date() is None else self._dateAfter.date().toPython(),  # type: ignore
-            before=None if self._dateBefore.date() is None else self._dateBefore.date().toPython(),  # type: ignore
+            after=self._dateAfter.qdate(),
+            before=self._dateBefore.qdate(),
             departments=list(map(lambda v: v.id, self._department.currentData())),
             campaigns=list(map(lambda v: v.id, self._campaign.currentData())),
             topics=list(map(lambda v: v.id, self._topic.currentData())),
@@ -90,15 +91,15 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         )
 
     def syncDateFilterLabel(self):
-        dateAfter, dateBefore = self._dateAfter.date(), self._dateBefore.date()
-        if dateAfter is None and dateBefore is None:
-            self._dateRangeButton.setText("Toutes les dates de publication")
-        elif dateAfter is not None and dateBefore is None:
-            self._dateRangeButton.setText(f"Publié après le {formatDate(dateAfter.toPython())}")  # type: ignore
-        elif dateAfter is None and dateBefore is not None:
-            self._dateRangeButton.setText(f"Publié avant le {formatDate(dateBefore.toPython())}")  # type: ignore
+        dateAfter, dateBefore = self._dateAfter.qdate(), self._dateBefore.qdate()
+        if dateAfter is not None and dateBefore is not None:
+            self._dateRangeButton.setText(f"Publié du {formatDate(dateAfter)} au {formatDate(dateBefore)}")
+        elif dateAfter is not None:
+            self._dateRangeButton.setText(f"Publié après le {formatDate(dateAfter)}")
+        elif dateBefore is not None:
+            self._dateRangeButton.setText(f"Publié avant le {formatDate(dateBefore)}")
         else:
-            self._dateRangeButton.setText(f"Publié du {formatDate(dateAfter.toPython())} au {formatDate(dateBefore.toPython())}")  # type: ignore
+            self._dateRangeButton.setText("Toutes les dates de publication")
     
     def onClickUnselectTopic(self):
         self._topic.unselectAllItems()

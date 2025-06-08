@@ -1,9 +1,9 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from furet import repository
-from furet.app.utils import buildComboBox, buildDatePicker
+from furet.app.utils import buildComboBox
 from furet.app.widgets.formWidget import FormWidget
-from furet.app.widgets.optionalDateEdit import NONE_DATE
+from furet.app.widgets.optionalDateEdit import OptionalDateEdit
 from furet.types.raa import RAA
 
 
@@ -20,8 +20,7 @@ class UrlEdit(QtWidgets.QWidget):
         self._urlEdit.textChanged.connect(self.urlChanged.emit)
         self._layout.addWidget(self._urlEdit, stretch=1)
         self._openButton = QtWidgets.QPushButton()
-        self._openButton.setIcon(self.style().standardIcon(
-            QtWidgets.QStyle.StandardPixmap.SP_ArrowRight))
+        self._openButton.setIcon(self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_ArrowRight))
         self._openButton.clicked.connect(self.openUrl)
         self._layout.addWidget(self._openButton)
 
@@ -45,13 +44,13 @@ class RaaWidget(FormWidget):
         self.addRow("Département", self._department)
         self.installMissingBackground(self._department, "currentIndex", lambda v: v == 0)
 
-        self._publicationDate = buildDatePicker(raa.publicationDate)
+        self._publicationDate = OptionalDateEdit(raa.publicationDate)
         self.addRow("Date de publication", self._publicationDate)
-        self.installMissingBackground(self._publicationDate, "date", lambda v: v is None or v == NONE_DATE)
+        self.installMissingBackground(self._publicationDate, "qdate", lambda v: v is None)
 
-        self._expireDate = buildDatePicker(None if raa.expireDate() is None else raa.expireDate())
+        self._expireDate = OptionalDateEdit(raa.expireDate())
         self._expireDate.setReadOnly(True)
-        self._publicationDate.dateChanged.connect(lambda v: self._expireDate.setDate(None if v == NONE_DATE or v is None else RAA.getExpireDate(v.toPython()))) # type: ignore
+        self._publicationDate.dateChanged.connect(lambda v: self._expireDate.setQdate(RAA.getExpireDate(v)))
         self.addRow("Date d'expiration", self._expireDate)
 
         self._url = UrlEdit(raa.url)
@@ -67,13 +66,12 @@ class RaaWidget(FormWidget):
     #     self._raa = raa
 
     def raa(self) -> RAA:
-        publicationDate = self._publicationDate.date()
         return RAA(
             id=self._raa.id,
             fileHash=self._raa.fileHash,
             decreeCount=self._raa.decreeCount,
             number=self._number.text(),
             department=self._department.currentData(),
-            publicationDate=None if publicationDate is None else publicationDate.toPython(),  # type: ignore
+            publicationDate=self._publicationDate.qdate(),
             url=self._url.url()
         )

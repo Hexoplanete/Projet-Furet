@@ -1,9 +1,9 @@
 from PySide6 import QtWidgets
 
 from furet import repository
-from furet.app.utils import buildComboBox, buildDatePicker
+from furet.app.utils import buildComboBox
 from furet.app.widgets.formWidget import FormWidget
-from furet.app.widgets.optionalDateEdit import NONE_DATE
+from furet.app.widgets.optionalDateEdit import OptionalDateEdit
 from furet.types.decree import Decree
 
 
@@ -26,9 +26,9 @@ class DecreeWidget(FormWidget):
         self.addRow("Type de document", self._documentType)
         self.installMissingBackground(self._documentType, "currentIndex", lambda v: v == 0)
 
-        self._signingDate = buildDatePicker(decree.signingDate)
+        self._signingDate = OptionalDateEdit(decree.signingDate)
         self.addRow("Date de signature", self._signingDate)
-        self.installMissingBackground(self._signingDate, "date", lambda v: v is None or v == NONE_DATE)
+        self.installMissingBackground(self._signingDate, "qdate", lambda v: v is None)
 
         pagesWidget = QtWidgets.QWidget()
         pagesLayout = QtWidgets.QHBoxLayout(pagesWidget)
@@ -47,7 +47,6 @@ class DecreeWidget(FormWidget):
     #     self._decree = decree
 
     def decree(self) -> Decree:
-        signingDate = self._signingDate.date()
         return Decree(
             id=self._decree.id,
 
@@ -58,5 +57,5 @@ class DecreeWidget(FormWidget):
             docType=self._documentType.currentData(),
             number=self._number.text(),
             title=self._title.text(),
-            signingDate=None if signingDate is None else signingDate.toPython(),  # type: ignore
+            signingDate=self._signingDate.qdate()
         )

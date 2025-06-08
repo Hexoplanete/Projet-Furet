@@ -42,5 +42,5 @@ class ObjectTableWidget(QtWidgets.QTableView, Generic[T]):
         super().setModel(model)
         
     def model(self, /) -> ObjectTableModel:
-        return super().model() #type: ignore
+        return super().model()  # type: ignore
     

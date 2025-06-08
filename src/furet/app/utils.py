@@ -4,7 +4,6 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 from furet.app.widgets.checkableComboBox import CheckableComboBox
 from furet.app.widgets.objectTableModel import ObjectTableColumn
-from furet.app.widgets.optionalDateEdit import NONE_DATE, OptionalDateEdit
 from furet.app.widgets.selectAllTextComboBox import SelectAllTextComboBox
 
 from typing import TypeVar, Generic
@@ -53,13 +52,6 @@ def buildMultiComboBox(options: list[T], choices: list[T], none: str = None) -> 
     return box
 
 
-def buildDatePicker(date: date | None) -> OptionalDateEdit:
-    picker = OptionalDateEdit(date)  # type: ignore
-    picker.setCalendarPopup(True)
-    picker.setDisplayFormat("dd MMMM yyyy")
-    return picker
-
-
 def formatDate(value: date):
     return value.strftime("%d %B %Y")
 
@@ -94,9 +86,11 @@ class DecreeStateColumn(DecreeColumn[bool]):
                 return QtGui.QColor(255, 0, 0, a=50)
         return super().data(item, role=role)
 
+
+NONE_QDATE = date(1900, 1, 1)
 DECREE_COLUMNS = [
-    DecreeColumn[date|None]("Date de publication", lambda v: v.raa.publicationDate, lambda v: "Non définie" if v is None else formatDate(v), lambda v: v or NONE_DATE),
-    DecreeColumn[date|None]("Date d'expiration", lambda v: v.raa.expireDate(), lambda v: "Non définie" if v is None else formatDate(v), lambda v: v or NONE_DATE),
+    DecreeColumn[date|None]("Date de publication", lambda v: v.raa.publicationDate, lambda v: "Non définie" if v is None else formatDate(v), lambda v: v or NONE_QDATE),
+    DecreeColumn[date|None]("Date d'expiration", lambda v: v.raa.expireDate(), lambda v: "Non définie" if v is None else formatDate(v), lambda v: v or NONE_QDATE),
     DecreeColumn[Department|None]("Département", lambda v: v.raa.department, lambda v: "Non défini" if v is None else str(v), lambda v: 0 if v is None else v.id),
     DecreeColumn[list[Campaign]]("Campagnes", lambda v: v.campaigns, lambda v: ", ".join(map(str, v)), lambda v: list(map(lambda i: i.label, v))),
     DecreeColumn[list[Topic]]("Sujets", lambda v: v.topics, lambda v: ", ".join(map(str, v)), lambda v: list(map(lambda i: i.label, v))),

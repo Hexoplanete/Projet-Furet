@@ -16,6 +16,14 @@ class DocumentType(TableObject):
         return self.label
 
 
+@dataclass
+class AspasInfo:
+    treated: bool
+    campaigns: list[Campaign]
+    topics: list[Topic]
+    comment: str
+
+
 @dataclass(eq=False)
 class Decree(TableObject):
     id: int
@@ -33,6 +41,20 @@ class Decree(TableObject):
     campaigns: list[Campaign] = field(default_factory=list)
     topics: list[Topic] = field(default_factory=list)
     comment: str = ""
+
+    def setAspasInfo(self, info: AspasInfo):
+        self.treated = info.treated
+        self.campaigns = info.campaigns
+        self.topics = info.topics
+        self.comment = info.comment
+
+    def aspasInfo(self) -> AspasInfo:
+        return AspasInfo(
+            treated = self.treated,
+            campaigns = self.campaigns,
+            topics = self.topics,
+            comment = self.comment,
+        )
 
     def missingValues(self, includeRaa: bool = True):
         return (includeRaa and self.raa.missingValues()) + (self.docType is None) + (len(self.number) == 0) + (len(self.title) == 0) + (self.signingDate is None)

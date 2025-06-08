@@ -8,7 +8,12 @@ class ImportRaaWindow(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Import de Recueils")
-        self._rootLayout = QtWidgets.QVBoxLayout(self)
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._importsList = ImportListWidget()
-        self._rootLayout.addWidget(self._importsList)
-        self._rootLayout.addStretch()
+        self._layout.addWidget(self._importsList)
+        self._layout.addStretch()
+
+        self._buttons = QtWidgets.QDialogButtonBox(standardButtons=QtWidgets.QDialogButtonBox.StandardButton.Close)
+        self._buttons.accepted.connect(self.accept)
+        self._buttons.rejected.connect(self.reject)
+        self._layout.addWidget(self._buttons)

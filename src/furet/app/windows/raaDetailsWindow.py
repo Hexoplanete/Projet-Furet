@@ -1,11 +1,9 @@
 from furet.app.utils import DECREE_COLUMNS
-from furet.app.widgets.objectTableModel import ObjectTableColumn
 from furet.app.widgets.objectTableWidget import ObjectTableWidget
-from furet.app.widgets.optionalDateEdit import NONE_DATE
 from PySide6 import QtWidgets, QtCore
 
 from furet import repository
-from furet.app.widgets.raaDetailsWidget import RaaDetailsWidget
+from furet.app.widgets.forms.raaWidget import RaaWidget
 from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
 from furet.app.windows import windowManager
 from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
@@ -22,7 +20,7 @@ class RaaDetailsWindow(QtWidgets.QDialog):
         self._decrees = decrees
         self._layout = QtWidgets.QVBoxLayout(self)
 
-        self._raaWidget = RaaDetailsWidget(raa)
+        self._raaWidget = RaaWidget(raa)
         self._layout.addWidget(self._raaWidget)
 
         self._separator = TextSeparatorWidget("Arrêtés")
@@ -38,10 +36,10 @@ class RaaDetailsWindow(QtWidgets.QDialog):
         self._layout.addWidget(self._buttons)
 
     def showDecreeDetailsWindow(self, decree: Decree):
-        window, created = windowManager.showWindow(DecreeDetailsWindow, decree.id, args=(decree,), kwargs={ "noRaa":True })
+        window, created = windowManager.showWindow(DecreeDetailsWindow, decree.id, args=(decree.id,), kwargs={ "noRaa":True })
         window.accepted.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
-    def accept(self) -> None:
+    def accept(self, /) -> None:
         raa = self._raaWidget.raa()
         repository.updateRaa(raa.id, raa)
 

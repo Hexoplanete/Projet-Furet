@@ -16,33 +16,25 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._content = QtWidgets.QWidget()
         self._layout = QtWidgets.QVBoxLayout(self._content)
         self.setCentralWidget(self._content)
-
-        self._topBar = QtWidgets.QVBoxLayout()
-        self._topBar.setContentsMargins(0,0,0,0)
+    
         self._buttonLayer = QtWidgets.QHBoxLayout()
         self._buttonLayer.setContentsMargins(0,0,0,0)
-        self._layout.addLayout(self._topBar)
-        
         self._fileButton = QtWidgets.QPushButton('Importer un recueil')
         self._fileButton.clicked.connect(self.showImportWindow)
         self._buttonLayer.addWidget(self._fileButton)
-
         self._buttonLayer.addStretch()
-
         self._docButton = QtWidgets.QPushButton('Documentation')
         self._docButton.clicked.connect(self.openDocumentation)
         self._buttonLayer.addWidget(self._docButton)           
-        
         self._paramButton = QtWidgets.QPushButton('Paramètres')
         self._paramButton.clicked.connect(self.showSettingsWindow)
         self._buttonLayer.addWidget(self._paramButton)
-        
-        self._topBar.addLayout(self._buttonLayer)
+        self._layout.addLayout(self._buttonLayer)
 
         self._filters = DecreeFilterWidget(self.updateDecrees)
-        self._topBar.addWidget(self._filters)
+        self._layout.addWidget(self._filters)
 
-        self._decreeTable = ObjectTableWidget(repository.getDecrees(), DECREE_COLUMNS, sortingEnabled=True)
+        self._decreeTable = ObjectTableWidget(repository.getDecrees(self._filters.filters()), DECREE_COLUMNS, sortingEnabled=True)
         self._decreeTable.doubleClicked.connect(lambda i: self.showDecreeDetailsWindow(self._decreeTable.itemAt(i.row())))
         self._layout.addWidget(self._decreeTable, 1)
 
@@ -53,12 +45,12 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         windowManager.showWindow(SettingsWindow, args=(self,))
 
     def showDecreeDetailsWindow(self, decree: Decree):
-        window, created = windowManager.showWindow(DecreeDetailsWindow, decree.id, args=(decree,))
+        window, created = windowManager.showWindow(DecreeDetailsWindow, decree.id, args=(decree.id,))
         window.accepted.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
     def showImportWindow(self):
         window, created = windowManager.showWindow(ImportRaaWindow)
-        window.accepted.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
+        window.finished.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
     def openDocumentation(self):
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")

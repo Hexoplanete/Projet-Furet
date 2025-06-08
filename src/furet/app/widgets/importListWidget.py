@@ -249,7 +249,7 @@ class ImportListWidget(QtWidgets.QWidget):
         raa: RAA = repository.getRaaById(raaId)  # type: ignore
 
         def onOpenButtonClicked():
-            window, _ = windowManager.showWindow(RaaDetailsWindow, raa.id, args=(raa, decrees))
+            window, _ = windowManager.showWindow(RaaDetailsWindow, raa.id, args=(raa.id, decrees))
             # TODO no visual updates on save + reuses old raa values
    
 

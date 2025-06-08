@@ -1,9 +1,9 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from furet import repository
-from furet.app.utils import buildComboBox
 from furet.app.widgets.formWidget import FormWidget
 from furet.app.widgets.optionalDateEdit import OptionalDateEdit
+from furet.app.widgets.singleComboBox import SingleComboBox
 from furet.types.raa import RAA
 
 
@@ -40,9 +40,9 @@ class RaaWidget(FormWidget):
         super().__init__(parent)
         self._raa = raa
 
-        self._department = buildComboBox(repository.getDepartments(), raa.department, ("Non défini", None))
+        self._department = SingleComboBox([None, *repository.getDepartments()], raa.department, label=lambda v: "Non défini" if v is None else str(v))
         self.addRow("Département", self._department)
-        self.installMissingBackground(self._department, "currentIndex", lambda v: v == 0)
+        self.installMissingBackground(self._department, "selectedItem", lambda v: v is None)
 
         self._publicationDate = OptionalDateEdit(raa.publicationDate)
         self.addRow("Date de publication", self._publicationDate)

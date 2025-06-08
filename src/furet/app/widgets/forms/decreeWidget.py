@@ -1,9 +1,9 @@
 from PySide6 import QtWidgets
 
 from furet import repository
-from furet.app.utils import buildComboBox
 from furet.app.widgets.formWidget import FormWidget
 from furet.app.widgets.optionalDateEdit import OptionalDateEdit
+from furet.app.widgets.singleComboBox import SingleComboBox
 from furet.types.decree import Decree
 
 
@@ -22,9 +22,9 @@ class DecreeWidget(FormWidget):
         self.addRow("N° de l'arrêté", self._number)
         self.installMissingBackground(self._number, "text", lambda v: len(v) == 0)
 
-        self._documentType = buildComboBox(repository.getDocumentTypes(), decree.docType, ("Non défini", None))
+        self._documentType = SingleComboBox([None, *repository.getDocumentTypes()], decree.docType, label=lambda v: "Non défini" if v is None else str(v))
         self.addRow("Type de document", self._documentType)
-        self.installMissingBackground(self._documentType, "currentIndex", lambda v: v == 0)
+        self.installMissingBackground(self._documentType, "selectedItem", lambda v: v is None)
 
         self._signingDate = OptionalDateEdit(decree.signingDate)
         self.addRow("Date de signature", self._signingDate)
@@ -54,7 +54,7 @@ class DecreeWidget(FormWidget):
             startPage=self._startPage.value(),
             endPage=self._endPage.value(),
 
-            docType=self._documentType.currentData(),
+            docType=self._documentType.selectedItem(),
             number=self._number.text(),
             title=self._title.text(),
             signingDate=self._signingDate.qdate()

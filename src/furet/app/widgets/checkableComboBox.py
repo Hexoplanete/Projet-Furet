@@ -14,9 +14,6 @@ class CheckableComboBox(QtWidgets.QComboBox):
 
         self.model().dataChanged.connect(self.updateText)
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-
     def updateText(self):
         texts = []
         for i in range(1, self.model().rowCount()):

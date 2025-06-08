@@ -71,7 +71,7 @@ class RaaWidget(FormWidget):
             fileHash=self._raa.fileHash,
             decreeCount=self._raa.decreeCount,
             number=self._number.text(),
-            department=self._department.currentData(),
+            department=self._department.selectedItem(),
             publicationDate=self._publicationDate.qdate(),
             url=self._url.url()
         )

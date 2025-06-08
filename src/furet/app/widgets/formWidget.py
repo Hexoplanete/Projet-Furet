@@ -8,6 +8,7 @@ class FormWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self.setStyleSheet('*[missingValue="true"] { background-color: rgba(255, 0, 0, 0.2) }')
         self._layout = QtWidgets.QFormLayout(self)
+        self._layout.setFieldGrowthPolicy(QtWidgets.QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self._layout.setContentsMargins(0, 0, 0, 0)
 
     def installMissingBackground(self, widget: QtWidgets.QWidget, fieldName: str, isMissing: Callable[[Any], bool]):

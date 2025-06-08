@@ -3,9 +3,10 @@ from PySide6 import QtWidgets, QtCore
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from furet.app.utils import buildMultiComboBox, formatDate
+from furet.app.utils import formatDate
 from furet import repository, settings
 from furet.app.widgets.formWidget import FormWidget
+from furet.app.widgets.multiComboBox import MultiComboBox
 from furet.app.widgets.optionalDateEdit import OptionalDateEdit
 
 class DecreeFilterWidget(QtWidgets.QWidget):
@@ -18,14 +19,14 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         
         self._addDateFilter()
         
-        self._department = buildMultiComboBox(repository.getDepartments(), [], "Tous les départements")
+        self._department = MultiComboBox(repository.getDepartments(), [], placeholder="Tous les départements")
         self._layout.addWidget(self._department)
 
 
-        self._campaign = buildMultiComboBox(repository.getCampaigns(), [], "Toutes les campagnes")
+        self._campaign = MultiComboBox(repository.getCampaigns(), [], placeholder="Toutes les campagnes")
         self._layout.addWidget(self._campaign)
 
-        self._topic = buildMultiComboBox(repository.getTopics(), [], "Tous les sujets")
+        self._topic = MultiComboBox(repository.getTopics(), [], placeholder="Tous les sujets")
         self._layout.addWidget(self._topic)
 
         self._unselectTopic = QtWidgets.QPushButton('X')
@@ -83,9 +84,9 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         return repository.DecreeFilters(
             after=self._dateAfter.qdate(),
             before=self._dateBefore.qdate(),
-            departments=list(map(lambda v: v.id, self._department.currentData())),
-            campaigns=list(map(lambda v: v.id, self._campaign.currentData())),
-            topics=list(map(lambda v: v.id, self._topic.currentData())),
+            departments=list(map(lambda v: v.id, self._department.selectedItems())),
+            campaigns=list(map(lambda v: v.id, self._campaign.selectedItems())),
+            topics=list(map(lambda v: v.id, self._topic.selectedItems())),
             name=self._name.text(),
             treated=self._state.currentData(),
         )
@@ -102,28 +103,18 @@ class DecreeFilterWidget(QtWidgets.QWidget):
             self._dateRangeButton.setText("Toutes les dates de publication")
     
     def onClickUnselectTopic(self):
-        self._topic.unselectAllItems()
+        self._topic.setSelectedItems([])
 
     def updateTopicsComboBox(self):
         self._topic.blockSignals(True)
-        isChecked = []
-        for i in range(self._topic.length()):
-            isChecked.append(self._topic.isChecked(i))
-        while self._topic.length():
-            self._topic.removeItem(1)
-        i = 0
-        for t in repository.getTopics():
-            self._topic.addItem(str(t), userData = t)
-            self._topic.setSelectedIndex(i, isChecked[i])
-            i += 1
+        isChecked = self._topic.selectedItems()
+        self._topic.setItems(repository.getTopics())
+        self._topic.setSelectedItems(isChecked)
         self._topic.blockSignals(False)
 
     def updateCampaignsComboBox(self):
         self._campaign.blockSignals(True)
-        index = self._campaign.currentIndex()
-        self._campaign.clear()
-        self._campaign.addItem("Toutes les campagnes", None)
-        for c in repository.getCampaigns():
-            self._campaign.addItem(str(c), c)
-        self._campaign.setCurrentIndex(index)
+        isChecked = self._campaign.selectedItems()
+        self._campaign.setItems(repository.getCampaigns())
+        self._campaign.setSelectedItems(isChecked)
         self._campaign.blockSignals(False)

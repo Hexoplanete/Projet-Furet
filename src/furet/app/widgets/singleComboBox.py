@@ -14,16 +14,17 @@ class SingleComboBox(QtWidgets.QComboBox, Generic[T]):
         super().__init__(parent)
         self._label = label
 
-        [self.addItem(i) for i in items]
-        self.setSelectedItem(selectedItem)
-
         self.setEditable(True)
+        self.setInsertPolicy(QtWidgets.QComboBox.InsertPolicy.NoInsert)
         if (lineEdit := self.lineEdit()) and (completer := self.completer()):
             lineEdit.installEventFilter(self)
             completer.setFilterMode(QtCore.Qt.MatchFlag.MatchContains)
-            completer.setCompletionMode(QtWidgets.QCompleter.CompletionMode.UnfilteredPopupCompletion)
+            completer.setCompletionMode(QtWidgets.QCompleter.CompletionMode.PopupCompletion)
 
         self.currentIndexChanged.connect(lambda i: self.selectedItemChanged.emit(self.item(i)))
+        
+        [self.addItem(i) for i in items]
+        self.setSelectedItem(selectedItem)
 
     def eventFilter(self, watched, event, /):
         if (lineEdit:= self.lineEdit()) and  watched == lineEdit:

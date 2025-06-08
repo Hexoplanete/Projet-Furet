@@ -1,8 +1,8 @@
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtWidgets
 
 from furet import repository
-from furet.app.utils import buildMultiComboBox
 from furet.app.widgets.formWidget import FormWidget
+from furet.app.widgets.multiComboBox import MultiComboBox
 from furet.types.decree import AspasInfo
 
 
@@ -12,25 +12,11 @@ class AspasInfoWidget(FormWidget):
         super().__init__(parent)
         self._info = info
 
-        self._campaign = buildMultiComboBox(repository.getCampaigns(), info.campaigns)
+        self._campaign = MultiComboBox(repository.getCampaigns(), info.campaigns)
         self.addRow("Campagne", self._campaign)
-
-        topicWidget = QtWidgets.QWidget()
-        topicLayout = QtWidgets.QHBoxLayout(topicWidget)
-        topicLayout.setContentsMargins(0, 0, 0, 0)
-        topicLayout.setSpacing(0)
-
-        self._topic = buildMultiComboBox(repository.getTopics(), info.topics)
-        self._topic.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
-        topicLayout.addWidget(self._topic)
-
-        self._unselectTopic = QtWidgets.QPushButton()
-        self._unselectTopic.setIcon(self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_TrashIcon))
-        self._unselectTopic.setContentsMargins(0, 0, 0, 0)
-        self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
-        self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
-        topicLayout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignmentFlag.AlignLeft)
-        self.addRow("Sujet", topicWidget)
+    
+        self._topic = MultiComboBox(repository.getTopics(), info.topics)
+        self.addRow("Sujet", self._topic)
 
         self._treated = QtWidgets.QCheckBox("", )
         self._treated.setChecked(info.treated)
@@ -46,10 +32,7 @@ class AspasInfoWidget(FormWidget):
     def info(self) -> AspasInfo:
         return AspasInfo(
             treated=self._treated.isChecked(),
-            campaigns=self._campaign.currentData(),
-            topics=self._topic.currentData(),
+            campaigns=self._campaign.selectedItems(),
+            topics=self._topic.selectedItems(),
             comment=self._comment.toPlainText(),
         )
-
-    def onClickUnselectTopic(self):
-        self._topic.unselectAllItems()

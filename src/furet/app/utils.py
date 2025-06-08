@@ -1,8 +1,6 @@
 from datetime import date
-from typing import Any
 from PySide6 import QtWidgets, QtCore, QtGui
 
-from furet.app.widgets.checkableComboBox import CheckableComboBox
 from furet.app.widgets.objectTableWidget import ObjectTableColumn
 
 from typing import TypeVar, Generic
@@ -13,20 +11,6 @@ from furet.types.decree import Decree
 from furet.types.department import Department
 
 T = TypeVar('T')
-
-def buildMultiComboBox(options: list[T], choices: list[T], none: str = None) -> CheckableComboBox:
-    box = CheckableComboBox()
-    if none is not None:
-        box.setPlaceholderText(none)
-    for o in options:
-        box.addItem(str(o), o)
-    
-    for i, o in enumerate(options):
-        for j, c in enumerate(choices):
-            if o == c:
-                box.setSelectedIndex(i, True)
-    return box
-
 
 def formatDate(value: date):
     return value.strftime("%d %B %Y")

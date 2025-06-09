@@ -11,8 +11,8 @@ from furet.processing.processing import Processing
 from PySide6.QtCore import Q_ARG
 
 from furet.repository import csvdb
-from furet.types.decree import Decree
-from furet.types.raa import RAA
+from furet.models.decree import Decree
+from furet.models.raa import RAA
 
 @dataclass
 class InProgressImport:

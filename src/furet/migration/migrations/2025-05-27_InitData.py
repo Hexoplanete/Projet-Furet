@@ -1,9 +1,9 @@
 from furet.migration import Migration
 from furet import repository
 from furet.repository import csvdb
-from furet.types.decree import DocumentType
-from furet.types.department import Department
-from furet.types.campaign import Campaign, Topic
+from furet.models.decree import DocumentType
+from furet.models.raa import Department
+from furet.models.campaign import Campaign, Topic
 
 class InitData(Migration):
 

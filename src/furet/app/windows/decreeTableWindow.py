@@ -3,8 +3,8 @@ from furet import repository
 from furet.app.utils import DECREE_COLUMNS
 from furet.app.widgets.objectTableWidget import ObjectTableWidget
 from furet.app.windows import windowManager
-from furet.app.windows.ImportRaaWindow import ImportRaaWindow
-from furet.types.decree import Decree
+from furet.app.windows.raaImportWindow import RaaImportWindow
+from furet.models.decree import Decree
 
 from furet.app.widgets.decreeFilterWidget import DecreeFilterWidget
 from furet.app.windows.decreeDetailsWindow import DecreeDetailsWindow
@@ -49,7 +49,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         window.accepted.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
     def showImportWindow(self):
-        window, created = windowManager.showWindow(ImportRaaWindow)
+        window, created = windowManager.showWindow(RaaImportWindow)
         window.finished.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
     def openDocumentation(self):

@@ -2,10 +2,10 @@ from datetime import date
 import os
 from furet import settings
 from furet.repository import csvdb
-from furet.types.department import Department
-from furet.types.decree import DocumentType, Decree
-from furet.types.campaign import Campaign, Topic
-from furet.types.raa import RAA
+from furet.models.raa import Department
+from furet.models.decree import DocumentType, Decree
+from furet.models.campaign import Campaign, Topic
+from furet.models.raa import RAA
 from PySide6 import QtCore
 from dataclasses import dataclass, field
 

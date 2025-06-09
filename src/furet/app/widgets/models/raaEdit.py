@@ -1,44 +1,20 @@
-from PySide6 import QtCore, QtWidgets, QtGui
+from PySide6 import QtWidgets
 
 from furet import repository
 from furet.app.widgets.formWidget import FormWidget
 from furet.app.widgets.optionalDateEdit import OptionalDateEdit
 from furet.app.widgets.singleComboBox import SingleComboBox
-from furet.types.raa import RAA
+from furet.app.widgets.urlEdit import UrlEdit
+from furet.models.raa import RAA
 
 
-class UrlEdit(QtWidgets.QWidget):
-
-    urlChanged = QtCore.Signal(str)
-
-    def __init__(self, link: str | None = None, parent: QtWidgets.QWidget | None = None):
-        super().__init__(parent)
-        self._layout = QtWidgets.QHBoxLayout(self)
-        self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.setSpacing(0)
-        self._urlEdit = QtWidgets.QLineEdit(link if link is not None else "")
-        self._urlEdit.textChanged.connect(self.urlChanged.emit)
-        self._layout.addWidget(self._urlEdit, stretch=1)
-        self._openButton = QtWidgets.QPushButton()
-        self._openButton.setIcon(self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_ArrowRight))
-        self._openButton.clicked.connect(self.openUrl)
-        self._layout.addWidget(self._openButton)
-
-    def openUrl(self):
-        QtGui.QDesktopServices.openUrl(self._urlEdit.text())
-
-    def setUrl(self, url: str):
-        self._urlEdit.setText(url)
-
-    def url(self) -> str:
-        return self._urlEdit.text()
-
-
-class RaaWidget(FormWidget):
+class RaaEdit(FormWidget[RAA]):
 
     def __init__(self, raa: RAA, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
-        self._raa = raa
+        self._id = raa.id
+        self._fileHash = raa.fileHash
+        self._decreeCount = raa.decreeCount
 
         self._department = SingleComboBox([None, *repository.getDepartments()], raa.department, label=lambda v: "Non défini" if v is None else str(v))
         self.addRow("Département", self._department)
@@ -50,7 +26,7 @@ class RaaWidget(FormWidget):
 
         self._expireDate = OptionalDateEdit(raa.expireDate())
         self._expireDate.setReadOnly(True)
-        self._publicationDate.dateChanged.connect(lambda v: self._expireDate.setQdate(RAA.getExpireDate(v)))
+        self._publicationDate.qdateChanged.connect(lambda v: self._expireDate.setQdate(RAA.getExpireDate(v)))
         self.addRow("Date d'expiration", self._expireDate)
 
         self._url = UrlEdit(raa.url)
@@ -65,11 +41,11 @@ class RaaWidget(FormWidget):
     # def setRaa(self, raa: RAA):
     #     self._raa = raa
 
-    def raa(self) -> RAA:
+    def value(self) -> RAA:
         return RAA(
-            id=self._raa.id,
-            fileHash=self._raa.fileHash,
-            decreeCount=self._raa.decreeCount,
+            id=self._id,
+            fileHash=self._fileHash,
+            decreeCount=self._decreeCount,
             number=self._number.text(),
             department=self._department.selectedItem(),
             publicationDate=self._publicationDate.qdate(),

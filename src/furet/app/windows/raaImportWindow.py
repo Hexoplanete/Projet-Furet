@@ -3,7 +3,7 @@ from PySide6 import QtWidgets
 from furet.app.widgets.importListWidget import ImportListWidget
 
 
-class ImportRaaWindow(QtWidgets.QDialog):
+class RaaImportWindow(QtWidgets.QDialog):
 
     def __init__(self):
         super().__init__()

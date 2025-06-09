@@ -3,8 +3,8 @@ from datetime import date
 import os
 
 from furet.repository.csvdb import TableObject
-from furet.types.raa import RAA
-from furet.types.campaign import Campaign, Topic
+from furet.models.raa import RAA
+from furet.models.campaign import Campaign, Topic
 
 
 @dataclass(eq=False)

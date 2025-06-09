@@ -5,10 +5,10 @@ from furet.app.widgets.objectTableWidget import ObjectTableColumn
 
 from typing import TypeVar, Generic
 
-from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
-from furet.types.campaign import Campaign, Topic
-from furet.types.decree import Decree
-from furet.types.department import Department
+from furet.app.widgets.sectionHeaderWidget import SectionHeaderWidget
+from furet.models.campaign import Campaign, Topic
+from furet.models.decree import Decree
+from furet.models.raa import Department
 
 T = TypeVar('T')
 
@@ -18,7 +18,7 @@ def formatDate(value: date):
 def addFormSection(layout: QtWidgets.QBoxLayout, label: str):
     if layout.count() > 0:
         layout.addSpacing(20)
-    sep = TextSeparatorWidget(label)
+    sep = SectionHeaderWidget(label)
     sep = layout.addWidget(sep)
     decreeForm = QtWidgets.QFormLayout()
     layout.addLayout(decreeForm)

@@ -1,8 +1,11 @@
-from typing import Any, Callable
+from typing import Any, Callable, Generic, TypeVar
 from PySide6 import QtCore, QtWidgets
 
 
-class FormWidget(QtWidgets.QWidget):
+T = TypeVar("T")
+
+
+class FormWidget(QtWidgets.QWidget, Generic[T]):
 
     def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
@@ -28,3 +31,10 @@ class FormWidget(QtWidgets.QWidget):
             labelWidget.setToolTip(tooltip)
             widget.setToolTip(tooltip)
         self._layout.addRow(labelWidget, widget)
+
+    def setValue(self, item: T): ...
+    def value(self) -> T: ...
+
+    # TODO implement
+    def setReadonly(self, readonly: bool): ...
+    def readonly(self, ) -> bool: ...

@@ -3,14 +3,13 @@ from PySide6 import QtWidgets
 from furet import repository
 from furet.app.widgets.formWidget import FormWidget
 from furet.app.widgets.multiComboBox import MultiComboBox
-from furet.types.decree import AspasInfo
+from furet.models.decree import AspasInfo
 
 
-class AspasInfoWidget(FormWidget):
+class AspasInfoEdit(FormWidget[AspasInfo]):
 
     def __init__(self, info: AspasInfo, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
-        self._info = info
 
         self._campaign = MultiComboBox(repository.getCampaigns(), info.campaigns)
         self.addRow("Campagne", self._campaign)
@@ -29,7 +28,7 @@ class AspasInfoWidget(FormWidget):
     # def setInfo(self, decree: DECREE):
     #     self._decree = decree
 
-    def info(self) -> AspasInfo:
+    def value(self) -> AspasInfo:
         return AspasInfo(
             treated=self._treated.isChecked(),
             campaigns=self._campaign.selectedItems(),

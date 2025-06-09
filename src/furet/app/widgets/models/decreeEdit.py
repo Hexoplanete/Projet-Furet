@@ -4,15 +4,16 @@ from furet import repository
 from furet.app.widgets.formWidget import FormWidget
 from furet.app.widgets.optionalDateEdit import OptionalDateEdit
 from furet.app.widgets.singleComboBox import SingleComboBox
-from furet.types.decree import Decree
+from furet.models.decree import Decree
 
 
-class DecreeWidget(FormWidget):
+class DecreeEdit(FormWidget[Decree]):
 
     def __init__(self, decree: Decree, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
 
-        self._decree = decree
+        self._id = decree.id
+        self._raa = decree.raa
 
         self._title = QtWidgets.QLineEdit(decree.title)
         self.addRow("Titre", self._title)
@@ -43,14 +44,14 @@ class DecreeWidget(FormWidget):
         self.addRow("Pages", pagesWidget)
 
     # # TODO reset form fields
-    # def setDecree(self, decree: DECREE):
+    # def setValues(self, value: Decree):
     #     self._decree = decree
 
-    def decree(self) -> Decree:
+    def value(self) -> Decree:
         return Decree(
-            id=self._decree.id,
+            id=self._id,
 
-            raa=self._decree.raa,
+            raa=self._raa,
             startPage=self._startPage.value(),
             endPage=self._endPage.value(),
 

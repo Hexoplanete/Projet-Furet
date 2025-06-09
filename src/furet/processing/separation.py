@@ -1,6 +1,6 @@
 from furet import repository
-from furet.types.decree import Decree
-from furet.types.raa import RAA
+from furet.models.decree import Decree
+from furet.models.raa import RAA
 
 from furet.processing.getPdfText import extractText
 from datetime import date

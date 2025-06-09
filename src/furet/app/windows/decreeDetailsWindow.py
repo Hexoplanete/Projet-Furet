@@ -1,10 +1,10 @@
 from PySide6 import QtWidgets
-from furet.app.widgets.forms.aspasWidget import AspasInfoWidget
-from furet.app.widgets.forms.decreeWidget import DecreeWidget
-from furet.app.widgets.forms.raaWidget import RaaWidget
+from furet.app.widgets.models.aspasInfoEdit import AspasInfoEdit
+from furet.app.widgets.models.decreeEdit import DecreeEdit
+from furet.app.widgets.models.raaEdit import RaaEdit
 
 from furet import repository
-from furet.app.widgets.textSeparatorWidget import TextSeparatorWidget
+from furet.app.widgets.sectionHeaderWidget import SectionHeaderWidget
 
 
 class DecreeDetailsWindow(QtWidgets.QDialog):
@@ -21,17 +21,17 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         self.setWindowTitle(f"Détails de l'arrêté n°{decree.number}")
         self._layout = QtWidgets.QVBoxLayout(self)
 
-        self._layout.addWidget(TextSeparatorWidget("Arrêté"))
-        self._decree = DecreeWidget(decree)
+        self._layout.addWidget(SectionHeaderWidget("Arrêté"))
+        self._decree = DecreeEdit(decree)
         self._layout.addWidget(self._decree)
 
         if not noRaa:
-            self._layout.addWidget(TextSeparatorWidget("Recueil"))
-            self._raa = RaaWidget(decree.raa)
+            self._layout.addWidget(SectionHeaderWidget("Recueil"))
+            self._raa = RaaEdit(decree.raa)
             self._layout.addWidget(self._raa)
 
-        self._layout.addWidget(TextSeparatorWidget("Informations supplémentaires"))
-        self._aspas = AspasInfoWidget(decree.aspasInfo())
+        self._layout.addWidget(SectionHeaderWidget("Informations supplémentaires"))
+        self._aspas = AspasInfoEdit(decree.aspasInfo())
         self._layout.addWidget(self._aspas)
 
         self._buttons = QtWidgets.QDialogButtonBox(standardButtons=QtWidgets.QDialogButtonBox.StandardButton.Save | QtWidgets.QDialogButtonBox.StandardButton.Close)
@@ -41,9 +41,9 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
 
     def accept(self, /):
         if not self._noRaa:
-            raa = self._raa.raa()
+            raa = self._raa.value()
             repository.updateRaa(raa.id, raa)
-        decree = self._decree.decree()
-        decree.setAspasInfo(self._aspas.info())
+        decree = self._decree.value()
+        decree.setAspasInfo(self._aspas.value())
         repository.updateDecree(decree.id, decree)
         super().accept()

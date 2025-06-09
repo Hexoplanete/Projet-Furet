@@ -1,9 +1,17 @@
 from dataclasses import dataclass
 from furet.repository.csvdb import TableObject
-from furet.types.department import Department
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+
+@dataclass(eq=False)
+class Department(TableObject):
+    id: int
+    number: str
+    label: str
+
+    def __str__(self):
+        return f"{self.number} - {self.label}"
 
 @dataclass(eq=False)
 class RAA(TableObject):

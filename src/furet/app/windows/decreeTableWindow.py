@@ -3,6 +3,7 @@ from furet import repository
 from furet.app.utils import DECREE_COLUMNS
 from furet.app.widgets.objectTableWidget import ObjectTableWidget
 from furet.app.windows import windowManager
+from furet.app.windows.campaignsEditWindow import CampaignsEditWindow
 from furet.app.windows.raaImportWindow import RaaImportWindow
 from furet.models.decree import Decree
 
@@ -19,7 +20,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         self._importAction = self._toolbar.addAction("Importer un recueil")
         self._importAction.triggered.connect(self.showImportWindow)
         self._importAction = self._toolbar.addAction("Campagnes et Sujets")
-        self._importAction.triggered.connect(self.showImportWindow)
+        self._importAction.triggered.connect(self.showCampaignsWindow)
         spacer = QtWidgets.QWidget()
         spacer.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
         self._toolbar.addWidget(spacer)
@@ -45,15 +46,19 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def showSettingsWindow(self):
         window, _ = windowManager.showWindow(SettingsWindow)
-        window.accepted.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
     def showDecreeDetailsWindow(self, decree: Decree):
         window, _ = windowManager.showWindow(DecreeDetailsWindow, decree.id, args=(decree.id,))
-        window.accepted.connect(self.updateTopicsAndCampaigns, type=QtCore.Qt.ConnectionType.UniqueConnection)
+        window.accepted.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
     def showImportWindow(self):
         window, _ = windowManager.showWindow(RaaImportWindow)
         window.finished.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
+    
+    def showCampaignsWindow(self):
+        window, _ = windowManager.showWindow(CampaignsEditWindow)
+        window.accepted.connect(self.updateTopicsAndCampaigns, type=QtCore.Qt.ConnectionType.UniqueConnection)
+        window.accepted.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
     def openDocumentation(self):
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")

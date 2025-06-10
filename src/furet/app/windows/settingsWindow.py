@@ -25,6 +25,7 @@ class SettingsWindow(QtWidgets.QDialog):
         self._processing = ProcessingConfigEdit(settings.config(ProcessingConfig))
         self._layout.addWidget(self._processing)
 
+        self._layout.addStretch(stretch=1)
         self._buttons = QtWidgets.QDialogButtonBox(standardButtons=QtWidgets.QDialogButtonBox.StandardButton.Save | QtWidgets.QDialogButtonBox.StandardButton.Close)
         self._buttons.accepted.connect(self.accept)
         self._buttons.rejected.connect(self.reject)

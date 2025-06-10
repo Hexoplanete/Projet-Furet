@@ -5,14 +5,26 @@ from PySide6 import QtCore, QtWidgets
 T = TypeVar("T")
 
 
+class FormLayout(QtWidgets.QFormLayout):
+
+    def __init__(self, parent: QtWidgets.QWidget | None = None):
+        super().__init__(parent, fieldGrowthPolicy=QtWidgets.QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        self.setContentsMargins(0, 0, 0, 0)
+
+    def addRow(self, label: str, widget: QtWidgets.QWidget, tooltip=None):  # type: ignore
+        labelWidget = QtWidgets.QLabel(f"{label} :")
+        if tooltip is not None:
+            labelWidget.setToolTip(tooltip)
+            widget.setToolTip(tooltip)
+        super().addRow(labelWidget, widget)
+
+
 class FormWidget(QtWidgets.QWidget, Generic[T]):
 
     def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
         self.setStyleSheet('*[missingValue="true"] { background-color: rgba(255, 0, 0, 0.2) }')
-        self._layout = QtWidgets.QFormLayout(self)
-        self._layout.setFieldGrowthPolicy(QtWidgets.QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
-        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout = FormLayout(self)
 
     def installMissingBackground(self, widget: QtWidgets.QWidget, fieldName: str, isMissing: Callable[[Any], bool]):
         signal: QtCore.SignalInstance = getattr(widget, f"{fieldName}Changed")
@@ -26,11 +38,7 @@ class FormWidget(QtWidgets.QWidget, Generic[T]):
         updateProp(field())
 
     def addRow(self, label: str, widget: QtWidgets.QWidget, tooltip=None):
-        labelWidget = QtWidgets.QLabel(f"{label} :")
-        if tooltip is not None:
-            labelWidget.setToolTip(tooltip)
-            widget.setToolTip(tooltip)
-        self._layout.addRow(labelWidget, widget)
+        self._layout.addRow(label, widget)
 
     def setValue(self, item: T): ...
     def value(self) -> T: ...

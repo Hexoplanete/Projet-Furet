@@ -18,7 +18,7 @@ class DecreeDetailsWindow(QtWidgets.QDialog):
         if decree is None:
             raise Exception(f"Decree {decreeId} does not exist")
 
-        self.setWindowTitle(f"Détails de l'arrêté n°{decree.number}")
+        self.setWindowTitle(f"Arrêté {decree.number}")
         self._layout = QtWidgets.QVBoxLayout(self)
 
         self._layout.addWidget(SectionHeaderWidget("Arrêté"))

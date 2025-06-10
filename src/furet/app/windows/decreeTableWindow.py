@@ -14,7 +14,7 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self._toolbar = self.addToolBar("a toolbar")
+        self._toolbar = self.addToolBar("")
         self._toolbar.setMovable(False)
         self._importAction = self._toolbar.addAction("Importer un recueil")
         self._importAction.triggered.connect(self.showImportWindow)

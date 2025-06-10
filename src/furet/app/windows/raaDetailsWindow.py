@@ -17,6 +17,8 @@ class RaaDetailsWindow(QtWidgets.QDialog):
         super().__init__()
         
         self._raa = raa
+
+        self.setWindowTitle(f"Recueil {raa.number}")
         self._decrees = decrees
         self._layout = QtWidgets.QVBoxLayout(self)
 

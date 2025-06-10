@@ -42,14 +42,15 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         QtWidgets.QApplication.quit()
 
     def showSettingsWindow(self):
-        windowManager.showWindow(SettingsWindow, args=(self,))
-
-    def showDecreeDetailsWindow(self, decree: Decree):
-        window, created = windowManager.showWindow(DecreeDetailsWindow, decree.id, args=(decree.id,))
+        window, _ = windowManager.showWindow(SettingsWindow)
         window.accepted.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
+    def showDecreeDetailsWindow(self, decree: Decree):
+        window, _ = windowManager.showWindow(DecreeDetailsWindow, decree.id, args=(decree.id,))
+        window.accepted.connect(self.updateTopicsAndCampaigns, type=QtCore.Qt.ConnectionType.UniqueConnection)
+
     def showImportWindow(self):
-        window, created = windowManager.showWindow(RaaImportWindow)
+        window, _ = windowManager.showWindow(RaaImportWindow)
         window.finished.connect(self.updateDecrees, type=QtCore.Qt.ConnectionType.UniqueConnection)
 
     def openDocumentation(self):
@@ -58,8 +59,6 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
     def updateDecrees(self):
         self._decreeTable.setItems(repository.getDecrees(self._filters.filters()))
 
-    def updateTopicsComboBox(self):
-        self._filters.updateTopicsComboBox()
-
-    def updateCampaignsComboBox(self):
+    def updateTopicsAndCampaigns(self):
         self._filters.updateCampaignsComboBox()
+        self._filters.updateTopicsComboBox()

@@ -29,11 +29,42 @@ class ElidedLabel(QtWidgets.QLabel):
 
     def updateDisplayedText(self):
         fm = QtGui.QFontMetrics(self.fontMetrics())
-        elidedText = fm.elidedText(
-            self.text(), self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
+        elidedText = fm.elidedText(self.text(), self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
         if (len(self._text) > 0):
             showFirstCharacter = self._text[0] + "..."
             self.setMinimumWidth(fm.horizontalAdvance(showFirstCharacter) + 1)
-        if self.textInteractionFlags() == QtCore.Qt.TextInteractionFlag.TextBrowserInteraction:
-            elidedText = f'<a href="{self._text}">{elidedText}</a>'
         super().setText(elidedText)
+
+
+class ElidedUri(ElidedLabel):
+
+    def __init__(self, uri: str, /, parent: QtWidgets.QWidget | None = None, text: str | None = None, elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight):
+        self._hasText = text is not None
+        self._uri = uri
+        super().__init__(text or uri, parent, elideMode)
+        self.setOpenExternalLinks(True)
+
+
+    def setUri(self, uri: str):
+        self._uri = uri
+        self.setToolTip(uri)
+        self.updateDisplayedText()
+
+
+    def uri(self, /) -> str:
+        return self._uri
+    
+
+    def setText(self, text: str | None):
+        self._hasText = text is not None
+        if text: super().setText(text)
+        else: super().setText(self._uri)
+
+
+    def text(self, /) -> str | None: # type: ignore
+        return super().text() if self._hasText else self._uri
+
+
+    def updateDisplayedText(self):
+        super().updateDisplayedText()
+        QtWidgets.QLabel.setText(self, f'<a href="file:/{self._uri.removeprefix('/')}">{QtWidgets.QLabel.text(self)}</a>')

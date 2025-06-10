@@ -17,7 +17,7 @@ class AppConfigEdit(FormWidget[AppConfig]):
 
         self._filterExpired = QtWidgets.QCheckBox("")
         self._filterExpired.setChecked(value.filterExpired)
-        self.addRow("Filter les arrêtés traités", self._filterExpired,"Filter automatiquement les arrêtés de plus de 2 mois lors du lancement de l'application")
+        self.addRow("Filter les arrêtés expirés", self._filterExpired,"Filter automatiquement les arrêtés de plus de 2 mois lors du lancement de l'application")
 
     # # TODO reset form fields
     # def setRaa(self, raa: RAA):

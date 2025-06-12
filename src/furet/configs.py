@@ -20,7 +20,8 @@ class CrawlerConfig:
 
 @dataclass
 class ProcessingConfig:
-    ...
+    pdfDir: str = field(default_factory=lambda: os.path.join(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation), 'pdfs'))
+    debug: bool = False
 
 @dataclass
 class WindowsConfig:

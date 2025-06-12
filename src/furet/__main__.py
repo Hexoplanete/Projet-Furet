@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QApplication
 import os
-from furet import migration, repository, app, crawler, settings
+from furet import migration, processing, repository, app, crawler, settings
 from PySide6 import QtCore
 import argparse
 
@@ -26,6 +26,7 @@ def main():
     migration.migrate()
     if args.migrate:
         return
+    processing.setup()
     crawler.setup()
     app.setup()
 

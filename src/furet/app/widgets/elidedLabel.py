@@ -1,29 +1,26 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 
 class ElidedLabel(QtWidgets.QLabel):
-    _txt: str = ""
+    _text: str = ""
     _elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight
 
-    def __init__(self, text: str, elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight, parent: QtWidgets.QWidget = None):
-        if parent is None:
-            super().__init__("")
-        else:
-            super().__init__(parent, "")
-        self._txt = text
+    def __init__(self, text: str, /, parent: QtWidgets.QWidget | None = None, elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight):
+        super().__init__("", parent)
+        self._text = text
         self._elideMode = elideMode
         self.updateDisplayedText()
 
-    def setText(self, arg__1):
-        self._txt = arg__1
+    def setText(self, arg__1, /):
+        self._text = arg__1
         self.updateDisplayedText()
 
-    def text(self):
-        return self._txt
+    def text(self, /):
+        return self._text
 
     def setElideMode(self, elidedMode: QtCore.Qt.TextElideMode):
         self._elideMode = elidedMode
 
-    def elideMode(self):
+    def elideMode(self) -> QtCore.Qt.TextElideMode:
         return self._elideMode
 
     def resizeEvent(self, event):
@@ -32,11 +29,42 @@ class ElidedLabel(QtWidgets.QLabel):
 
     def updateDisplayedText(self):
         fm = QtGui.QFontMetrics(self.fontMetrics())
-        elidedText = fm.elidedText(
-            self.text(), self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
-        if (len(self._txt) > 0):
-            showFirstCharacter = self._txt[0] + "..."
+        elidedText = fm.elidedText(self.text(), self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
+        if (len(self._text) > 0):
+            showFirstCharacter = self._text[0] + "..."
             self.setMinimumWidth(fm.horizontalAdvance(showFirstCharacter) + 1)
-        if self.textInteractionFlags() == QtCore.Qt.TextInteractionFlag.TextBrowserInteraction:
-            elidedText = f'<a href="{self._txt}">{elidedText}</a>'
         super().setText(elidedText)
+
+
+class ElidedUri(ElidedLabel):
+
+    def __init__(self, uri: str, /, parent: QtWidgets.QWidget | None = None, text: str | None = None, elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight):
+        self._hasText = text is not None
+        self._uri = uri
+        super().__init__(text or uri, parent, elideMode)
+        self.setOpenExternalLinks(True)
+
+
+    def setUri(self, uri: str):
+        self._uri = uri
+        self.setToolTip(uri)
+        self.updateDisplayedText()
+
+
+    def uri(self, /) -> str:
+        return self._uri
+    
+
+    def setText(self, text: str | None):
+        self._hasText = text is not None
+        if text: super().setText(text)
+        else: super().setText(self._uri)
+
+
+    def text(self, /) -> str | None: # type: ignore
+        return super().text() if self._hasText else self._uri
+
+
+    def updateDisplayedText(self):
+        super().updateDisplayedText()
+        QtWidgets.QLabel.setText(self, f'<a href="file:/{self._uri.removeprefix('/')}">{QtWidgets.QLabel.text(self)}</a>')

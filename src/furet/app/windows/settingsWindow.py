@@ -1,40 +1,27 @@
-from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets
 
 from furet import settings
-from furet.app.widgets.filePickerWidget import FilePickerWidget, PickMode
 from furet import repository
-from furet.app.utils import addFormRow, addFormSection
-from furet.types.decree import *
+from furet.app.utils import addFormSection
 from furet.app.widgets.objectTableModel import SingleRowEditableModel
+from furet.app.widgets.sectionHeaderWidget import SectionHeaderWidget
+from furet.app.widgets.settings.appConfigEdit import AppConfigEdit
+from furet.app.widgets.settings.repositoryConfigEdit import RepositoryConfigEdit
+from furet.configs import AppConfig, RepositoryConfig
 
 
 class SettingsWindow(QtWidgets.QDialog):
-    def __init__(self, mainWindow):
+    def __init__(self):
         super().__init__()
-        self._mainWindow = mainWindow
         self.setWindowTitle("Paramètres")
 
-        self._rootLayout = QtWidgets.QVBoxLayout(self)
+        self._layout = QtWidgets.QVBoxLayout(self)
 
-        form = addFormSection(self._rootLayout, "Interface")
-        self.scale = QtWidgets.QLineEdit(str(settings.value("app.scale")))
-        validator = QtGui.QDoubleValidator()
-        validator.setLocale(QtCore.QLocale.Language.English)
-        self.scale.setValidator(validator)
-        self.scale.textChanged.connect(lambda v: settings.setValue("app.scale", min(max(1, float(v)), 2)))
-        addFormRow(form, "Échelle de l'interface", self.scale, "Change l'échelle de l'interface. Relancez l'application pour appliquer les changements.")
+        self._layout.addWidget(SectionHeaderWidget("Interface"))
+        self._app = AppConfigEdit(settings.config(AppConfig))
+        self._layout.addWidget(self._app)
 
-        self.treaded = QtWidgets.QCheckBox("")
-        self.treaded.setChecked(settings.value("app.filter-treated"))
-        self.treaded.stateChanged.connect(lambda v: settings.setValue("app.filter-treated", bool(v)))
-        addFormRow(form, "Filter les arrêtés traités", self.treaded, "Filter automatiquement les arrêtés traites lors du lancement de l'application")
-
-        self.expired = QtWidgets.QCheckBox("")
-        self.expired.setChecked(settings.value("app.filter-expired"))
-        self.expired.stateChanged.connect(lambda v: settings.setValue("app.filter-expired", bool(v)))
-        addFormRow(form, "Filter les arrêtés expirés", self.expired, "Filter automatiquement les arrêtés de plus de 2 mois lors du lancement de l'application")
-
-        topicCampaignSection = addFormSection(self._rootLayout, "Sujet et Campagne")
+        topicCampaignSection = addFormSection(self._layout, "Sujet et Campagne")
 
         topicCampaign = QtWidgets.QHBoxLayout()
         
@@ -42,7 +29,6 @@ class SettingsWindow(QtWidgets.QDialog):
             for row in range(topLeft.row(), bottomRight.row() + 1):
                 campaign = repository.getCampaigns()[row]
                 repository.updateCampaign(campaign.id, campaign)
-                self._mainWindow.updateCampaignsComboBox()
 
         self.modelCampaign = SingleRowEditableModel(repository.getCampaigns(), "Campagne")
         self.modelCampaign.dataChanged.connect(onCampaignChanged)
@@ -55,7 +41,6 @@ class SettingsWindow(QtWidgets.QDialog):
             for row in range(topLeft.row(), bottomRight.row() + 1):
                 topic = repository.getTopics()[row]
                 repository.updateTopic(topic.id, topic)
-                self._mainWindow.updateTopicsComboBox()
 
         self.modelTopic = SingleRowEditableModel(repository.getTopics(), "Sujet")
         self.modelTopic.dataChanged.connect(onTopicChanged)
@@ -67,8 +52,18 @@ class SettingsWindow(QtWidgets.QDialog):
         topicCampaign.addWidget(self.viewCampaign)
         topicCampaign.addWidget(self.viewTopic)
 
-        self._rootLayout.addLayout(topicCampaign)
+        self._layout.addLayout(topicCampaign)
 
-        form = addFormSection(self._rootLayout, "Stockage")
-        self.csvRoot = FilePickerWidget(settings.value("repository.csv-root"), pickMode=PickMode.Folder, onDataChange=lambda p: settings.setValue("repository.csv-root", p))
-        addFormRow(form, "Dossier de stockage des arrêtés", self.csvRoot, "Le dossier où sont enregistrées les données des arrêtés")
+        self._layout.addWidget(SectionHeaderWidget("Stockage"))
+        self._repository = RepositoryConfigEdit(settings.config(RepositoryConfig))
+        self._layout.addWidget(self._repository)
+
+        self._buttons = QtWidgets.QDialogButtonBox(standardButtons=QtWidgets.QDialogButtonBox.StandardButton.Save | QtWidgets.QDialogButtonBox.StandardButton.Close)
+        self._buttons.accepted.connect(self.accept)
+        self._buttons.rejected.connect(self.reject)
+        self._layout.addWidget(self._buttons)
+
+    def accept(self) -> None:
+        settings.setConfig(self._app.value())
+        settings.setConfig(self._repository.value())
+        super().accept()

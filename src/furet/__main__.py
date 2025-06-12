@@ -1,4 +1,3 @@
-import sys
 from PySide6.QtWidgets import QApplication
 import os
 from furet import migration, repository, app, crawler, settings

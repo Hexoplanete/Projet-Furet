@@ -1,94 +1,9 @@
-from dataclasses import dataclass
 from PySide6 import QtCore
 
-from typing import Any, Callable, TypeVar, Generic
+from typing import TypeVar
 
 T = TypeVar('T')
 TV = TypeVar('TV')
-
-
-class AbstractTableColumn(Generic[T]):
-    def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any: ...
-    def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any: ...
-    def valueKey(self, item: T) -> Any: ...
-
-
-@dataclass
-class FieldColumn(AbstractTableColumn[T], Generic[T, TV]):
-    name: str
-    formatHeader: Callable[[], str] | None = None
-    format: Callable[[TV], str] = lambda v: str(v)
-    _valueKey: Callable[[TV], Any] = lambda v: v
-
-    def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any:
-        if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self.name if self.formatHeader is None else self.formatHeader()
-
-    def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any:
-        if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self.format(self.value(item))
-
-    def value(self, item: T) -> TV:
-        return getattr(item, self.name)
-
-    def valueKey(self, item: T) -> Any:
-        return self._valueKey(self.value(item))
-
-
-@dataclass
-class ComputedColumn(AbstractTableColumn[T], Generic[T, TV]):
-    value: Callable[[T], TV]
-    formatHeader: Callable[[], str] | None
-    format: Callable[[TV], str] = lambda v: str(v)
-    _valueKey: Callable[[TV], Any] = lambda v: v
-
-    def headerData(self, role: QtCore.Qt.ItemDataRole) -> Any:
-        if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self.formatHeader
-
-    def data(self, item: T, /, role: QtCore.Qt.ItemDataRole) -> Any:
-        if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self.format(self.value(item))
-
-    def valueKey(self, item: T) -> Any:
-        return self._valueKey(self.value(item))
-
-
-class ObjectTableModel(Generic[T], QtCore.QAbstractTableModel):
-    def __init__(self, data: list[T], fields: list[AbstractTableColumn]):
-        super().__init__()
-        self._data = data
-        self._fields = fields
-
-    def headerData(self, section, orientation, /, role=...):
-        if orientation == QtCore.Qt.Orientation.Horizontal and role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return self._fields[section].headerData(role)  # type: ignore
-
-    def resetData(self, data: list[T]):
-        self.beginResetModel()
-        self._data = data
-        self.endResetModel()
-
-    def data(self, index, /, role=...) -> Any:
-        return self._fields[index.column()].data(self._data[index.row()], role) # type: ignore
-
-    def rowCount(self, /, parent=...):
-        return len(self._data)
-
-    def columnCount(self, /, parent=...):
-        return len(self._fields)
-
-    def setItemAt(self, index: int, item: T):
-        self._data[index] = item
-        self.dataChanged.emit(self.index(index, 0), self.index(index, self.columnCount()-1))
-
-    def itemAt(self, index: int):
-        return self._data[index]
-
-    def sort(self, column, /, order=...):
-        self.beginResetModel()
-        self._data.sort(key=lambda v: self._fields[column].valueKey(v), reverse=order == QtCore.Qt.SortOrder.DescendingOrder)
-        self.endResetModel()
 
 
 class SingleRowEditableModel[T](QtCore.QAbstractTableModel):

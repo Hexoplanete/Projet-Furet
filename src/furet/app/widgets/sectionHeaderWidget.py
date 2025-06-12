@@ -1,6 +1,6 @@
 from PySide6 import QtWidgets
 
-class TextSeparatorWidget(QtWidgets.QWidget):
+class SectionHeaderWidget(QtWidgets.QWidget):
     def __init__(self, label: str = ""):
         super().__init__()
         self._layout = QtWidgets.QHBoxLayout(self)

@@ -1,14 +1,54 @@
+from datetime import date
 import os
 from furet import settings
 from furet.repository import csvdb
-from furet.types.department import *
-from furet.types.decree import *
+from furet.models.raa import Department
+from furet.models.decree import DocumentType, Decree
+from furet.models.campaign import Campaign, Topic
+from furet.models.raa import RAA
 from PySide6 import QtCore
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 def setup():
     settings.setDefaultValue("repository.csv-root", os.path.join(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation), 'database'))
     csvdb.connect(settings.value("repository.csv-root"))
+
+
+# RAAS
+
+
+def getRaas() -> list[RAA]:
+    return sorted(csvdb.fetch(RAA), key=lambda r: r.publicationDate or date(1900,1,1))
+
+
+def getRaaById(id: int) -> RAA | None:
+    return csvdb.fetchById(RAA, id)
+
+
+def updateRaa(id: int, raa: RAA):
+    raa.id = id
+    return csvdb.update(raa)
+
+
+def addRaa(raa: RAA):
+    csvdb.insert(raa)
+
+
+def addRaas(raas: list[RAA]):
+    for d in raas:
+        addRaa(d)
+
+def alreadyImported(fileHash: str) -> bool:
+    for raa in csvdb.fetch(RAA):
+        if raa.fileHash == fileHash:
+            return True
+    return False
+
+def getRaaByHash(fileHash: str) -> RAA | None:
+    for raa in csvdb.fetch(RAA):
+        if raa.fileHash == fileHash:
+            return raa
+    return None
 
 # DECREES
 
@@ -24,11 +64,11 @@ class DecreeFilters:
     treated: bool | None = None
 
     def fitFilters(self, decree: Decree) -> bool:
-        if self.after is not None and (decree.publicationDate is None or decree.publicationDate < self.after):
+        if self.after is not None and (decree.raa.publicationDate is None or decree.raa.publicationDate < self.after):
             return False
-        if self.before is not None and (decree.publicationDate is None or decree.publicationDate > self.before):
+        if self.before is not None and (decree.raa.publicationDate is None or decree.raa.publicationDate > self.before):
             return False
-        if len(self.departments) > 0 and (decree.department is None or not decree.department.id in self.departments):
+        if len(self.departments) > 0 and (decree.raa.department is None or not decree.raa.department.id in self.departments):
             return False
         if len(self.campaigns) > 0:
             for c in decree.campaigns:
@@ -56,19 +96,17 @@ def getDecrees(filters: DecreeFilters | None = None) -> list[Decree]:
 def getDecreeById(id: int) -> Decree | None:
     return csvdb.fetchById(Decree, id)
 
+def getDecreesByRaa(raaId: int) -> list[Decree]:
+    return [d for d in csvdb.fetch(Decree) if d.raa.id == raaId]
 
 def updateDecree(id: int, decree: Decree):
     decree.id = id
     return csvdb.update(decree)
 
 
-def addDecree(decree: Decree):
+def addDecree(decree: Decree | list[Decree]):
     csvdb.insert(decree)
 
-
-def addDecrees(decrees: list[Decree]):
-    for d in decrees:
-        addDecree(d)
 
 # DEPARTMENTS
 

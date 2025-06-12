@@ -1,11 +1,14 @@
+import hashlib
+from typing import Any, Callable
 from furet.processing.getKeyWords import getKeyWords
 from furet.processing.correspondenceNameNumberDepartment import departementsLabelToCode
 from furet.processing.ocr import mainOcr
 from furet.processing.separation import mainSeparation
 from furet.processing.getCharacteristics import extractDocumentCharacterisics
 from furet import repository
-from furet.types.processinngraa import ProcessingRAA
-from furet.types.decree import *
+from furet.models.decree import Decree
+from furet.models.campaign import Topic
+from furet.models.raa import RAA
 from furet import settings
 
 import subprocess
@@ -66,6 +69,7 @@ class Processing:
         else:
             return []
     
+    # TODO move to crawler
     def startProcessing(self):
         """ 
             Function that is Input to the Processing Framework
@@ -77,29 +81,25 @@ class Processing:
         listeDictRAA = self.readLinkFile()
 
         for el in listeDictRAA:
-
-            raaUrl = el["link"]
-            raaDatePublication = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
-            raaDepartementLabel = el["department"]
-
-            departementNumber = int(departementsLabelToCode[raaDepartementLabel])
-            departement = repository.getDepartmentById(departementNumber)
-
-            # Creates a RAA object containing information retrieved by the crawler
-            raa = ProcessingRAA(
-                department=departement,
-                publicationDate = raaDatePublication,
-                link=raaUrl,
-                number="Non déterminé", # It's going to be in the characteristic extraction section
-            )
-
             #rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
             #raaSavePath = os.path.join(rootDir, "src", "furet", "processing", "input_RAA",f"{os.path.basename(raaUrl)}")
+            raaUrl = el["link"]
             raaSavePath = os.path.join(self.pdfDirectory_path,f"{os.path.basename(raaUrl)}")
             self.downloadPDF(raaUrl, raaSavePath)
-            self.processingRAA(raaSavePath, raa)
+            raa, decrees = self.processingRAA(raaSavePath)
+            if raa.id != 0:
+                continue
+            
+            raa.url = raaUrl
+            raa.publicationDate = datetime.datetime.strptime(el["datePublication"], "%d/%m/%Y")
+            raaDepartementLabel = el["department"]
+            departementNumber = int(departementsLabelToCode[raaDepartementLabel])
+            raa.department = repository.getDepartmentById(departementNumber)
 
-    def processingRAA(self, inputPath, raa = None):
+            repository.addRaa(raa)
+            repository.addDecree(decrees)
+
+    def processingRAA(self, inputPath, reportProgress: Callable[[int, int, str], Any] | None = None) -> tuple[RAA, list[Decree]]:
         """ 
         Input : PDF corresponding to an RAA (RAA which was just downloaded from the links obtained by the crawler)
 
@@ -114,64 +114,74 @@ class Processing:
         Ouput → a csv file for each decree -> "database/prefectures/{code_department}/{code_department}_{month}.csv"
         """
 
-        ## We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
+        TOTAL_STEPS = 6
+        if reportProgress is not None: reportProgress(1, TOTAL_STEPS, "Initialisation")
+        with open(inputPath, "rb") as file:
+            digest = hashlib.file_digest(file, "sha256")
+        fileHash = digest.hexdigest()
+        raa = repository.getRaaByHash(fileHash)
+        if raa is not None:
+            print("Skipping file")
+            if reportProgress is not None: reportProgress(TOTAL_STEPS, TOTAL_STEPS, "Déja importé")
+            return raa ,[]
+        raa = RAA(0, fileHash)
+
+        # We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
+        print("Start magick execution")
+        if reportProgress is not None: reportProgress(2, TOTAL_STEPS, "Minification...")
         directoryApresMagick = os.path.join(self.outputProcessingSteps_path, "after_magick")
         os.makedirs(directoryApresMagick, exist_ok=True)
         pathApresMagick = os.path.join(directoryApresMagick, os.path.basename(inputPath))
 
         commande = [
-        "magick",
-        "-density", "300",
-        f"{inputPath}",
-        "-resize", "100%",
-        "-quality", "85",
-        pathApresMagick
+            "magick",
+            "-density", "300",
+            f"{inputPath}",
+            "-resize", "100%",
+            "-quality", "85",
+            pathApresMagick
         ]
 
-        print("Start magick execution")
         subprocess.run(commande, check=True)
         print("End magick execution")
-
         print("--------------------------------")
-
+        print("Start ocr execution")
+        if reportProgress is not None: reportProgress(3, TOTAL_STEPS, "OCR...")
         directoryApresOcr = os.path.join(self.outputProcessingSteps_path, "after_ocr")
         print(directoryApresOcr)
         os.makedirs(directoryApresOcr, exist_ok=True)
         pathApresOcr = os.path.join(directoryApresOcr, os.path.basename(inputPath))
 
-        print("Start ocr execution")
         mainOcr(pathApresMagick,pathApresOcr)
         print("End ocr execution")
-        
         print("--------------------------------")
 
+        print("Start separation execution")
+        if reportProgress is not None: reportProgress(4, TOTAL_STEPS, "Séparation...")
         basenameRAA = os.path.basename(inputPath).replace(".pdf","").replace(" ","")
 
         directoryApresSeparation = os.path.join(self.outputProcessingSteps_path, "after_separation", basenameRAA)
         os.makedirs(directoryApresSeparation, exist_ok=True)
         pathApresSeparation = os.path.join(directoryApresSeparation, os.path.basename(inputPath))
 
-        print("Start separation execution")
-        listeCheminObjetDecree = mainSeparation(pathApresOcr, directoryApresSeparation, raa)    
+        pdfDecrees = mainSeparation(pathApresOcr, directoryApresSeparation, raa)
+        raa.decreeCount = len(pdfDecrees)
         print("End separation execution")
-
         print("--------------------------------")
 
+        print("Start execution of attribution keywords")
+        if reportProgress is not None: reportProgress(5, TOTAL_STEPS, "Séparation...")
         directoryApresMotClef = os.path.join(self.outputProcessingSteps_path, "after_mot_cle", basenameRAA)
         os.makedirs(directoryApresMotClef, exist_ok=True)
 
-        print("Start execution of attribution keywords")
         
         decrees = []
-        for i in range (len(listeCheminObjetDecree)):
-
-            objectDecree = listeCheminObjetDecree[i][0]
-            pathArrete = listeCheminObjetDecree[i][1]
+        for pathDecree, objectDecree in pdfDecrees:
 
             dic = self.getDictLabelToId() ; listeKeyWords = list(dic.keys())
 
-            pathApresMotClef = os.path.join(directoryApresMotClef, f"{os.path.basename(pathArrete).replace('.pdf','')}.txt")
-            dicKeyWords = getKeyWords(pathArrete, pathApresMotClef.replace(".txt",""), listeKeyWords) 
+            pathApresMotClef = os.path.join(directoryApresMotClef, f"{os.path.basename(pathDecree).replace('.pdf','')}.txt")
+            dicKeyWords = getKeyWords(pathDecree, pathApresMotClef.replace(".txt",""), listeKeyWords) 
             
             # We create a list containing a list of DecreeTopics (KeyWords) that match the decree
             listeDecreeTopic = []
@@ -190,7 +200,7 @@ class Processing:
             if(not boolIsArreteProbablyFalsePositive and listeDecreeTopic!=[]):
                 
                 # Retrieving data that can be extracted from the decree, if the extraction did not work then we will leave the default value : Title, Decree Number, Document Type (In reality there are 99% decrees but there are also other types)
-                characteristics = extractDocumentCharacterisics(pathArrete)
+                characteristics = extractDocumentCharacterisics(pathDecree)
                 if characteristics is not None:
                     objectDecree.title = characteristics["Title"]
                     objectDecree.number = characteristics["Number"]
@@ -202,8 +212,10 @@ class Processing:
                 
                 decrees.append(objectDecree)
                 
-        repository.addDecrees(decrees)
         print("End execution of attribution keywords")
+
+        if reportProgress is not None: reportProgress(TOTAL_STEPS, TOTAL_STEPS, "Fini !")
+        return raa, decrees
 
     def getDictLabelToId(self):
             """

@@ -1,5 +1,6 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 
+
 class ElidedLabel(QtWidgets.QLabel):
     _text: str = ""
     _elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight
@@ -16,7 +17,7 @@ class ElidedLabel(QtWidgets.QLabel):
 
     def text(self, /):
         return self._text
-
+    
     def displayedText(self, /):
         return super().text()
 
@@ -32,7 +33,7 @@ class ElidedLabel(QtWidgets.QLabel):
 
     def updateDisplayedText(self):
         fm = QtGui.QFontMetrics(self.fontMetrics())
-        elidedText = fm.elidedText(self.text(), self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
+        elidedText = fm.elidedText(self._text, self._elideMode, self.width(), QtCore.Qt.TextFlag.TextShowMnemonic)
         if (len(self._text) > 0):
             showFirstCharacter = self._text[0] + "..."
             self.setMinimumWidth(fm.horizontalAdvance(showFirstCharacter) + 1)
@@ -42,32 +43,43 @@ class ElidedLabel(QtWidgets.QLabel):
 class ElidedUri(ElidedLabel):
 
     def __init__(self, uri: str, /, parent: QtWidgets.QWidget | None = None, text: str | None = None, elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight):
-        super().__init__(text or uri, parent, elideMode)
         self._hasText = text is not None
         self._uri = uri
+        super().__init__(text or uri, parent, elideMode)
         self.setOpenExternalLinks(True)
-
 
     def setUri(self, uri: str):
         self._uri = uri
         self.setToolTip(uri)
         self.updateDisplayedText()
 
-
     def uri(self, /) -> str:
         return self._uri
-    
 
     def setText(self, text: str | None):
         self._hasText = text is not None
-        if text is not None: super().setText(text)
-        else: super().setText(self._uri)
+        if text is not None:
+            super().setText(text)
+        else:
+            super().setText(self._uri)
 
-
-    def text(self, /) -> str | None: # type: ignore
+    def text(self, /) -> str | None:  # type: ignore
         return super().text() if self._hasText else None
-
 
     def updateDisplayedText(self):
         super().updateDisplayedText()
-        QtWidgets.QLabel.setText(self, f'<a href="{self._uri}">{self.displayedText()}</a>')
+        QtWidgets.QLabel.setText(
+            self, f'<a href="{self._uri}">{self.displayedText()}</a>')
+
+
+class ElidedPath(ElidedUri):
+
+    def __init__(self, path: str, /, parent: QtWidgets.QWidget | None = None, elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideMiddle):
+        super().__init__(self.toUri(path), parent, path, elideMode)
+
+    def setUri(self, uri: str):
+        super().setUri(self.toUri(uri))
+        super().setText(uri)
+
+    def toUri(self, path: str) -> str:
+        return f"file:/{path.removeprefix("/")}"

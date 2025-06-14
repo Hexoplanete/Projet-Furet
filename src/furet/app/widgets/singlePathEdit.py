@@ -1,4 +1,3 @@
-import os
 from PySide6 import QtWidgets, QtCore
 
 from furet.app.widgets.elidedLabel import ElidedUri
@@ -13,7 +12,7 @@ class SinglePathEdit(QtWidgets.QWidget):
         self._layout.setContentsMargins(0,0,0,0)
 
         self._folder = folder
-        self._uri = ElidedUri(path or "", elideMode=QtCore.Qt.TextElideMode.ElideMiddle)
+        self._uri = ElidedUri(f"file:/{path.removeprefix('/')}" if path is not None else "", text=path if path is not None else None, elideMode=QtCore.Qt.TextElideMode.ElideMiddle)
         self._layout.addWidget(self._uri, stretch=1)
 
         self._selectButton = QtWidgets.QPushButton("Parcourir")
@@ -33,7 +32,8 @@ class SinglePathEdit(QtWidgets.QWidget):
                     self.setPath(filePath)
 
     def setPath(self, path: str):
-        self._uri.setUri(path)
+        self._uri.setUri(f"file:/{path.removeprefix('/')}")
+        self._uri.setText(path)
         self.pathChanged.emit(path)
     
     def path(self) -> str:

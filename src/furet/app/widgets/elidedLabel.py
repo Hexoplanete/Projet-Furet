@@ -17,6 +17,9 @@ class ElidedLabel(QtWidgets.QLabel):
     def text(self, /):
         return self._text
 
+    def displayedText(self, /):
+        return super().text()
+
     def setElideMode(self, elidedMode: QtCore.Qt.TextElideMode):
         self._elideMode = elidedMode
 
@@ -39,9 +42,9 @@ class ElidedLabel(QtWidgets.QLabel):
 class ElidedUri(ElidedLabel):
 
     def __init__(self, uri: str, /, parent: QtWidgets.QWidget | None = None, text: str | None = None, elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideRight):
+        super().__init__(text or uri, parent, elideMode)
         self._hasText = text is not None
         self._uri = uri
-        super().__init__(text or uri, parent, elideMode)
         self.setOpenExternalLinks(True)
 
 
@@ -57,14 +60,14 @@ class ElidedUri(ElidedLabel):
 
     def setText(self, text: str | None):
         self._hasText = text is not None
-        if text: super().setText(text)
+        if text is not None: super().setText(text)
         else: super().setText(self._uri)
 
 
     def text(self, /) -> str | None: # type: ignore
-        return super().text() if self._hasText else self._uri
+        return super().text() if self._hasText else None
 
 
     def updateDisplayedText(self):
         super().updateDisplayedText()
-        QtWidgets.QLabel.setText(self, f'<a href="file:/{self._uri.removeprefix('/')}">{QtWidgets.QLabel.text(self)}</a>')
+        QtWidgets.QLabel.setText(self, f'<a href="{self._uri}">{self.displayedText()}</a>')

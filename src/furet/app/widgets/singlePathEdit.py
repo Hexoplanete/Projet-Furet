@@ -32,8 +32,8 @@ class SinglePathEdit(QtWidgets.QWidget):
                     self.setPath(filePath)
 
     def setPath(self, path: str):
-        self._uri.setUri(path)
+        self._uri.setPath(path)
         self.pathChanged.emit(path)
     
     def path(self) -> str:
-        return self._uri.uri()
+        return self._uri.path()

@@ -2,6 +2,7 @@ from PySide6 import QtCore, QtWidgets
 
 from furet import processing, repository
 from furet.app.widgets.elidedLabel import ElidedPath
+from furet.app.widgets.fileDialog import FileDialog
 from furet.app.widgets.formWidget import FormWidget
 from furet.app.widgets.optionalDateEdit import OptionalDateEdit
 from furet.app.widgets.singleComboBox import SingleComboBox
@@ -64,7 +65,7 @@ class RaaEdit(FormWidget[RAA]):
         )
 
     def selectRaaPdf(self):
-        path = QtWidgets.QFileDialog.getOpenFileName(self, "Ajouter des recueils", QtCore.QDir.homePath(), "Documents (*.pdf)")[0]
+        path = FileDialog.getOpenFileName(self, "Ajouter des recueils", "raa", QtCore.QDir.homePath(), "Documents (*.pdf)")[0]
         if processing.setRaaPdf(self._id, path):
             self._layout.setRowVisible(self._file, True)
             self._layout.setRowVisible(self._fileSelect, False)

@@ -1,13 +1,17 @@
+import os
+from typing import Any
 from PySide6 import QtWidgets, QtCore
 
 from furet.app.widgets.elidedLabel import ElidedPath
+from furet.app.widgets.fileDialog import FileDialog
 
 class SinglePathEdit(QtWidgets.QWidget):
 
     pathChanged = QtCore.Signal(str)
 
-    def __init__(self, path: str | None = None, /, parent: QtWidgets.QWidget | None = None, folder: bool = False):
+    def __init__(self, path: str | None = None, /, parent: QtWidgets.QWidget | None = None, id: str | Any | None = None, folder: bool = False):
         super().__init__(parent)
+        self._id = id
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(0,0,0,0)
 
@@ -21,13 +25,12 @@ class SinglePathEdit(QtWidgets.QWidget):
         self._layout.addWidget(self._selectButton)
 
     def queryPath(self):
-        dialog = QtWidgets.QFileDialog()
         if self._folder:
-            filePath = dialog.getExistingDirectory(self)
+            filePath = FileDialog.getExistingDirectory(self, dir=os.path.dirname(self._uri.path()), id=self._id)
             if filePath:
                 self.setPath(filePath)
         else:
-            filePath = dialog.getOpenFileName(self)[0]
+            filePath = FileDialog.getOpenFileName(self, dir=os.path.dirname(self._uri.path()), id=self._id)[0]
             if filePath:
                     self.setPath(filePath)
 

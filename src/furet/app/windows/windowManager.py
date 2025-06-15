@@ -1,5 +1,5 @@
 from typing import Any, Iterable, TypeVar
-from PySide6 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui
 
 from furet import settings
 
@@ -11,22 +11,22 @@ T = TypeVar('T', bound=QtWidgets.QWidget)
 
 def showWindow(cls: type[T], id: str | Any | None = None, /, *, args: Iterable[Any] = (), kwargs: dict[str, Any] = {}, maximized=False) -> tuple[T, bool]:
     definition = f"{cls.__name__}-{id}" if id else cls.__name__
-    sKey = f"windows.{definition}"
-    settings.setDefaultValue(sKey, QtCore.QRect())
+    key = f"windows.{definition}"
     if definition in _windows and _windows[definition].isVisible():
         _windows[definition].activateWindow()
         return _windows[definition], False  # type: ignore
 
     _windows[definition] = window = cls(*args, **kwargs)
+    settings.setDefaultValue(key, window.geometry())
+    window.setGeometry(settings.value(key))
 
     oldCloseEvent = window.closeEvent
-
     def onWindowClose(event: QtGui.QCloseEvent, /):
         oldCloseEvent(event)
-        settings.setValue(sKey, window.geometry())
+        settings.setValue(key, window.geometry())
         del _windows[definition]
     window.closeEvent = onWindowClose
-    window.setGeometry(settings.value(sKey))
+
     if maximized:
         window.showMaximized()
     else:

@@ -6,6 +6,7 @@ from PySide6 import QtCore, QtWidgets
 
 from furet import repository
 from furet.app.widgets.elidedLabel import ElidedPath
+from furet.app.widgets.fileDialog import FileDialog
 from furet.app.windows import windowManager
 from furet.app.windows.raaDetailsWindow import RaaDetailsWindow
 from furet.processing.processing import Processing
@@ -61,7 +62,7 @@ class ImportListWidget(QtWidgets.QWidget):
         self._pendingImports: list[str] = []
 
         def onPendingAddClicked():
-            files, _ = QtWidgets.QFileDialog.getOpenFileNames(self, "Ajouter des recueils", QtCore.QDir.homePath(), "Documents (*.pdf)")
+            files, _ = FileDialog.getOpenFileNames(self, "Ajouter des recueils", "raa", QtCore.QDir.homePath(), "Documents (*.pdf)")
             for f in files:
                 self.addImport(f)
         

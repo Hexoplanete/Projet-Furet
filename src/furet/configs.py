@@ -27,3 +27,8 @@ class ProcessingConfig:
 class WindowsConfig:
     ...
     # ["<name>-<id>"]: QtCore.QRect
+
+@dataclass
+class FileDialogsConfig:
+    ...
+    # [<id>"]: str

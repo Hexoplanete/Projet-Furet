@@ -1,7 +1,7 @@
-import hashlib
 import shutil
 from typing import Any, Callable
 from furet.configs import ProcessingConfig
+from furet.processing import utils
 from furet.processing.getKeyWords import getKeyWords
 from furet.processing.correspondenceNameNumberDepartment import departementsLabelToCode
 from furet.processing.ocr import mainOcr
@@ -115,10 +115,8 @@ class Processing:
         stepDirectory = os.path.join(config.pdfDir, ".steps")
 
         TOTAL_STEPS = 4+1
-        if reportProgress is not None: reportProgress(0, TOTAL_STEPS, "Initialisation")
-        with open(inputPath, "rb") as file:
-            digest = hashlib.file_digest(file, "sha256")
-        fileHash = digest.hexdigest()
+        if reportProgress is not None: reportProgress(0, 0, "Initialisation")
+        fileHash = utils.getFileHash(inputPath)
         raa = repository.getRaaByHash(fileHash)
         if raa is not None:
             print("Skipping file")
@@ -209,7 +207,7 @@ class Processing:
                 decrees.append(objectDecree)
                 
         print("End execution of attribution keywords")
-
+        os.makedirs(config.pdfDir, exist_ok=True)
         shutil.copy(pathApresOcr, os.path.join(config.pdfDir))
         if not config.debug:
             os.remove(pathApresMagick)

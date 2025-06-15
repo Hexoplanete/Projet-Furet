@@ -99,11 +99,6 @@ class ImportListWidget(QtWidgets.QWidget):
         self._inProgressImports: list[str] = []
         self._inProgressStates: list[InProgressImport] = []
 
-        # TODO rework
-        paramPdfStorageDirectory_path = os.path.join(os.getcwd(), "database", "pdfDirectory") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
-        paramOutputProcessingSteps_path = os.path.join(os.getcwd(), "database", "debug", "processingSteps") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
-        os.makedirs(paramPdfStorageDirectory_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 
-        os.makedirs(paramOutputProcessingSteps_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 
         self._processing = Processing()
 
         self._startedLabel = QtWidgets.QLabel()

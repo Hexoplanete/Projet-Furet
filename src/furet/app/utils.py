@@ -6,10 +6,13 @@ from furet.models.campaign import Campaign, Topic
 from furet.models.decree import Decree
 from furet.models.raa import Department
 
+
 T = TypeVar('T')
+
 
 def formatDate(value: date):
     return value.strftime("%d %B %Y")
+
 
 class DecreeColumn(Generic[T], ObjectTableColumn[Decree, T]):
     def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):

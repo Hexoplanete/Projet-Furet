@@ -63,6 +63,7 @@ class MultiComboBox(QtWidgets.QComboBox, Generic[T]):
     def setItem(self, index: int, item: T):
         self.setItemText(index, self._label(item))
         self.setItemData(index, item)
+        self.updateText()
 
     def item(self, index: int) -> T:
         return self.itemData(index)

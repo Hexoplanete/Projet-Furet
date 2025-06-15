@@ -30,7 +30,6 @@ class SettingsWindow(QtWidgets.QDialog):
         self._buttons.accepted.connect(self.accept)
         self._buttons.rejected.connect(self.reject)
         self._layout.addWidget(self._buttons)
-        self._layout.addStretch()
 
     def accept(self) -> None:
         settings.setConfig(self._app.value())

@@ -5,6 +5,7 @@ import time
 from PySide6 import QtCore, QtWidgets
 
 from furet import repository
+from furet.app.widgets.elidedLabel import ElidedPath
 from furet.app.windows import windowManager
 from furet.app.windows.raaDetailsWindow import RaaDetailsWindow
 from furet.processing.processing import Processing
@@ -39,23 +40,6 @@ class StartClearButtonsWidget(QtWidgets.QWidget):
         self._clearButton.setContentsMargins(0, 0, 0, 0)
         self._clearButton.clicked.connect(lambda: self.cleared.emit())
         self._layout.addWidget(self._clearButton)
-
-class FileLinkWidget(QtWidgets.QWidget):
-    def __init__(self, path: str, parent: QtWidgets.QWidget | None = None):
-        super().__init__(parent)
-        self._layout = QtWidgets.QVBoxLayout(self)
-        self._layout.setContentsMargins(0,0,0,0)
-        self._label = QtWidgets.QLabel()
-        self._label.setOpenExternalLinks(True)
-        self._layout.addWidget(self._label)
-        self.setPath(path)
-
-    def setPath(self, path: str):
-        self._path = path
-        self._label.setText(f'<a href="file:/{path.removeprefix('/')}">{os.path.basename(path)}</>')
-
-    def path(self):
-        return self._path
 
 class ImportListWidget(QtWidgets.QWidget):
     
@@ -105,7 +89,7 @@ class ImportListWidget(QtWidgets.QWidget):
         self._pendingControls.cleared.connect(onPendingClearClicked)
         self._pendingStatusLayout.addWidget(self._pendingControls)
 
-        self._pendingImportsLayout = QtWidgets.QFormLayout()
+        self._pendingImportsLayout = QtWidgets.QVBoxLayout()
         self._pendingImportsLayout.setSpacing(0)
         self._layout.addLayout(self._pendingImportsLayout)
 
@@ -115,17 +99,12 @@ class ImportListWidget(QtWidgets.QWidget):
         self._inProgressImports: list[str] = []
         self._inProgressStates: list[InProgressImport] = []
 
-        # TODO rework
-        paramPdfStorageDirectory_path = os.path.join(os.getcwd(), "database", "pdfDirectory") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
-        paramOutputProcessingSteps_path = os.path.join(os.getcwd(), "database", "debug", "processingSteps") # A recupérer dans le frontend ? Donc pas ici mais dans "importFileWindow.py"
-        os.makedirs(paramPdfStorageDirectory_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 
-        os.makedirs(paramOutputProcessingSteps_path, exist_ok=True) # Si on récupère ça du front alors logiquement, le dossier doit déjà existé 
-        self._processing = Processing(pdfDirectory_path=paramPdfStorageDirectory_path, outputProcessingSteps_path=paramOutputProcessingSteps_path)
+        self._processing = Processing()
 
         self._startedLabel = QtWidgets.QLabel()
         self._layout.addWidget(self._startedLabel)
 
-        self._inProgressImportsLayout = QtWidgets.QFormLayout()
+        self._inProgressImportsLayout = QtWidgets.QVBoxLayout()
         self._inProgressImportsLayout.setSpacing(0)
         self._layout.addLayout(self._inProgressImportsLayout)
 
@@ -137,7 +116,7 @@ class ImportListWidget(QtWidgets.QWidget):
         self._finishedLabel = QtWidgets.QLabel()
         self._layout.addWidget(self._finishedLabel)
 
-        self._finishedImportsLayout = QtWidgets.QFormLayout()
+        self._finishedImportsLayout = QtWidgets.QVBoxLayout()
         self._finishedImportsLayout.setSpacing(0)
         self._layout.addLayout(self._finishedImportsLayout)
 
@@ -180,37 +159,40 @@ class ImportListWidget(QtWidgets.QWidget):
         path = os.path.realpath(path)
         if path in self._pendingImports or path in self._inProgressImports or path in self._finishedImports: return
         self._pendingImports.append(path)
-        fileLink = FileLinkWidget(path)
-        layout = QtWidgets.QHBoxLayout()
+        widget = QtWidgets.QWidget()
+        layout = QtWidgets.QHBoxLayout(widget)
         layout.setContentsMargins(0,0,0,0)
-        layout.addStretch(1)
+        fileLink = ElidedPath(path)
+        layout.addWidget(fileLink, stretch=1)
         pending = StartClearButtonsWidget()
         pending.started.connect(lambda: self.startImport(path))
         pending.cleared.connect(lambda: self.clearImport(path))
         layout.addWidget(pending)
-        self._pendingImportsLayout.addRow(fileLink, layout)
+        self._pendingImportsLayout.addWidget(widget)
         self.updatePendingStatus()
 
     def clearImport(self, path: str):
         index = self._pendingImports.index(path)
         if index == -1: return
         self._pendingImports.pop(index)
-        self._pendingImportsLayout.removeRow(index)
+        self._pendingImportsLayout.takeAt(index).widget().hide()
         self.updatePendingStatus()
 
     def startImport(self, path: str):
         path = os.path.realpath(path)
         self.clearImport(path)
         if path in self._inProgressImports: return
-        fileLink = FileLinkWidget(path)
-        layout = QtWidgets.QHBoxLayout()
+        widget = QtWidgets.QWidget()
+        layout = QtWidgets.QHBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
+        fileLink = ElidedPath(path)
+        layout.addWidget(fileLink, stretch=3)
         progress = QtWidgets.QProgressBar(value=0, minimum=0, maximum=0)
         progress.setFormat("%v/%m")
         layout.addWidget(progress, stretch=3)
         status = QtWidgets.QLabel("Initialisation...")
         layout.addWidget(status, stretch=1)
-        self._inProgressImportsLayout.addRow(fileLink, layout)
+        self._inProgressImportsLayout.addWidget(widget)
 
         def processImport(path: str):
             raa, decrees = self._processing.processingRAA(path,reportProgress=lambda v, m, s: QtCore.QMetaObject.invokeMethod(
@@ -241,7 +223,7 @@ class ImportListWidget(QtWidgets.QWidget):
         index = self._inProgressImports.index(path)
         self._inProgressImports.pop(index)
         self._inProgressStates.pop(index)
-        self._inProgressImportsLayout.removeRow(index)
+        self._inProgressImportsLayout.takeAt(index).widget().hide()
         self.updateInProgressStatus()
 
         if path in self._finishedImports: return
@@ -254,13 +236,15 @@ class ImportListWidget(QtWidgets.QWidget):
    
 
         decrees = csvdb.deserialize(decreesStr, list[Decree])
-        fileLink = FileLinkWidget(path)
-        layout = QtWidgets.QHBoxLayout()
+        widget = QtWidgets.QWidget()
+        layout = QtWidgets.QHBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
+        fileLink = ElidedPath(path)
+        layout.addWidget(fileLink, stretch=1)
         button = QtWidgets.QPushButton()
         button.setText(f"{len(decrees)}/{raa.decreeCount} arrêté(s), {raa.missingValues() + sum(map(lambda d: d.missingValues(False), decrees))} champ(s) manquant(s)")
         button.clicked.connect(onOpenButtonClicked)
         layout.addWidget(button, stretch=1)
-        self._finishedImportsLayout.addRow(fileLink, layout)
+        self._finishedImportsLayout.addWidget(widget)
         self._finishedImports.append(path)
         self.updateFinishedStatus()

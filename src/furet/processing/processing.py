@@ -1,5 +1,7 @@
-import hashlib
+import shutil
 from typing import Any, Callable
+from furet.configs import ProcessingConfig
+from furet.processing import utils
 from furet.processing.getKeyWords import getKeyWords
 from furet.processing.correspondenceNameNumberDepartment import departementsLabelToCode
 from furet.processing.ocr import mainOcr
@@ -19,8 +21,14 @@ import datetime
 
 class Processing:
 
-    def __init__(self, pdfDirectory_path, outputProcessingSteps_path):
-        self.headers = {
+    def downloadPDF(self, url, outputPath):
+        """
+            Download a PDF file from the given URL and put it in the output directory.
+
+            :param url: URL of the PDF file.
+        """
+
+        headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
             "Accept-Language": "fr-FR,en;q=0.9",
@@ -29,21 +37,8 @@ class Processing:
             "Upgrade-Insecure-Requests": "1",
             "Cache-Control": "max-age=0"
         }
-
-        # Folder where the RAW PDFs of the downloaded RAA will be stored (those whose links are obtained with the craxwler which are therefore the PDFs directly available on the prefecture websites)
-        self.pdfDirectory_path = pdfDirectory_path
-        
-        # Output folder where there are the outputs of each of the stages of the processing part, 
-        self.outputProcessingSteps_path = outputProcessingSteps_path
-    
-    def downloadPDF(self, url, outputPath):
-        """
-            Download a PDF file from the given URL and put it in the output directory.
-
-            :param url: URL of the PDF file.
-        """
         try:
-            response = requests.get(url, stream=True, headers=self.headers)
+            response = requests.get(url, stream=True, headers=headers)
             response.raise_for_status()
             
             fileName = os.path.join(outputPath)
@@ -80,11 +75,13 @@ class Processing:
         # List of dictionaries representing RAAs (retrieved by the crawler)
         listeDictRAA = self.readLinkFile()
 
+        pdfDir = os.path.join(settings.config(ProcessingConfig).pdfDir, ".crawler")
+
         for el in listeDictRAA:
             #rootDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
             #raaSavePath = os.path.join(rootDir, "src", "furet", "processing", "input_RAA",f"{os.path.basename(raaUrl)}")
             raaUrl = el["link"]
-            raaSavePath = os.path.join(self.pdfDirectory_path,f"{os.path.basename(raaUrl)}")
+            raaSavePath = os.path.join(pdfDir, f"{os.path.basename(raaUrl)}")
             self.downloadPDF(raaUrl, raaSavePath)
             raa, decrees = self.processingRAA(raaSavePath)
             if raa.id != 0:
@@ -114,24 +111,25 @@ class Processing:
         Ouput → a csv file for each decree -> "database/prefectures/{code_department}/{code_department}_{month}.csv"
         """
 
-        TOTAL_STEPS = 6
-        if reportProgress is not None: reportProgress(1, TOTAL_STEPS, "Initialisation")
-        with open(inputPath, "rb") as file:
-            digest = hashlib.file_digest(file, "sha256")
-        fileHash = digest.hexdigest()
+        config = settings.config(ProcessingConfig)
+        stepDirectory = os.path.join(config.pdfDir, ".steps")
+
+        TOTAL_STEPS = 4+1
+        if reportProgress is not None: reportProgress(0, 0, "Initialisation")
+        fileHash = utils.getFileHash(inputPath)
         raa = repository.getRaaByHash(fileHash)
         if raa is not None:
             print("Skipping file")
             if reportProgress is not None: reportProgress(TOTAL_STEPS, TOTAL_STEPS, "Déja importé")
-            return raa ,[]
+            return raa, []
         raa = RAA(0, fileHash)
 
         # We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
         print("Start magick execution")
-        if reportProgress is not None: reportProgress(2, TOTAL_STEPS, "Minification...")
-        directoryApresMagick = os.path.join(self.outputProcessingSteps_path, "after_magick")
+        if reportProgress is not None: reportProgress(1, TOTAL_STEPS, "Minification...")
+        directoryApresMagick = os.path.join(stepDirectory, "1-magick")
         os.makedirs(directoryApresMagick, exist_ok=True)
-        pathApresMagick = os.path.join(directoryApresMagick, os.path.basename(inputPath))
+        pathApresMagick = os.path.join(directoryApresMagick, f"{fileHash}.pdf")
 
         commande = [
             "magick",
@@ -146,23 +144,19 @@ class Processing:
         print("End magick execution")
         print("--------------------------------")
         print("Start ocr execution")
-        if reportProgress is not None: reportProgress(3, TOTAL_STEPS, "OCR...")
-        directoryApresOcr = os.path.join(self.outputProcessingSteps_path, "after_ocr")
-        print(directoryApresOcr)
+        if reportProgress is not None: reportProgress(2, TOTAL_STEPS, "OCR...")
+        directoryApresOcr = os.path.join(stepDirectory, "2-ocr")
         os.makedirs(directoryApresOcr, exist_ok=True)
-        pathApresOcr = os.path.join(directoryApresOcr, os.path.basename(inputPath))
+        pathApresOcr = os.path.join(directoryApresOcr, f"{fileHash}.pdf")
 
         mainOcr(pathApresMagick,pathApresOcr)
         print("End ocr execution")
         print("--------------------------------")
 
         print("Start separation execution")
-        if reportProgress is not None: reportProgress(4, TOTAL_STEPS, "Séparation...")
-        basenameRAA = os.path.basename(inputPath).replace(".pdf","").replace(" ","")
-
-        directoryApresSeparation = os.path.join(self.outputProcessingSteps_path, "after_separation", basenameRAA)
+        if reportProgress is not None: reportProgress(3, TOTAL_STEPS, "Séparation...")
+        directoryApresSeparation = os.path.join(stepDirectory, "3-separation", fileHash)
         os.makedirs(directoryApresSeparation, exist_ok=True)
-        pathApresSeparation = os.path.join(directoryApresSeparation, os.path.basename(inputPath))
 
         pdfDecrees = mainSeparation(pathApresOcr, directoryApresSeparation, raa)
         raa.decreeCount = len(pdfDecrees)
@@ -170,8 +164,8 @@ class Processing:
         print("--------------------------------")
 
         print("Start execution of attribution keywords")
-        if reportProgress is not None: reportProgress(5, TOTAL_STEPS, "Séparation...")
-        directoryApresMotClef = os.path.join(self.outputProcessingSteps_path, "after_mot_cle", basenameRAA)
+        if reportProgress is not None: reportProgress(4, TOTAL_STEPS, "Séparation...")
+        directoryApresMotClef = os.path.join(stepDirectory, "4-keywords", fileHash)
         os.makedirs(directoryApresMotClef, exist_ok=True)
 
         
@@ -213,6 +207,13 @@ class Processing:
                 decrees.append(objectDecree)
                 
         print("End execution of attribution keywords")
+        os.makedirs(config.pdfDir, exist_ok=True)
+        shutil.copy(pathApresOcr, os.path.join(config.pdfDir))
+        if not config.debug:
+            os.remove(pathApresMagick)
+            os.remove(pathApresOcr)
+            shutil.rmtree(directoryApresSeparation)
+            shutil.rmtree(directoryApresMotClef)
 
         if reportProgress is not None: reportProgress(TOTAL_STEPS, TOTAL_STEPS, "Fini !")
         return raa, decrees

@@ -1,17 +1,16 @@
 from datetime import date
-import os
 from furet import settings
+from furet.configs import RepositoryConfig
 from furet.repository import csvdb
 from furet.models.raa import Department
 from furet.models.decree import DocumentType, Decree
 from furet.models.campaign import Campaign, Topic
 from furet.models.raa import RAA
-from PySide6 import QtCore
 from dataclasses import dataclass, field
 
 def setup():
-    settings.setDefaultValue("repository.csv-root", os.path.join(QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.StandardLocation.AppDataLocation), 'database'))
-    csvdb.connect(settings.value("repository.csv-root"))
+    settings.setDefaultConfig(RepositoryConfig)
+    csvdb.connect(settings.config(RepositoryConfig).csvRoot)
 
 
 # RAAS

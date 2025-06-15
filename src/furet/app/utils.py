@@ -1,11 +1,7 @@
 from datetime import date
 from PySide6 import QtWidgets, QtCore, QtGui
-
-from furet.app.widgets.objectTableWidget import ObjectTableColumn
-
 from typing import TypeVar, Generic
-
-from furet.app.widgets.sectionHeaderWidget import SectionHeaderWidget
+from furet.app.widgets.objectTableWidget import ObjectTableColumn
 from furet.models.campaign import Campaign, Topic
 from furet.models.decree import Decree
 from furet.models.raa import Department
@@ -14,22 +10,6 @@ T = TypeVar('T')
 
 def formatDate(value: date):
     return value.strftime("%d %B %Y")
-
-def addFormSection(layout: QtWidgets.QBoxLayout, label: str):
-    if layout.count() > 0:
-        layout.addSpacing(20)
-    sep = SectionHeaderWidget(label)
-    sep = layout.addWidget(sep)
-    decreeForm = QtWidgets.QFormLayout()
-    layout.addLayout(decreeForm)
-    return decreeForm
-
-def addFormRow(form: QtWidgets.QFormLayout, label: str, widget: QtWidgets.QWidget, tooltip = None):
-    labelWidget = QtWidgets.QLabel(f"{label} :")
-    if tooltip is not None:
-        labelWidget.setToolTip(tooltip)
-        widget.setToolTip(tooltip)
-    form.addRow(labelWidget, widget)
 
 class DecreeColumn(Generic[T], ObjectTableColumn[Decree, T]):
     def data(self, item: Decree, /, role: QtCore.Qt.ItemDataRole):

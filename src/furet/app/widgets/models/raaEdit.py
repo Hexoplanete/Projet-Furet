@@ -1,6 +1,7 @@
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 
-from furet import repository
+from furet import processing, repository
+from furet.app.widgets.elidedLabel import ElidedPath
 from furet.app.widgets.formWidget import FormWidget
 from furet.app.widgets.optionalDateEdit import OptionalDateEdit
 from furet.app.widgets.singleComboBox import SingleComboBox
@@ -29,6 +30,16 @@ class RaaEdit(FormWidget[RAA]):
         self._publicationDate.qdateChanged.connect(lambda v: self._expireDate.setQdate(RAA.getExpireDate(v)))
         self.addRow("Date d'expiration", self._expireDate)
 
+        path, fileExists = processing.getRaaPdf(self._id)
+        self._file = ElidedPath(path)
+        self._file.setText("Ouvrir")
+        self.addRow("Fichier", self._file)
+        self._layout.setRowVisible(self._file, fileExists)
+        self._fileSelect = QtWidgets.QPushButton("Sélectionner le fichier")
+        self._fileSelect.clicked.connect(self.selectRaaPdf)
+        self.addRow("Fichier", self._fileSelect)
+        self._layout.setRowVisible(self._fileSelect, not fileExists)
+
         self._url = UrlEdit(raa.url)
         self.addRow("Lien", self._url)
         self.installMissingBackground(self._url, "url", lambda v: len(v) == 0)
@@ -51,3 +62,11 @@ class RaaEdit(FormWidget[RAA]):
             publicationDate=self._publicationDate.qdate(),
             url=self._url.url()
         )
+
+    def selectRaaPdf(self):
+        path = QtWidgets.QFileDialog.getOpenFileName(self, "Ajouter des recueils", QtCore.QDir.homePath(), "Documents (*.pdf)")[0]
+        if processing.setRaaPdf(self._id, path):
+            self._layout.setRowVisible(self._file, True)
+            self._layout.setRowVisible(self._fileSelect, False)
+        else:
+            self._fileSelect.setText("Le ficher le correspond pas à l'arrêté")

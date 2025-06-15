@@ -75,11 +75,16 @@ class ElidedUri(ElidedLabel):
 class ElidedPath(ElidedUri):
 
     def __init__(self, path: str, /, parent: QtWidgets.QWidget | None = None, elideMode: QtCore.Qt.TextElideMode = QtCore.Qt.TextElideMode.ElideMiddle):
+        self._path = path
         super().__init__(self.toUri(path), parent, path, elideMode)
 
-    def setUri(self, uri: str):
-        super().setUri(self.toUri(uri))
-        super().setText(uri)
+    def setPath(self, path: str):
+        self._path = path
+        self.setUri(self.toUri(path))
+        self.setText(path)
+    
+    def path(self):
+        return self._path
 
     def toUri(self, path: str) -> str:
         return f"file:/{path.removeprefix("/")}"

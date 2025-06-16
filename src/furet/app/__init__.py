@@ -24,6 +24,6 @@ def main():
         elif "kvantum" in QtWidgets.QStyleFactory.keys():
             app.setStyle("kvantum")
 
-    app.setWindowIcon(QtGui.QIcon("asset/furet-logo.ico"))
+    app.setWindowIcon(QtGui.QIcon("assets/furet-logo.ico"))
     windowManager.showWindow(DecreeTableWindow, maximized=True)
     return app.exec()

@@ -3,6 +3,7 @@ from furet import repository
 from furet.app.utils import DECREE_COLUMNS
 from furet.app.widgets.objectTableWidget import ObjectTableWidget
 from furet.app.windows import windowManager
+from furet.app.windows.aboutWindow import AboutWindow
 from furet.app.windows.campaignsEditWindow import CampaignsEditWindow
 from furet.app.windows.raaImportWindow import RaaImportWindow
 from furet.models.decree import Decree
@@ -24,6 +25,8 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
         spacer = QtWidgets.QWidget()
         spacer.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
         self._toolbar.addWidget(spacer)
+        self._aboutAction = self._toolbar.addAction("À propos")
+        self._aboutAction.triggered.connect(self.showAboutWindow)
         self._docAction = self._toolbar.addAction("Documentation")
         self._docAction.triggered.connect(self.openDocumentation)
         self._settingsAction = self._toolbar.addAction("Paramètres")
@@ -62,6 +65,9 @@ class DecreeTableWindow(QtWidgets.QMainWindow):
 
     def openDocumentation(self):
         QtGui.QDesktopServices.openUrl("https://github.com/Hexoplanete/Projet-Furet/wiki")
+
+    def showAboutWindow(self):
+        window, _ = windowManager.showWindow(AboutWindow)
 
     def updateDecrees(self):
         self._decreeTable.setItems(repository.getDecrees(self._filters.filters()))

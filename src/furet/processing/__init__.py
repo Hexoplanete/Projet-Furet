@@ -1,11 +1,15 @@
+import logging
 import os
 import shutil
 from furet import repository, settings
 from furet.configs import ProcessingConfig
 from furet.processing import utils
 
+logger = logging.getLogger("processing")
 
 def setup():
+    logger.debug("Importing modules...")
+    import furet.processing.processing
     settings.setDefaultConfig(ProcessingConfig)
 
 

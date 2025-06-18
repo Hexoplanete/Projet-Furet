@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import importlib
+import logging
 import os
 import re
 import sys
@@ -7,6 +8,7 @@ import sys
 from furet.repository import csvdb
 from furet.repository.csvdb import TableObject
 
+logger = logging.getLogger("migrations")
 
 class Migration:
     def up(self): ...
@@ -23,9 +25,14 @@ class AppliedMigration(TableObject, name=".migration"):
         return self.migration
 
 
-def migrate():
-    appliedMigrations = set(map(lambda m: m.migration, csvdb.fetch(AppliedMigration)))
+def applyMigrations():
+    logger.debug("Fetching applied migrations...")
+    appliedMigrationsObj = csvdb.fetch(AppliedMigration)
+    logger.info(f"The last applied migration is {sorted(appliedMigrationsObj, key=lambda i: i.id)[-1]}")
+
+    appliedMigrations = set(map(lambda m: m.migration, appliedMigrationsObj))
     missingMigrations: list[str] = []
+    logger.debug("Iterating available migrations...")
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "migrations")
     for migration in  os.listdir(root):
         moduleName, ext = os.path.splitext(migration)
@@ -33,16 +40,16 @@ def migrate():
             missingMigrations.append(moduleName)
 
     if len(missingMigrations) == 0:
-        print("[INFO] Nothing to migrate")
+        logger.info("Nothing to migrate")
         return
     
-    print(f"[INFO] Applying {len(missingMigrations)} migrations...")
+    logger.info(f"Applying {len(missingMigrations)} migrations...")
 
     for i, migration in enumerate(missingMigrations):
-        print(f"[INFO] Running migration {migration} ({i+1}/{len(missingMigrations)}) ")
+        logger.info(f"{i+1}/{len(missingMigrations)}: {migration}... ")
         match = re.match(r'(\d{4}-\d{2}-\d{2})_(.+)', migration)
         if not match:
-            print(f"[ERROR] Migration name does not match the format 'YYYY-MM-DD_<name>.py'")
+            logger.error(f"Migration name does not match the format 'YYYY-MM-DD_<name>.py'")
             sys.exit(1)
         # date = datetime.datetime.strptime(match.group(1), "%Y-%m-%d").date()
         className = match.group(2)
@@ -52,4 +59,4 @@ def migrate():
         MigrationClass().up()
         csvdb.insert(AppliedMigration(0, migration=migration))
     
-    print(f"[INFO] Successfully applied {len(missingMigrations)} migrations")
+    logger.info(f"Successfully applied {len(missingMigrations)} migrations")

@@ -34,8 +34,8 @@ else
     echo "Running under Windows ($os)"
     git="git"
     python="python"
-    path=`realpath "$LOCALAPPDATA/Programs/Furet"`
-    entryPath=`realpath "$APPDATA/Microsoft/Windows/Start Menu/Programs/Furet/Furet.lnk"`
+    path="$(realpath "$LOCALAPPDATA")/Programs/Furet"
+    entryPath="$(realpath "$APPDATA")/Microsoft/Windows/Start Menu/Programs/Furet/Furet.lnk"
 fi
 
 
@@ -96,6 +96,11 @@ echo "Using install directory \"$path\""
 
 # Desktop entry
 addEntry=`readyn "Add a desktop entry"`
+if [[ $addEntry == 0 && -e $entryPath ]] then
+    echo "\"$path\" already exists. Remove it first to install furet on do not add a desktop entry"
+    echo "Exiting"
+    exit 1
+fi
 
 
 ################################################################################
@@ -136,6 +141,7 @@ if [[ $? != 0 ]] then
     exit 0
 fi
 
+cd "$path"
 echo "Setting up environment (\"./scripts/setup.bash\")..."
 bash ./scripts/setup.bash $python
 if [[ $? != 0 ]] then
@@ -144,9 +150,9 @@ if [[ $? != 0 ]] then
     exit 0
 fi
 
-if [[ $addEntry == 0]] then
+if [[ $addEntry == 0 ]] then
     echo "Adding desktop entry..."
-    if [[ $os == "GNU/Linux"]] then
+    if [[ $os == "GNU/Linux" ]] then
         echo "[Desktop Entry]
 Name=Furet
 Comment=Fouille Universelle de Recueils pour Entreposage et Traitement

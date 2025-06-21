@@ -71,7 +71,7 @@ def insert(objects: T | list[T]) -> None:
         saveToCsv(objects, path)
 
 
-def update(object: TableObject) -> None:
+def update(object: TableObject):
     table = type(object)
     path = getFilePath(object)
     objects = loadFromCsv(table, path)

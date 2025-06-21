@@ -34,7 +34,7 @@ class AboutWindow(QtWidgets.QDialog):
         self._copyrightLayout.addRow("Licence :", ElidedUri("https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt", text="CC0-1.0"))
         
         self._layout.addWidget(SectionHeaderWidget("Auteurs"))
-        self._authorsLabel = QtWidgets.QLabel("Crée par les membres le l'équipe <a href=\"https://github.com/Hexoplanete\">Hexoplanète</a> de l'INSA de Lyon : ")
+        self._authorsLabel = QtWidgets.QLabel("Crée l'équipe <a href=\"https://github.com/Hexoplanete\">Hexoplanète</a> de l'INSA de Lyon : ")
         self._authorsLabel.setWordWrap(True)
         self._authorsLabel.setOpenExternalLinks(True)
         self._layout.addWidget(self._authorsLabel)

@@ -1,3 +1,3 @@
-cd "%~dp0/.."
+cd "%~dp0\.."
 .venv\Scripts\activate.bat
 python -m furet

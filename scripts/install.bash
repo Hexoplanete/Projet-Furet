@@ -35,7 +35,7 @@ else
     git="git"
     python="python"
     path="$(realpath "$LOCALAPPDATA")/Programs/Furet"
-    entryPath="$(realpath "$APPDATA")/Microsoft/Windows/Start Menu/Programs/Furet/Furet.lnk"
+    entryPath="$(realpath "$APPDATA")/Microsoft/Windows/Start Menu/Programs/Furet.lnk"
 fi
 
 
@@ -87,7 +87,7 @@ echo "Using python $pythonVersion ($python)"
 # Installation path
 path=`readvalue "Installation directory" $path`
 path=`realpath $path`
-if [[ -d "$path" ]] then
+if [[ $? != 0 || -d "$path" ]] then
     echo "\"$path\" already exists. Remove it first to install furet"
     echo "Exiting"
     exit 1
@@ -164,11 +164,12 @@ StartupNotify=false
 Categories=Office;
 Keywords=furet;" > $entryPath
     else
-        powershell "\$TargetFile = \"$path/bin/furet.bat\"
-\$ShortcutFile = \"$entryPath\"
+        powershell "\$ShortcutFile = \"$entryPath\"
 \$WScriptShell = New-Object -ComObject WScript.Shell
 \$Shortcut = \$WScriptShell.CreateShortcut(\$ShortcutFile)
-\$Shortcut.TargetPath = \$TargetFile
+\$Shortcut.TargetPath = \"cmd\"
+\$Shortcut.Arguments = \"/c \"\"$(cygpath -w "$path/bin/furet.bat")\"\"\"
+\$shortcut.IconLocation = \"$(cygpath -w "$path/assets/furet-logo.ico")\"
 \$Shortcut.Save()"
     fi
 fi
@@ -179,5 +180,8 @@ fi
 ################################################################################
 echo -e "\nInstallation complete!"
 
-echo "You can now launch Furet with the following command: \"$path/bin/furet\""
+if [[ $os == "GNU/Linux" ]] then binPath="$path/bin/furet"
+else binPath=$(cygpath -w "$path/bin/furet.bat")
+fi
+echo "You can now launch Furet with the following command: \"$binPath\""
 if [[ $addEntry == 0 ]] then echo "or from your application launcher directly under the name \"Furet\""; fi

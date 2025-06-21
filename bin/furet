@@ -1,4 +1,4 @@
-#!/usr/bin/sh
-cd "$(dirname "$(realpath "$0")")"/..
+#!/usr/bin/bash
+cd "$(dirname "$(realpath "$0")")/.."
 source .venv/bin/activate
 python -m furet

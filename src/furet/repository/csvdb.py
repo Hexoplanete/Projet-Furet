@@ -1,10 +1,12 @@
 import csv
 from datetime import date, datetime
+import logging
 import os
 from types import NoneType, UnionType
 from typing import Any, Callable, TypeVar, get_args, get_origin
 import dataclasses
 
+logger = logging.getLogger("csvdb")
 
 @dataclasses.dataclass
 class TableDefinition:
@@ -40,11 +42,13 @@ def connect(path: str):
     global _path, _loadedFiles
     _path = path
     _loadedFiles = {}
+    logger.info(f"DB initialised on path \"{path}\"")
 
 
 def addTable(cls: type[T], table: TableDefinition) -> None:
     _tables[cls] = table
     setSerializer(cls, lambda v: str(getId(v, cls)), lambda s, t: fetchById(cls, int(s)))
+    logger.info(f"Added table {table}")
 
 
 def tables() -> list[str]:
@@ -59,63 +63,109 @@ def tableDefinition(cls: type[T] | T) -> TableDefinition:
 
 
 def insert(objects: T | list[T]) -> None:
+    logger.debug(f"Inserting {objects}...")
     objectsList: list[T] = objects if type(objects) is list else [objects] # type: ignore
     objectsPerFile: dict[str, list[T]] = {}
-    for object in objectsList:
+    for i, object in enumerate(objectsList):
+        logger.debug(f"{i+1}/{len(objectsList)}: Inserting {object}...")
         path = getFilePath(object)
         if path not in objectsPerFile:
             objectsPerFile[path] = loadFromCsv(type(object), path)
         assignId(object)
         objectsPerFile[path].append(object)
+        logger.debug(f"{i+1}/{len(objectsList)}: Inserted {object} into \"{path}\"")
+
+    logger.debug(f"Saving files {objectsPerFile.keys()}...")
     for path, objects in objectsPerFile.items():
         saveToCsv(objects, path)
+    logger.info(f"Inserted {objects}")
 
 
-def update(object: TableObject) -> None:
-    table = type(object)
-    path = getFilePath(object)
-    objects = loadFromCsv(table, path)
-    if object in objects:
-        objects[objects.index(object)] = object
-        saveToCsv(objects, path)
-        return
-    oldObject = fetchById(table, getId(object, table))
-    oldPath = getFilePath(oldObject)
-    oldObjects = loadFromCsv(table, oldPath)
-    oldObjects.remove(oldObject)
-    saveToCsv(oldObjects, oldPath)
-    objects.append(object)
-    saveToCsv(objects, path)
+def update(objects: T | list[T]) -> None:
+    logger.debug(f"Updating {objects}...")
+    objectsList: list[T] = objects if type(objects) is list else [objects] # type: ignore
+    objectsPerFile: dict[str, list[T]] = {}
+
+    for i, object in enumerate(objectsList):
+        logger.debug(f"{i+1}/{len(objectsList)}: Updating {object}...")
+        table = type(object)
+        oldObject = fetchById(table, getId(object, table))
+        if oldObject is None:
+            logger.debug(f"{i+1}/{len(objectsList)}: Skipping {object} as it is not in the DB")
+            continue
+        
+        newPath = getFilePath(object)
+        if newPath not in objectsPerFile:
+            objectsPerFile[newPath] = loadFromCsv(type(object), newPath)
+        
+        oldPath = getFilePath(oldObject)
+        if oldPath == newPath:
+            # objects is in the same file, simple replace the instance
+            objectsPerFile[newPath][objectsPerFile[newPath].index(object)] = object
+            logger.debug(f"{i+1}/{len(objectsList)}: Updated {object} from \"{newPath}\"")
+        else:
+            # otherwise, remove the old one and add the new one to the new file
+            if oldPath not in objectsPerFile:
+                objectsPerFile[oldPath] = loadFromCsv(type(object), oldPath)
+            objectsPerFile[oldPath].remove(oldObject)
+            objectsPerFile[newPath].append(object)
+            logger.debug(f"{i+1}/{len(objectsList)}: Updated {object} from \"{oldPath}\" to \"{newPath}\"")
+
+    logger.debug(f"Saving files {objectsPerFile.keys()}...")
+    for newPath, objects in objectsPerFile.items():
+        saveToCsv(objects, newPath)
+    logger.info(f"Updated {objects}")
 
 
 def fetch(table: type[T]) -> list[T]:
+    name = tableDefinition(table).name
+    logger.debug(f"Fetching table {name}...")
+    
     filePath = getTablePath(table)
-    if os.path.isfile(filePath):
-        return loadFromCsv(table, filePath)
     dirPath = os.path.splitext(filePath)[0]
-    if os.path.isdir(dirPath):
-        objects: list[T] = []
+    objects: list[T] = []
+    if os.path.isfile(filePath):
+        logger.debug(f"Fetching \"{filePath}\"...")
+        objects = loadFromCsv(table, filePath)
+    elif os.path.isdir(dirPath):
+        logger.debug(f"Fetching \"{filePath}/**.csv\"...")
         for root, dirs, files in os.walk(dirPath):
             for file in files:
                 if file.endswith(".csv"):
                     objects += loadFromCsv(table, os.path.join(root, file))
-        return objects
-    return []
+
+    logger.info(f"Fetched {len(objects)} objects from table {name}")
+    return objects
 
 
 def fetchById(table: type[T], id: int) -> T | None:
+    name = tableDefinition(table).name
+    logger.debug(f"Fetching id {id} from table {name}...")
     objects = fetch(table)
     for o in objects:
         if getId(o, table) == id:
+            logger.info(f"Found object {o} with id {id}")
             return o
+    logger.info(f"Found no object with id {id}")
     return None
 
 
-def delete(object: TableObject) -> None:
-    path = getFilePath(object)
-    objects = loadFromCsv(type(object), path)
-    objects.remove(object)
-    saveToCsv(objects, path)
+def delete(objects: T | list[T]) -> None:
+    logger.debug(f"Deleting {objects}...")
+    objectsList: list[T] = objects if type(objects) is list else [objects] # type: ignore
+    objectsPerFile: dict[str, list[T]] = {}
+    for i, object in enumerate(objectsList):
+        logger.debug(f"{i+1}/{len(objectsList)}: Deleting {object}...")
+        path = getFilePath(object)
+        if path not in objectsPerFile:
+            objectsPerFile[path] = loadFromCsv(type(object), path)
+        objectsPerFile[path].remove(object)
+        logger.debug(f"{i+1}/{len(objectsList)}: Deleted {object} from \"{path}\"")
+
+    logger.debug(f"Saving files {objectsPerFile.keys()}...")
+    for newPath, objects in objectsPerFile.items():
+        saveToCsv(objects, newPath)
+    logger.info(f"Deleted {objects}")
 
 
 def getFilePath(object: TableObject) -> str:
@@ -135,6 +185,7 @@ def getId(object: T, table: type[T] | None = None) -> int:
 
 def assignId(object: TableObject):
     path = getTablePath(TableIds)
+    logger.debug(f"Assigning new id to {object}...")
     ids = loadFromCsv(TableIds, path)
     config = tableDefinition(object)
     for line in ids:
@@ -144,8 +195,10 @@ def assignId(object: TableObject):
     else:
         ids.append(TableIds(config.name, newId := 1))
 
+    logger.debug(f"Saving ids...")
     saveToCsv(ids, path)
     setattr(object, config.id, newId)
+    logger.debug(f"Assigned id {newId} to {object}...")
 
 
 _TypeAnnotation = type[Any] | str | Any
@@ -157,6 +210,7 @@ TS = TypeVar("TS")
 def setSerializer(valueType: type[TS] | _TypeAnnotation, serializer: Callable[[TS], str], deserializer: Callable[[str, type[TS] | _TypeAnnotation], TS]):
     _serializers[valueType] = serializer
     _deserializers[valueType] = deserializer
+    logger.debug(f"Set serializer for type {valueType.__name__}")
 
 def serialize(value: Any) -> str:
     return _serializers.get(type(value), str)(value)
@@ -176,51 +230,72 @@ setSerializer(bool, lambda v: serialize(int(v)), lambda s, _: bool(deserialize(s
 
 CSV_SEP = ','
 def saveToCsv(objects: list[T], path: str) -> None:
+    logger.debug(f"Saving objects {len(objects)} to \"{path}\"...")
     try:
         if len(objects) == 0:
             os.remove(path)
+            logger.info(f"Removed \"{path}\"")
         else:
             os.makedirs(os.path.dirname(path), exist_ok=True)
+            saved = 0
+            logger.debug(f"Writing to \"{path}\"...")
             with open(path, 'w', encoding='utf-8', newline='') as file:
                 writer = csv.writer(file, delimiter=CSV_SEP)
                 header = list(tableDefinition(objects[0]).fields.keys())
                 writer.writerow(header)
-                for o in objects:
+                for i, object in enumerate(objects):
                     try:
-                        writer.writerow([serialize(getattr(o, f))
-                                        for f in header])
+                        logger.debug(f"{i+1}/{len(objects)}: Serializing {object}...")
+                        row = [serialize(getattr(object, f)) for f in header]
+                        writer.writerow(row)
+                        logger.debug(f"{i+1}/{len(objects)}: Wrote {row}")
+                        saved+=1
                     except Exception as e:
-                        print(f"[ERROR] Could not serialize object {o}: {e}")
-                        print(f"[INFO] Skipping object {o}")
+                        logger.error(f"{i+1}/{len(objects)}: Could not serialize object {object}: {e}")
+                        logger.debug(f"{i+1}/{len(objects)}: Skipping object {object}")
+            logger.info(f"Saved {saved} objects to \"{path}\"")
     except OSError as e:
-        print(f"[ERROR] Could not write the file {path}: {e}")
+        logger.error(f"Could not write {path}: {e}")
+        logger.info(f"Failed to save \"{path}\"")
         return
 
 
 def loadFromCsv(table: type[T], path: str) -> list[T]:
+    logger.debug(f"Loading objects from \"{path}\"...")
     if not os.path.isfile(path):
         return []
     try:
         mTime = datetime.fromtimestamp(os.path.getmtime(path))
         if path in _loadedFiles and _loadedFiles[path][0] == mTime:
+            logger.debug(f"File \"{path}\" was not modified since last load")
+            logger.debug(f"Using {len(_loadedFiles[path][1])} cached objects from \"{path}\"")
             return _loadedFiles[path][1]
 
         objects: list[T] = []
+        logger.debug(f"Reading from \"{path}\"...")
         with open(path, 'r', encoding='utf-8', newline='') as file:
             reader = csv.reader(file, delimiter=CSV_SEP)
             fields = tableDefinition(table).fields
             header = next(reader)
+
+            number = 1
             for row in reader:
                 try:
-                    objects.append(table(**{h: deserialize(c, fields[h]) for h, c in zip(header, row)}))
+                    logger.debug(f"{number}: Deserializing {row}...")
+                    object = table(**{h: deserialize(c, fields[h]) for h, c in zip(header, row)})
+                    objects.append(object)
+                    logger.debug(f"{number}: Read {object}...")
                 except Exception as e:
-                    print(f"[ERROR] Could not deserialize line {row}: {e}")
-                    print(f"[INFO] Skipping line {row}")
+                    logger.error(f"{number}: Could not deserialize line {row}: {e}")
+                    logger.debug(f"{number}: Skipping line {row}")
+                number+=1
 
         _loadedFiles[path] = (mTime, objects)
+        logger.info(f"Loaded {len(objects)} objects from \"{path}\"")
         return objects
     except OSError as e:
-        print(f"[ERROR] Could not read the file {path}: {e}")
+        print(f"[ERROR] Could not read {path}: {e}")
+        logger.info(f"Failed to loaded \"{path}\"")
         return []
 
 

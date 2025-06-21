@@ -26,7 +26,6 @@ class MultiComboBox(QtWidgets.QComboBox, Generic[T]):
             completer.setCompletionMode(QtWidgets.QCompleter.CompletionMode.PopupCompletion)
             completer.setCompletionRole(QtCore.Qt.ItemDataRole.DisplayRole)
 
-        self.view().pressed.connect(lambda i: print(i))
         self.activated.connect(self._activated)
 
         [self.addItem(i) for i in items]

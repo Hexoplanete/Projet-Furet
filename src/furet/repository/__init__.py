@@ -1,4 +1,5 @@
 from datetime import date
+import logging
 from furet import settings
 from furet.configs import RepositoryConfig
 from furet.repository import csvdb
@@ -8,7 +9,10 @@ from furet.models.campaign import Campaign, Topic
 from furet.models.raa import RAA
 from dataclasses import dataclass, field
 
+logger = logging.getLogger("repository")
+
 def setup():
+    logger.info("Connecting to DB...")
     settings.setDefaultConfig(RepositoryConfig)
     csvdb.connect(settings.config(RepositoryConfig).csvRoot)
 

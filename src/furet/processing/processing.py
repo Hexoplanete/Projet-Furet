@@ -1,3 +1,4 @@
+import logging
 import shutil
 from typing import Any, Callable
 from furet.configs import ProcessingConfig
@@ -19,6 +20,8 @@ import json
 import requests
 import datetime
 
+logger = logging.getLogger("processing")
+
 class Processing:
 
     def downloadPDF(self, url, outputPath):
@@ -28,6 +31,7 @@ class Processing:
             :param url: URL of the PDF file.
         """
 
+        logger.info(f"Downloading {url}...")
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
@@ -47,9 +51,9 @@ class Processing:
             with open(fileName, 'wb') as file:
                 for chunk in response.iter_content(chunk_size=1024):
                     file.write(chunk)
-            print(f"Downloaded: {fileName}")
+            logger.info(f"Downloaded: {fileName}")
         except requests.RequestException as e:
-            print(f"Failed to download {url}: {e}")
+            logger.info(f"Failed to download {url}: {e}")
 
     def readLinkFile(self):
         """
@@ -110,6 +114,7 @@ class Processing:
 
         Ouput → a csv file for each decree -> "database/prefectures/{code_department}/{code_department}_{month}.csv"
         """
+        logger.info(f"Processing {inputPath}...")
 
         config = settings.config(ProcessingConfig)
         stepDirectory = os.path.join(config.pdfDir, ".steps")
@@ -119,13 +124,13 @@ class Processing:
         fileHash = utils.getFileHash(inputPath)
         raa = repository.getRaaByHash(fileHash)
         if raa is not None:
-            print("Skipping file")
+            logger.info(f"{inputPath} was already imported")
             if reportProgress is not None: reportProgress(TOTAL_STEPS, TOTAL_STEPS, "Déja importé")
             return raa, []
         raa = RAA(0, fileHash)
 
         # We reduce the quality of the PDF to remove the error "BOMB DOS ATTACK SIZE LIMIT"
-        print("Start magick execution")
+        logger.info("Executing magick...")
         if reportProgress is not None: reportProgress(1, TOTAL_STEPS, "Minification...")
         directoryApresMagick = os.path.join(stepDirectory, "1-magick")
         os.makedirs(directoryApresMagick, exist_ok=True)
@@ -141,29 +146,26 @@ class Processing:
         ]
 
         subprocess.run(commande, check=True)
-        print("End magick execution")
-        print("--------------------------------")
-        print("Start ocr execution")
+        logger.debug("Finished magick execution")
+        logger.info("Executing ocr...")
         if reportProgress is not None: reportProgress(2, TOTAL_STEPS, "OCR...")
         directoryApresOcr = os.path.join(stepDirectory, "2-ocr")
         os.makedirs(directoryApresOcr, exist_ok=True)
         pathApresOcr = os.path.join(directoryApresOcr, f"{fileHash}.pdf")
 
         mainOcr(pathApresMagick,pathApresOcr)
-        print("End ocr execution")
-        print("--------------------------------")
+        logger.debug("Finished ocr execution")
 
-        print("Start separation execution")
+        logger.info("Executing separation...")
         if reportProgress is not None: reportProgress(3, TOTAL_STEPS, "Séparation...")
         directoryApresSeparation = os.path.join(stepDirectory, "3-separation", fileHash)
         os.makedirs(directoryApresSeparation, exist_ok=True)
 
         pdfDecrees = mainSeparation(pathApresOcr, directoryApresSeparation, raa)
         raa.decreeCount = len(pdfDecrees)
-        print("End separation execution")
-        print("--------------------------------")
+        logger.debug("Finished separation execution")
 
-        print("Start execution of attribution keywords")
+        logger.info("Executing keywords separation...")
         if reportProgress is not None: reportProgress(4, TOTAL_STEPS, "Séparation...")
         directoryApresMotClef = os.path.join(stepDirectory, "4-keywords", fileHash)
         os.makedirs(directoryApresMotClef, exist_ok=True)
@@ -206,7 +208,8 @@ class Processing:
                 
                 decrees.append(objectDecree)
                 
-        print("End execution of attribution keywords")
+        logger.debug("Finished attribution keywords")
+        logger.info("Cleaning up...")
         os.makedirs(config.pdfDir, exist_ok=True)
         shutil.copy(pathApresOcr, os.path.join(config.pdfDir))
         if not config.debug:
@@ -216,6 +219,7 @@ class Processing:
             shutil.rmtree(directoryApresMotClef)
 
         if reportProgress is not None: reportProgress(TOTAL_STEPS, TOTAL_STEPS, "Fini !")
+        logger.info(f"Successfully processed {inputPath}: {raa.decreeCount} decrees")
         return raa, decrees
 
     def getDictLabelToId(self):

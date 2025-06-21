@@ -22,6 +22,8 @@ class SettingsWindow(QtWidgets.QDialog):
         self._layout.addWidget(SectionHeaderWidget("Stockage"))
         self._repository = RepositoryConfigEdit(settings.config(RepositoryConfig))
         self._layout.addWidget(self._repository)
+
+        self._layout.addWidget(SectionHeaderWidget("Traitement"))
         self._processing = ProcessingConfigEdit(settings.config(ProcessingConfig))
         self._layout.addWidget(self._processing)
 

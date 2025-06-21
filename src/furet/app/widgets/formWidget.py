@@ -38,7 +38,7 @@ class FormWidget(QtWidgets.QWidget, Generic[T]):
         updateProp(field())
 
     def addRow(self, label: str, widget: QtWidgets.QWidget, tooltip=None):
-        self._layout.addRow(label, widget)
+        self._layout.addRow(label, widget, tooltip)
 
     # TODO implement
     def setValue(self, item: T): ...

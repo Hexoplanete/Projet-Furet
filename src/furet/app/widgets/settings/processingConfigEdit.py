@@ -10,7 +10,7 @@ class ProcessingConfigEdit(FormWidget[ProcessingConfig]):
         super().__init__(parent)
 
         self._pdfDir = SinglePathEdit(value.pdfDir, id="pdf-dir", folder=True)
-        self.addRow("Dossier de stockage des pdfs", self._pdfDir, "Le dossier où sont enregistrés les pdf des recueils")
+        self.addRow("Dossier de stockage des pdf", self._pdfDir, "Le dossier où sont enregistrés les pdf des recueils")
 
         self._debug = QtWidgets.QCheckBox()
         self._debug.setChecked(value.debug)

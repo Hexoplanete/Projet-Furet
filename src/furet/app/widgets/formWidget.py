@@ -40,6 +40,7 @@ class FormWidget(QtWidgets.QWidget, Generic[T]):
     def addRow(self, label: str, widget: QtWidgets.QWidget, tooltip=None):
         self._layout.addRow(label, widget)
 
+    # TODO implement
     def setValue(self, item: T): ...
     def value(self) -> T: ...
 

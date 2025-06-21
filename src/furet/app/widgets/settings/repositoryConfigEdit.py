@@ -12,10 +12,6 @@ class RepositoryConfigEdit(FormWidget[RepositoryConfig]):
         self._csvRoot = SinglePathEdit(value.csvRoot, id="csv-root", folder=True)
         self.addRow("Dossier de stockage des arrêtés", self._csvRoot,"Le dossier où sont enregistrées les données des arrêtés")
 
-    # # TODO reset form fields
-    # def setRaa(self, raa: RAA):
-    #     self._raa = raa
-
     def value(self) -> RepositoryConfig:
         return RepositoryConfig(
             csvRoot=self._csvRoot.path()

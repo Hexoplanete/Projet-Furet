@@ -24,10 +24,6 @@ class AspasInfoEdit(FormWidget[AspasInfo]):
         self._comment = QtWidgets.QTextEdit(plainText=info.comment)
         self.addRow("Commentaire", self._comment)
 
-    # # TODO reset form fields
-    # def setInfo(self, decree: DECREE):
-    #     self._decree = decree
-
     def value(self) -> AspasInfo:
         return AspasInfo(
             treated=self._treated.isChecked(),

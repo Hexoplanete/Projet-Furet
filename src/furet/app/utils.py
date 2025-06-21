@@ -38,7 +38,7 @@ DECREE_COLUMNS = [
     DecreeColumn[list[Campaign]]("Campagnes", lambda v: v.campaigns, lambda v: ", ".join(map(str, v)), lambda v: list(map(lambda i: i.label, v))),
     DecreeColumn[list[Topic]]("Sujets", lambda v: v.topics, lambda v: ", ".join(map(str, v)), lambda v: list(map(lambda i: i.label, v))),
     DecreeColumn[str]("Titre", lambda v: v.title, resizeMode=QtWidgets.QHeaderView.ResizeMode.Stretch),
-    DecreeColumn[int]("À compléter", lambda v: v.missingValues(), lambda v: f"{v} champs" if v else ""),  # TODO label not visible
+    DecreeColumn[int]("À compléter", lambda v: v.missingValues(), lambda v: f"{v} champs" if v else ""),
     DecreeStateColumn("État", lambda v: v.treated, lambda v: "Traité" if v else "À traiter"),
     DecreeColumn[str]("Commentaire", lambda v: v.comment, resizeMode=QtWidgets.QHeaderView.ResizeMode.ResizeToContents),
 ]

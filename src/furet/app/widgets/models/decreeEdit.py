@@ -43,10 +43,6 @@ class DecreeEdit(FormWidget[Decree]):
         pagesLayout.addStretch(1)
         self.addRow("Pages", pagesWidget)
 
-    # # TODO reset form fields
-    # def setValues(self, value: Decree):
-    #     self._decree = decree
-
     def value(self) -> Decree:
         return Decree(
             id=self._id,

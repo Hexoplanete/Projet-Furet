@@ -49,10 +49,6 @@ class RaaEdit(FormWidget[RAA]):
         self.addRow("Numéro RAA", self._number)
         self.installMissingBackground(self._number, "text", lambda v: len(v) == 0)
 
-    # # TODO reset form fields
-    # def setRaa(self, raa: RAA):
-    #     self._raa = raa
-
     def value(self) -> RAA:
         return RAA(
             id=self._id,

@@ -16,10 +16,6 @@ class ProcessingConfigEdit(FormWidget[ProcessingConfig]):
         self._debug.setChecked(value.debug)
         self.addRow("Conserver les fichiers intermédiaires", self._debug, "Conserver les fichiers intermédiaires générés par le traitement des recueils dans le sous dossier \".steps\"")
 
-    # # TODO reset form fields
-    # def setRaa(self, raa: RAA):
-    #     self._raa = raa
-
     def value(self) -> ProcessingConfig:
         return ProcessingConfig(
             pdfDir=self._pdfDir.path(),

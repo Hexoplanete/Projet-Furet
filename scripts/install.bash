@@ -29,13 +29,13 @@ if [[ "$os" == "GNU/Linux" ]] then
     git="git"
     python="python3"
     path="$HOME/.local/opt/furet"
-    desktopEntry="$HOME/.local/share/applications/furet.desktop"
+    entryPath="$HOME/.local/share/applications/furet.desktop"
 else
     echo "Running under Windows ($os)"
     git="git"
     python="python"
     path=`realpath "$LOCALAPPDATA/Programs/Furet"`
-    desktopEntry=`realpath "$APPDATA/Microsoft/Windows/Start Menu/Programs/Furet/Furet.lnk"`
+    entryPath=`realpath "$APPDATA/Microsoft/Windows/Start Menu/Programs/Furet/Furet.lnk"`
 fi
 
 
@@ -95,15 +95,15 @@ fi
 echo "Using install directory \"$path\""
 
 # Desktop entry
-entry=`readyn "Add a desktop entry"`
+addEntry=`readyn "Add a desktop entry"`
 
 
 ################################################################################
 # ---------------------------- VALIDATING CONFIG ----------------------------- #
 ################################################################################
 echo -e "\nFuret will be installed at \"$path\" with git $gitVersion ($git) and python $pythonVersion ($python)"
-if [[ $entry == 0 ]] then
-    echo "Desktop entry \"Furet\" will be added (\"$desktopEntry\")"
+if [[ $addEntry == 0 ]] then
+    echo "Desktop entry \"Furet\" will be added (\"$entryPath\")"
 else 
     echo "No desktop entry will be added"
 fi
@@ -144,7 +144,7 @@ if [[ $? != 0 ]] then
     exit 0
 fi
 
-if [[ $entry == 0]] then
+if [[ $addEntry == 0]] then
     echo "Adding desktop entry..."
     if [[ $os == "GNU/Linux"]] then
         echo "[Desktop Entry]
@@ -156,10 +156,10 @@ Icon=$path/assets/furet-logo.ico
 Type=Application
 StartupNotify=false
 Categories=Office;
-Keywords=furet;" > $desktopEntry
+Keywords=furet;" > $entryPath
     else
         powershell "\$TargetFile = \"$path/bin/furet.bat\"
-\$ShortcutFile = \"$desktopEntry\"
+\$ShortcutFile = \"$entryPath\"
 \$WScriptShell = New-Object -ComObject WScript.Shell
 \$Shortcut = \$WScriptShell.CreateShortcut(\$ShortcutFile)
 \$Shortcut.TargetPath = \$TargetFile
@@ -174,4 +174,4 @@ fi
 echo -e "\nInstallation complete!"
 
 echo "You can now launch Furet with the following command: \"$path/bin/furet\""
-if [[ $entry == 0 ]] then echo "or from your application launcher directly under the name \"Furet\""; fi
+if [[ $addEntry == 0 ]] then echo "or from your application launcher directly under the name \"Furet\""; fi

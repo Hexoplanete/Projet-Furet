@@ -81,7 +81,7 @@ def insert(objects: T | list[T]) -> None:
     logger.info(f"Inserted {objects}")
 
 
-def update(objects: T | list[T]) -> None:
+def update(objects: T | list[T]):
     logger.debug(f"Updating {objects}...")
     objectsList: list[T] = objects if type(objects) is list else [objects] # type: ignore
     objectsPerFile: dict[str, list[T]] = {}

@@ -29,13 +29,6 @@ class DecreeFilterWidget(QtWidgets.QWidget):
         self._topic = MultiComboBox(repository.getTopics(), [], placeholder="Tous les sujets")
         self._layout.addWidget(self._topic)
 
-        self._unselectTopic = QtWidgets.QPushButton('X')
-        self._unselectTopic.setFixedSize(20,20)
-        self._unselectTopic.setContentsMargins(0,0,0,0)
-        self._unselectTopic.setToolTip("Bouton qui désélectionne tous les sujets de la liste.")
-        self._unselectTopic.clicked.connect(self.onClickUnselectTopic)
-        self._layout.addWidget(self._unselectTopic, alignment=QtCore.Qt.AlignmentFlag.AlignLeft)
-
         self._name = QtWidgets.QLineEdit(placeholderText="Tous les titres")
         self._layout.addWidget(self._name)
 

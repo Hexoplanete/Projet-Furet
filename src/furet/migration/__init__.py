@@ -28,7 +28,8 @@ class AppliedMigration(TableObject, name=".migration"):
 def applyMigrations():
     logger.debug("Fetching applied migrations...")
     appliedMigrationsObj = csvdb.fetch(AppliedMigration)
-    logger.info(f"The last applied migration is {sorted(appliedMigrationsObj, key=lambda i: i.id)[-1]}")
+    if len(appliedMigrationsObj) > 0:
+        logger.info(f"The last applied migration is {sorted(appliedMigrationsObj, key=lambda i: i.id)[-1]}")
 
     appliedMigrations = set(map(lambda m: m.migration, appliedMigrationsObj))
     missingMigrations: list[str] = []

@@ -90,6 +90,10 @@ class LauncherWindow(QtWidgets.QMainWindow):
 
     def updateModule(self):
         currentVersion = updater.currentVersion()
+        if currentVersion == None:
+            logger.info(f"Not on any tag")
+            return
+
         logger.info(f"Currently on {currentVersion}")
         logger.debug(f"Checking for updates...")
         latestVersion = updater.latestVersion()

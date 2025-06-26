@@ -1,7 +1,7 @@
 from datetime import date
 import logging
 from furet import settings
-from furet.configs import RepositoryConfig
+from furet.settings.configs import RepositoryConfig
 from furet.repository import csvdb
 from furet.models.raa import Department
 from furet.models.decree import DocumentType, Decree

@@ -1,7 +1,7 @@
 import logging
 import shutil
 from typing import Any, Callable
-from furet.configs import ProcessingConfig
+from furet.settings.configs import ProcessingConfig
 from furet.processing import utils
 from furet.processing.getKeyWords import getKeyWords
 from furet.processing.correspondenceNameNumberDepartment import departementsLabelToCode

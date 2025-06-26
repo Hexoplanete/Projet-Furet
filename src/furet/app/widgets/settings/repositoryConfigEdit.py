@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets
 from furet.app.widgets.singlePathEdit import SinglePathEdit
 from furet.app.widgets.formWidget import FormWidget
-from furet.configs import RepositoryConfig
+from furet.settings.configs import RepositoryConfig
 
 
 class RepositoryConfigEdit(FormWidget[RepositoryConfig]):

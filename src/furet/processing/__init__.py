@@ -2,7 +2,7 @@ import logging
 import os
 import shutil
 from furet import repository, settings
-from furet.configs import ProcessingConfig
+from furet.settings.configs import ProcessingConfig
 from furet.processing import utils
 
 logger = logging.getLogger("processing")

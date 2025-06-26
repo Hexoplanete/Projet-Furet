@@ -4,7 +4,6 @@ from threading import Thread
 from typing import Callable
 from PySide6 import QtCore, QtWidgets
 
-from furet import updater
 from furet.app.widgets.launcher.updaterWidget import UpdaterWidget
 from furet.app.windows import windowManager
 
@@ -71,7 +70,7 @@ class LauncherWindow(QtWidgets.QMainWindow):
         self._label.setText(name)
         if widget:
             self._stepWidget = widget()
-            self._layout.addWidget(self._stepWidget)
+            self._layout.addWidget(self._stepWidget, stretch=1)
 
         if self._currentStep == len(self._steps)-1:
             logger.debug(f"{self._currentStep+1}/{len(self._steps)}: Running step {name}...")
@@ -89,30 +88,8 @@ class LauncherWindow(QtWidgets.QMainWindow):
         self._thread.start()
 
     def updateModule(self):
-        currentVersion = updater.currentVersion()
-        if currentVersion == None:
-            logger.info(f"Not on any tag")
-            return
-
-        logger.info(f"Currently on {currentVersion}")
-        logger.debug(f"Checking for updates...")
-        latestVersion = updater.latestVersion()
-        if currentVersion == latestVersion:
-            logger.info("Already on latest version")
-            return
-        logger.info(f"A new version ({latestVersion}) is available")
-
         widget: UpdaterWidget = self._stepWidget # type: ignore
-        doUpgrade = widget.getUpgradeChoice(latestVersion)
-
-        if not doUpgrade:
-            logger.info(f"Not upgrading")
-            return
-        
-        logger.info(f"Upgrading to {latestVersion}...")
-        updater.updateToVersion(latestVersion)
-        logger.info(f"Now on {updater.currentVersion()}")
-        widget.requestRestart()
+        widget.updateModule()
 
     def setupRepository(self):
         from furet import repository

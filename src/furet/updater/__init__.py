@@ -20,9 +20,9 @@ def latestVersion():
     return gitVersion.stdout.strip()
 
 def updateToVersion(version: str):
-    _ = runCommand("git", "checkout", f"tags/{version}")
+    _ = runCommand("git", "checkout", f"tags/{version}", capture_output=False)
 
 
-def runCommand(*args, shell=False):
+def runCommand(*args, shell=False, capture_output=True):
     logger.debug(f"\"{' '.join(args)}\"")
-    return subprocess.run(args, shell=shell, capture_output=True, text=True)
+    return subprocess.run(args, shell=shell, capture_output=capture_output, text=True)

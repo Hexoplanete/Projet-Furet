@@ -4,17 +4,18 @@ import subprocess
 
 logger = logging.getLogger("updater")
 
-def isInVersionMode():
+def currentVersion():
     gitTag = runCommand("git", "describe", "--tags", "--exact-match")
-    if gitTag.returncode != 0 or not gitTag.stdout.strip():
-        return False
+    tag = gitTag.stdout.strip()
+    if gitTag.returncode != 0 or not tag:
+        return None
     gitBranch = runCommand("git", "branch", "--show-current")
     if gitBranch.stdout.strip():
-        return False
-    return True
+        return None
+    return tag
 
 def latestVersion():
-    _ = runCommand("git fetch --tags")
+    _ = runCommand("git", "fetch", "--tags")
     gitVersion = runCommand("git tag --sort=-creatordate | head -n 1", shell=True)
     return gitVersion.stdout.strip()
 

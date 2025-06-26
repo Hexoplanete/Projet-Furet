@@ -4,6 +4,8 @@ from threading import Thread
 from typing import Callable
 from PySide6 import QtCore, QtWidgets
 
+from furet import updater
+from furet.app.widgets.launcher.updaterWidget import UpdaterWidget
 from furet.app.windows import windowManager
 
 logger = logging.getLogger("launcher")
@@ -20,16 +22,17 @@ class LauncherWindow(QtWidgets.QMainWindow):
         self._layout.addWidget(self._label)
         self._progress = QtWidgets.QProgressBar(minimum=0, maximum=6)
         self._layout.addWidget(self._progress)
+        self._stepWidget: QtWidgets.QWidget | None = None
         
-        # UPDATE_STEP = ("Recherche de mises à jour...", self.updateModule)
-        REPOSITORY_STEP = ("Initialisation de la base...", self.setupRepository)
-        MIGRATION_STEP = ("Migration des données...", self.applyMigrations)
-        PROCESSING_STEP = ("Initialisation du traitement...", self.setupProcessing)
-        CRAWLER_STEP = ("Initialisation du crawler...", self.setupCrawler)
-        LAUNCH_STEP = ("Lancement de l'application...", self.launchApp)
-        QUIT_STEP = ("Fini...", lambda: None)
+        UPDATE_STEP = ("Recherche de mises à jour...", self.updateModule, UpdaterWidget)
+        REPOSITORY_STEP = ("Initialisation de la base...", self.setupRepository, None)
+        MIGRATION_STEP = ("Migration des données...", self.applyMigrations, None)
+        PROCESSING_STEP = ("Initialisation du traitement...", self.setupProcessing, None)
+        CRAWLER_STEP = ("Initialisation du crawler...", self.setupCrawler, None)
+        LAUNCH_STEP = ("Lancement de l'application...", self.launchApp, None)
+        QUIT_STEP = ("Fini...", lambda: None, None)
 
-        self._steps: list[tuple[str,  Callable[[], None]]]
+        self._steps: list[tuple[str,  Callable[[], None], type[QtWidgets.QWidget] | None]]
         if args.migrate:
             self._steps = [
                 REPOSITORY_STEP,
@@ -39,7 +42,7 @@ class LauncherWindow(QtWidgets.QMainWindow):
             logger.info("Configured to apply migrations")
         else:
             self._steps = [
-                # UPDATE_STEP
+                UPDATE_STEP,
                 REPOSITORY_STEP,
                 MIGRATION_STEP,
                 PROCESSING_STEP,
@@ -56,11 +59,19 @@ class LauncherWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot()
     def _doStep(self):
+        if self._stepWidget:
+            self._layout.removeWidget(self._stepWidget)
+            self._stepWidget.hide()
+            self._stepWidget = None
+
         self._currentStep = self._currentStep+1
-        name, step = self._steps[self._currentStep]
+        name, step, widget = self._steps[self._currentStep]
         logger.info(f"{self._currentStep+1}/{len(self._steps)}: {name}")
         self._progress.setValue(self._currentStep)
         self._label.setText(name)
+        if widget:
+            self._stepWidget = widget()
+            self._layout.addWidget(self._stepWidget)
 
         if self._currentStep == len(self._steps)-1:
             logger.debug(f"{self._currentStep+1}/{len(self._steps)}: Running step {name}...")
@@ -77,8 +88,26 @@ class LauncherWindow(QtWidgets.QMainWindow):
         self._thread = Thread(target=launchStep)
         self._thread.start()
 
-    # def updateModule(self):
-    #     pass
+    def updateModule(self):
+        currentVersion = updater.currentVersion()
+        logger.info(f"Currently on {currentVersion}")
+        logger.debug(f"Checking for updates...")
+        latestVersion = updater.latestVersion()
+        if currentVersion == latestVersion:
+            logger.info("Already on latest version")
+            return
+        logger.info(f"A new version ({latestVersion}) is available")
+
+        widget: UpdaterWidget = self._stepWidget # type: ignore
+        doUpgrade = widget.getUpgradeChoice(latestVersion)
+
+        if not doUpgrade:
+            logger.info(f"Not upgrading")
+            return
+        
+        logger.info(f"Upgrading to {latestVersion}...")
+        updater.updateToVersion(latestVersion)
+        logger.info(f"Now on {updater.currentVersion()}")
 
     def setupRepository(self):
         from furet import repository

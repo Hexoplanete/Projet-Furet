@@ -112,6 +112,7 @@ class LauncherWindow(QtWidgets.QMainWindow):
         logger.info(f"Upgrading to {latestVersion}...")
         updater.updateToVersion(latestVersion)
         logger.info(f"Now on {updater.currentVersion()}")
+        widget.requestRestart()
 
     def setupRepository(self):
         from furet import repository

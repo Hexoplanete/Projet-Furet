@@ -53,7 +53,7 @@ if [ $? -ne 0 ]; then
     echo "Exiting"
     exit 1
 fi
-gitVersion=`echo "$gitVersion" | sed -nr "s/^git version ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p"`
+gitVersion=`echo "$gitVersion" | sed -nr "s/^git version ([0-9]+\.[0-9]+\.[0-9]+)/\1/p"`
 if [ -z "$gitVersion" ]; then
     echo "$git is not a git binary"
     echo "Exiting"
@@ -168,8 +168,8 @@ Keywords=furet;" > $entryPath
         powershell "\$ShortcutFile = \"$entryPath\"
 \$WScriptShell = New-Object -ComObject WScript.Shell
 \$Shortcut = \$WScriptShell.CreateShortcut(\$ShortcutFile)
-\$Shortcut.TargetPath = \"cmd\"
-\$Shortcut.Arguments = \"/c \"\"$(cygpath -w "$path/bin/furet.bat")\"\"\"
+\$Shortcut.TargetPath = \"powershell\"
+\$Shortcut.Arguments = \"-ExecutionPolicy Bypass \"\"$(cygpath -w "$path/bin/furet.ps1")\"\"\"
 \$shortcut.IconLocation = \"$(cygpath -w "$path/assets/furet-logo.ico")\"
 \$Shortcut.Save()"
     fi
@@ -182,8 +182,9 @@ fi
 echo ""
 echo "Installation complete!"
 
-if [ "$os" = "GNU/Linux" ]; then binPath="$path/bin/furet"
-else binPath=$(cygpath -w "$path/bin/furet.bat")
+if [ "$os" = "GNU/Linux" ]; then command="$path/bin/furet"
+else command="powershell -ExecutionPolicy Bypass \"$(cygpath -w "$path/bin/furet.ps1")\""
 fi
-echo "You can now launch Furet with the following command: \"$binPath\""
+
+echo "You can now launch Furet with the following command: \"$command\""
 if [ "$addEntry" -eq 0 ]; then echo "or from your application launcher directly under the name \"Furet\""; fi

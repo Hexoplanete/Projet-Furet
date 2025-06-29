@@ -143,8 +143,8 @@ if [ $? -ne 0 ]; then
 fi
 
 cd "$path"
-echo "Setting up environment (\"./scripts/setup.bash\")..."
-bash ./scripts/setup.bash $python
+echo "Setting up environment (\"./scripts/setup.sh\")..."
+sh ./scripts/setup.sh $python
 if [ $? -ne 0 ]; then
     echo "Failed to setup environment"
     echo "Exiting"

@@ -87,4 +87,4 @@ class ElidedPath(ElidedUri):
         return self._path
 
     def toUri(self, path: str) -> str:
-        return f"file:/{path.removeprefix("/")}"
+        return f"file:/{path.removeprefix('/')}"

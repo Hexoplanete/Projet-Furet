@@ -19,7 +19,7 @@ class AboutWindow(QtWidgets.QDialog):
         self._icon = IconWidget(icon)
         
         self._titleLayout.addWidget(self._icon, 0,1, -1, 1)
-        self._title = QtWidgets.QLabel(f"<h3>FURET - {version("furet")}</h3>")
+        self._title = QtWidgets.QLabel(f"<h3>FURET - {version('furet')}</h3>")
         self._titleLayout.addWidget(self._title, 0,2)
         self._description = QtWidgets.QLabel(metadata("furet").get("summary"))
         self._description.setWordWrap(True)

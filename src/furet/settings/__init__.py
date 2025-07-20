@@ -38,7 +38,7 @@ def value(key: str) -> Any:
 
 
 def parseConfigKey(config: str, field: str) -> str:
-    return re.sub(r'([a-z])([A-Z])', r'\1-\2', f"{config.removesuffix("Config")}/{field}").lower()
+    return re.sub(r'([a-z])([A-Z])', r'\1-\2', f"{config.removesuffix('Config')}/{field}").lower()
 
 
 T = TypeVar("T")

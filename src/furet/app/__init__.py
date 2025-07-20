@@ -6,7 +6,7 @@ from PySide6 import QtGui, QtWidgets
 import locale
 
 from furet import settings
-from furet.configs import AppConfig
+from furet.settings.configs import AppConfig
 from furet.app.windows import windowManager
 from furet.app.windows.launcherWindow import LauncherWindow
 

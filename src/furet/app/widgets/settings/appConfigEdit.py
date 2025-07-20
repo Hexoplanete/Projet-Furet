@@ -1,6 +1,6 @@
 from PySide6 import QtWidgets
 from furet.app.widgets.formWidget import FormWidget
-from furet.configs import AppConfig
+from furet.settings.configs import AppConfig
 
 
 class AppConfigEdit(FormWidget[AppConfig]):

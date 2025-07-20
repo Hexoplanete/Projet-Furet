@@ -5,7 +5,7 @@ from furet.app.widgets.sectionHeaderWidget import SectionHeaderWidget
 from furet.app.widgets.settings.appConfigEdit import AppConfigEdit
 from furet.app.widgets.settings.processingConfigEdit import ProcessingConfigEdit
 from furet.app.widgets.settings.repositoryConfigEdit import RepositoryConfigEdit
-from furet.configs import AppConfig, ProcessingConfig, RepositoryConfig
+from furet.settings.configs import AppConfig, ProcessingConfig, RepositoryConfig
 
 
 class SettingsWindow(QtWidgets.QDialog):

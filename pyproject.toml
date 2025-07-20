@@ -1,6 +1,6 @@
 [project]
 name = "Furet"
-version = "0.99.0"
+version = "0.99.1"
 description = "Fouille Universelle de Recueils pour Entreposage et Traitement"
 readme = "README.md"
 authors = [

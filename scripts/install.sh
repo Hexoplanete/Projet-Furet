@@ -30,6 +30,12 @@ if [ "$os" = "GNU/Linux" ]; then
     python="python3"
     path="$HOME/.local/opt/furet"
     entryPath="$HOME/.local/share/applications/furet.desktop"
+elif [ "$os" = "Darwin" ]; then
+    echo "Running under MacOS ($os)"
+    git="git"
+    python="python3"
+    path="$HOME/.local/opt/furet"
+    entryPath="" # Not supported on MacOS
 else
     echo "Running under Windows ($os)"
     git="git"
@@ -94,14 +100,16 @@ fi
 echo "Using install directory \"$path\""
 
 # Desktop entry
-addEntry=`readyn "Add a desktop entry"`
-if [ "$addEntry" -eq 0 -a -e "$entryPath" ]; then
-    echo "\"$entryPath\" already exists. Remove it first to install furet on do not add a desktop entry"
-    echo "Exiting"
-    exit 1
+if [ -n "$entryPath" ]; then
+    addEntry=`readyn "Add a desktop entry"`
+    if [ "$addEntry" -eq 0 -a -e "$entryPath" ]; then
+        echo "\"$entryPath\" already exists. Remove it first to install furet on do not add a desktop entry"
+        echo "Exiting"
+        exit 1
+    fi
+else 
+    addEntry="1"
 fi
-
-
 ################################################################################
 # ---------------------------- VALIDATING CONFIG ----------------------------- #
 ################################################################################
@@ -164,6 +172,7 @@ Type=Application
 StartupNotify=false
 Categories=Office;
 Keywords=furet;" > $entryPath
+    elif [ "$os" = "Darwin" ]; then
     else
         powershell "\$ShortcutFile = \"$entryPath\"
 \$WScriptShell = New-Object -ComObject WScript.Shell
@@ -183,6 +192,7 @@ echo ""
 echo "Installation complete!"
 
 if [ "$os" = "GNU/Linux" ]; then command="$path/bin/furet"
+elif [ "$os" = "Darwin" ]; then command="$path/bin/furet"
 else command="powershell -ExecutionPolicy Bypass \"$(cygpath -w "$path/bin/furet.ps1")\""
 fi
 

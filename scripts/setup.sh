@@ -5,6 +5,7 @@ os=`uname -o`
 if [ -n "$1" ]; then python="$1"
 else
     if [ "$os" = "GNU/Linux" ]; then python="python3"
+    elif [ "$os" = "Darwin" ]; then python="python3"
     else python="python"
     fi
 fi
@@ -22,6 +23,7 @@ fi
 
 echo "Activating virtual environment..."
 if [ "$os" = "GNU/Linux" ]; then . ./.venv/bin/activate
+elif [ "$os" = "Darwins" ]; then . ./.venv/bin/activate
 else . ./.venv/Scripts/activate
 fi
 if [ $? -ne 0 ]; then

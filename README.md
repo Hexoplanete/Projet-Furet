@@ -7,7 +7,7 @@ Chaque préfecture de département publie sur son site des Recueils d'Actes Admi
 
 # Documentation
 
-Pour savoir comment installer ou utiliser FURET, rendez-vous sur le [wkik](https://github.com/Hexoplanete/Projet-Furet/wiki).
+Pour savoir comment installer ou utiliser FURET, rendez-vous sur le [wiki](https://github.com/Hexoplanete/Projet-Furet/wiki).
 
 
 ## Contexte

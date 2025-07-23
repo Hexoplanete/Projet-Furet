@@ -173,6 +173,7 @@ StartupNotify=false
 Categories=Office;
 Keywords=furet;" > $entryPath
     elif [ "$os" = "Darwin" ]; then
+        echo "Deskop entries are not supported on MacOS"
     else
         powershell "\$ShortcutFile = \"$entryPath\"
 \$WScriptShell = New-Object -ComObject WScript.Shell
